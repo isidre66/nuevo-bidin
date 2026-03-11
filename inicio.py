@@ -224,4 +224,4 @@ if st.session_state.get('save_reg_user'):
     if st.button("🚀 EMPEZAR DIAGNÓSTICO DE INNOVACIÓN", use_container_width=True, type="primary"):
         st.switch_page("pages/1_💻_Panel_Control.py")
 else:
-    st.info("👆 Completa y guarda tu perfil arriba para activar el botón de diagnóstico.")
+    st.info("👆 Completa y guarda tu perfil arriba para activar el botón de diagnóstico.") 

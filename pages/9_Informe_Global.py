@@ -11,11 +11,13 @@ st.set_page_config(page_title="Informe Global de Referencia", layout="wide")
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
-body, p, div, span, td, th, li { color: #e2e8f0 !important; }
 .report-header {
     background:linear-gradient(135deg,#0a0e1a,#1a1a2e);
     border:1px solid #2d1b69; border-radius:14px;
     padding:28px 32px; margin-bottom:24px;
+}
+.report-header h1, .report-header p, .report-header div, .report-header span {
+    color:#e2e8f0 !important;
 }
 .section-title {
     font-family:'Rajdhani',sans-serif; font-size:1.25rem; font-weight:700;
@@ -27,29 +29,29 @@ body, p, div, span, td, th, li { color: #e2e8f0 !important; }
 .insight-box {
     background:#1a1400; border-left:4px solid #f59e0b;
     border-radius:0 10px 10px 0; padding:16px 20px; margin-bottom:12px;
-    color:#e2e8f0 !important; line-height:1.8; font-size:.93rem;
+    color:#1e293b; line-height:1.8; font-size:.93rem;
 }
 .insight-box-blue {
-    background:#0a1020; border-left:4px solid #00d4ff;
+    background:#eff6ff; border-left:4px solid #2563eb;
     border-radius:0 10px 10px 0; padding:16px 20px; margin-bottom:12px;
-    color:#e2e8f0 !important; line-height:1.8; font-size:.93rem;
+    color:#1e293b; line-height:1.8; font-size:.93rem;
 }
 .kpi-box {
-    background:#0d1b2a; border:1px solid #2d3a5f;
+    background:#f1f5f9; border:1px solid #cbd5e1;
     border-radius:10px; padding:14px; text-align:center;
 }
 .ge-card {
     border-radius:12px; padding:18px 20px; margin-bottom:10px;
-    color:#e2e8f0 !important; line-height:1.7;
+    color:#1e293b; line-height:1.7;
 }
 .sig-row {
-    background:#0d1b2a; border:1px solid #1e3a5f;
+    background:#f8fafc; border:1px solid #e2e8f0;
     border-radius:8px; padding:12px 16px; margin-bottom:8px;
-    font-size:.9rem; line-height:1.6;
+    font-size:.9rem; line-height:1.6; color:#1e293b;
 }
 .hallazgo {
     border-radius:0 10px 10px 0; padding:18px 22px; margin-bottom:14px;
-    color:#e2e8f0 !important; line-height:1.8; font-size:.93rem;
+    color:#1e293b; line-height:1.8; font-size:.93rem;
 }
 </style>
 """, unsafe_allow_html=True)

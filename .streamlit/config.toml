@@ -1,4 +1,4 @@
-toml[theme]
+[theme]
 base="light"
 primaryColor="#00d4ff"
 backgroundColor="#ffffff"

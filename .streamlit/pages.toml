@@ -1,0 +1,79 @@
+[[pages]]
+path = "inicio.py"
+name = "Inicio"
+icon = "🏠"
+
+[[pages]]
+path = "pages/00_Acceso.py"
+name = "Acceso"
+icon = "🔑"
+
+[[pages]]
+path = "pages/00_Registro_Empresa.py"
+name = "Registro Empresa"
+icon = "🏢"
+
+[[pages]]
+path = "pages/00_Mi_Empresa.py"
+name = "Mi Empresa"
+icon = "⚙️"
+
+[[pages]]
+path = "pages/10_Bloque_1_IDi.py"
+name = "Bloque 1 · I+D+i"
+icon = "🧪"
+
+[[pages]]
+path = "pages/11_Bloque_2_Gestion_Proyectos.py"
+name = "Bloque 2 · Gestión Proyectos"
+icon = "📁"
+
+[[pages]]
+path = "pages/12_Bloque_3_Desarrollo_Productos.py"
+name = "Bloque 3 · Desarrollo Productos"
+icon = "🚀"
+
+[[pages]]
+path = "pages/13_Bloque_4_Estrategia_Innovacion.py"
+name = "Bloque 4 · Estrategia Innovación"
+icon = "🧭"
+
+[[pages]]
+path = "pages/14_Bloque_5_Desempeno_Innovacion.py"
+name = "Bloque 5 · Desempeño Innovación"
+icon = "📈"
+
+[[pages]]
+path = "pages/20_Indices_Estrategicos.py"
+name = "Índices Estratégicos"
+icon = "📊"
+
+[[pages]]
+path = "pages/21_Informe_Estrategico.py"
+name = "Informe Estratégico"
+icon = "📋"
+
+[[pages]]
+path = "pages/22_Informe_Innovacion.py"
+name = "Informe Innovación"
+icon = "📋"
+
+[[pages]]
+path = "pages/23_Informe_Global.py"
+name = "Informe Global"
+icon = "📋"
+
+[[pages]]
+path = "pages/24_Analytics.py"
+name = "Analytics"
+icon = "📈"
+
+[[pages]]
+path = "pages/25_Benchmarking.py"
+name = "Benchmarking"
+icon = "🏆"
+
+[[pages]]
+path = "pages/26_Plan_Accion.py"
+name = "Plan & Ruta"
+icon = "🗺️"

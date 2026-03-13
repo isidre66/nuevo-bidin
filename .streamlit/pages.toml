@@ -20,6 +20,11 @@ icon = "⚙️"
 
 [[pages]]
 path = "pages/10_Bloque_1_IDi.py"
+name = "— DIAGNÓSTICO DE INNOVACIÓN"
+icon = "🔬"
+
+[[pages]]
+path = "pages/10_Bloque_1_IDi.py"
 name = "Bloque 1 · I+D+i"
 icon = "🧪"
 
@@ -42,6 +47,11 @@ icon = "🧭"
 path = "pages/14_Bloque_5_Desempeno_Innovacion.py"
 name = "Bloque 5 · Desempeño Innovación"
 icon = "📈"
+
+[[pages]]
+path = "pages/20_Indices_Estrategicos.py"
+name = "— RESULTADOS"
+icon = "📊"
 
 [[pages]]
 path = "pages/20_Indices_Estrategicos.py"
@@ -77,3 +87,4 @@ icon = "🏆"
 path = "pages/26_Plan_Accion.py"
 name = "Plan & Ruta"
 icon = "🗺️"
+```

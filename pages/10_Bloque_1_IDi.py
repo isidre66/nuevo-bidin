@@ -1,10 +1,21 @@
 import streamlit as st
-import json
-import os
+import json, os
 
 st.set_page_config(page_title="Bloque 1: I+D+i", layout="wide")
 
-# ── Archivo de perfil local ───────────────────────────────────────────────────
+# ── Conexión Supabase ─────────────────────────────────────────────────────────
+def get_supabase():
+    try:
+        from supabase import create_client
+        url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL",""))
+        key = st.secrets.get("SUPABASE_KEY", os.environ.get("SUPABASE_KEY",""))
+        if url and key:
+            return create_client(url, key)
+    except Exception:
+        pass
+    return None
+
+# ── Archivo de perfil local (fallback) ───────────────────────────────────────
 PERFIL_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'perfil_empresa.json')
 
 def cargar_perfil():
@@ -19,25 +30,85 @@ def guardar_en_perfil(datos):
     with open(PERFIL_FILE, 'w', encoding='utf-8') as f:
         json.dump(perfil, f, ensure_ascii=False, indent=2)
 
-# ── Cargar datos guardados ────────────────────────────────────────────────────
+# ── Cargar respuestas previas de Supabase ─────────────────────────────────────
+def cargar_respuestas_supabase():
+    sb = get_supabase()
+    empresa_codigo = st.session_state.get('empresa_codigo')
+    usuario_email  = st.session_state.get('usuario_email')
+    if not sb or not empresa_codigo or not usuario_email:
+        return {}
+    try:
+        res = sb.table('respuestas').select('item,valor')\
+            .eq('empresa_codigo', empresa_codigo)\
+            .eq('usuario_email', usuario_email)\
+            .eq('bloque', 1).execute()
+        return {r['item']: r['valor'] for r in res.data} if res.data else {}
+    except Exception:
+        return {}
+
+# ── Guardar respuestas en Supabase ────────────────────────────────────────────
+def guardar_en_supabase(respuestas_dict):
+    sb = get_supabase()
+    empresa_codigo = st.session_state.get('empresa_codigo')
+    usuario_email  = st.session_state.get('usuario_email')
+    if not sb or not empresa_codigo or not usuario_email:
+        return False
+    try:
+        for item, valor in respuestas_dict.items():
+            sb.table('respuestas').upsert({
+                'empresa_codigo': empresa_codigo,
+                'usuario_email':  usuario_email,
+                'bloque':         1,
+                'item':           item,
+                'valor':          float(valor)
+            }, on_conflict='empresa_codigo,usuario_email,bloque,item').execute()
+        return True
+    except Exception:
+        return False
+
+# ── Cargar sesión ─────────────────────────────────────────────────────────────
 perfil = cargar_perfil()
 for k, v in perfil.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-# ── Leer valores guardados para los sliders ───────────────────────────────────
-v111 = perfil.get('it_111', 1)
-v112 = perfil.get('it_112', 1)
-v121 = perfil.get('it_121', 1)
-v122 = perfil.get('it_122', 1)
-v123 = perfil.get('it_123', 1)
-v131 = perfil.get('it_131', 1)
-v132 = perfil.get('it_132', 1)
+# ── Mostrar estado de sesión ──────────────────────────────────────────────────
+empresa_codigo = st.session_state.get('empresa_codigo')
+usuario_email  = st.session_state.get('usuario_email')
 
+if empresa_codigo and usuario_email:
+    st.markdown(f"""<div style="background:#f0fdf4;border:1px solid #10b981;border-radius:8px;
+        padding:8px 16px;margin-bottom:12px;font-size:.84rem;color:#065f46;">
+        ✅ Sesión activa · <strong>{usuario_email}</strong> · Empresa <strong>{empresa_codigo}</strong>
+    </div>""", unsafe_allow_html=True)
+    # Cargar respuestas previas de Supabase para esta empresa/usuario
+    resp_prev = cargar_respuestas_supabase()
+else:
+    st.warning("⚠️ Para guardar tus respuestas en la plataforma, accede desde la página **Acceso** con tu email y código de empresa.")
+    resp_prev = {}
+
+# ── Valores por defecto ───────────────────────────────────────────────────────
+def val(key, default=1):
+    # Prioridad: Supabase > perfil local > default
+    if key in resp_prev:
+        return int(resp_prev[key])
+    return int(perfil.get(key, default))
+
+v111 = val('it_111')
+v112 = val('it_112')
+v121 = val('it_121')
+v122 = val('it_122')
+v123 = val('it_123')
+v131 = val('it_131')
+v132 = val('it_132')
+
+# ── Formulario ────────────────────────────────────────────────────────────────
 st.title("BLOQUE 1: ACTIVIDADES DE I+D+i")
 
-if st.session_state.get('b1_finalizado'):
+if st.session_state.get('b1_finalizado') and not resp_prev:
     st.success("✅ Este bloque ya está completado. Puedes modificar tus respuestas y volver a guardar.")
+elif resp_prev:
+    st.success("✅ Tienes respuestas guardadas para este bloque. Puedes modificarlas y volver a guardar.")
 
 # Subindicador 1.1
 st.subheader("1.1 Departamento I+D")
@@ -76,6 +147,7 @@ if st.button("💾 GUARDAR BLOQUE 1", use_container_width=True, type="primary"):
     st.session_state['score_b1']      = score_b1
     st.session_state['b1_finalizado'] = True
 
+    # Guardar en perfil local (siempre)
     guardar_en_perfil({
         'score_sub1_1': s1, 'score_sub1_2': s2,
         'score_sub1_3': s3, 'score_b1': score_b1,
@@ -85,5 +157,18 @@ if st.button("💾 GUARDAR BLOQUE 1", use_container_width=True, type="primary"):
         'it_131': r131, 'it_132': r132,
     })
 
-    st.success(f"✅ Bloque 1 guardado. Índice I+D+i: **{score_b1:.2f}/5**")
+    # Guardar en Supabase (si hay sesión activa)
+    if empresa_codigo and usuario_email:
+        ok = guardar_en_supabase({
+            'it_111': r111, 'it_112': r112,
+            'it_121': r121, 'it_122': r122, 'it_123': r123,
+            'it_131': r131, 'it_132': r132,
+        })
+        if ok:
+            st.success(f"✅ Bloque 1 guardado en la plataforma. Índice I+D+i: **{score_b1:.2f}/5**")
+        else:
+            st.warning(f"⚠️ Bloque 1 guardado localmente. Índice I+D+i: **{score_b1:.2f}/5** (sin conexión a la plataforma)")
+    else:
+        st.success(f"✅ Bloque 1 guardado. Índice I+D+i: **{score_b1:.2f}/5**")
+
     st.info("Ahora puedes ir al Dashboard de Innovación para ver tu posición comparativa.")

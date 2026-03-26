@@ -57,7 +57,61 @@ st.markdown("""
 # ── Cargar perfil ─────────────────────────────────────────────────────────────
 PERFIL_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'perfil_empresa.json')
 
-def cargar_perfil():
+def cargar_perfil():# ── Cargar datos de empresa desde Supabase si no están en session_state ──────
+def cargar_datos_empresa_supabase():
+    try:
+        from supabase import create_client
+        url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL",""))
+        key = st.secrets.get("SUPABASE_KEY", os.environ.get("SUPABASE_KEY",""))
+        if not url or not key: return
+        sb = create_client(url, key)
+        ec = st.session_state.get('empresa_codigo')
+        if not ec: return
+        emp = sb.table('empresas').select('*').eq('codigo', ec).execute()
+        if not emp.data: return
+        e = emp.data[0]
+        SECTOR_MAP = {"Alimentación y bebidas":1,"Textil y confección":2,"Cuero y calzado":3,
+            "Química y plásticos":4,"Minerales no metálicos":5,"Metalmecanico":6,
+            "Maquinaria equipo":7,"Otras manufacturas":8,"Electrónica, telecomunicaciones":9,
+            "Informática, software. Robótica, IA":10,"Actividades I+D: biotech, farmacia":11,
+            "Transporte y logística":12,"Consultoría y servicios profesionales":13,
+            "Turismo y hosteleria":14,"Retail y comercio":15,"Otros servicios":16}
+        MACRO_MAP = {1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:2,10:2,11:2,12:3,13:3,14:3,15:3,16:3}
+        TAMANIOS_INV = {"Pequeña":1,"Mediana":2,"Grande":3}
+        REGIONES_INV = {"Andalucia":1,"Aragon":2,"Asturias":3,"Baleares":4,"Canarias":5,
+            "Cantabria":6,"Castilla la Mancha":7,"Castilla y León":8,"Cataluña":9,
+            "Com Valenciana":10,"Extremadura":11,"Galicia":12,"Madrid":13,
+            "Murcia":14,"Navarra":15,"Pais Vasco":16}
+        EXPORT_INV = {"Menos 10 %":1,"10 - 30 %":2,"30 - 60 %":3,"> 60 %":4}
+        ANTI_INV = {"Menos 10 años":1,"10-30 años":2,"> 30 años":3}
+        sector_cod = SECTOR_MAP.get(e.get('sector',''), 0)
+        macro_cod  = MACRO_MAP.get(sector_cod, 3)
+        st.session_state.update({
+            'save_sector_nombre': e.get('sector',''),
+            'save_tam_nombre':    e.get('tamano',''),
+            'save_reg_nombre':    e.get('region',''),
+            'save_export_nombre': e.get('exportacion',''),
+            'save_anti_nombre':   e.get('antiguedad',''),
+            'save_ventas':        e.get('ventas', 0),
+            'save_empleados':     e.get('empleados', 0),
+            'save_roa':           e.get('roa', 0),
+            'save_var_vtas':      e.get('var_ventas', 0),
+            'save_var_empl':      e.get('var_empleados', 0),
+            'save_productiv':     e.get('productividad', 0),
+            'save_coste_emp':     e.get('coste_empleado', 0),
+            'save_endeud':        e.get('endeudamiento', 0),
+            'save_reg_user':      REGIONES_INV.get(e.get('region',''), 0),
+            'save_tam_user':      TAMANIOS_INV.get(e.get('tamano',''), 0),
+            'save_sector_cod':    sector_cod,
+            'save_macro_cod':     macro_cod,
+            'save_export_cod':    EXPORT_INV.get(e.get('exportacion',''), 0),
+            'save_anti_cod':      ANTI_INV.get(e.get('antiguedad',''), 0),
+        })
+    except Exception:
+        pass
+
+if not st.session_state.get('save_reg_user'):
+    cargar_datos_empresa_supabase()
     if os.path.exists(PERFIL_FILE):
         with open(PERFIL_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)

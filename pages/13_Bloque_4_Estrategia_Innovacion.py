@@ -57,7 +57,10 @@ else:
     st.warning("⚠️ Para guardar tus respuestas en la plataforma, accede desde la página **Acceso**.")
     resp_prev = {}
 
-def val(key, default=1): return resp_prev.get(key, int(perfil.get(key, default)))
+def val(key, default=1):
+    if resp_prev: return resp_prev.get(key, default)
+    if ec and ue: return default
+    return int(perfil.get(key, default))
 
 def ficha_estrategia(codigo, titulo, explicacion, mapa_opciones, clave, val_guardado, inversa=False):
     bg = "#fff1f2" if inversa else "#fff7ed"

@@ -89,9 +89,8 @@ else:
 
 # ── Valores por defecto ───────────────────────────────────────────────────────
 def val(key, default=1):
-    # Prioridad: Supabase > perfil local > default
-    if key in resp_prev:
-        return int(resp_prev[key])
+    if resp_prev: return int(resp_prev.get(key, default))
+    if ec and ue: return default  # empresa nueva sin respuestas
     return int(perfil.get(key, default))
 
 v111 = val('it_111')

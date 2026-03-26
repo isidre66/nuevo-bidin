@@ -57,61 +57,7 @@ st.markdown("""
 # ── Cargar perfil ─────────────────────────────────────────────────────────────
 PERFIL_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'perfil_empresa.json')
 
-def cargar_perfil():# ── Cargar datos de empresa desde Supabase si no están en session_state ──────
-def cargar_datos_empresa_supabase():
-    try:
-        from supabase import create_client
-        url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL",""))
-        key = st.secrets.get("SUPABASE_KEY", os.environ.get("SUPABASE_KEY",""))
-        if not url or not key: return
-        sb = create_client(url, key)
-        ec = st.session_state.get('empresa_codigo')
-        if not ec: return
-        emp = sb.table('empresas').select('*').eq('codigo', ec).execute()
-        if not emp.data: return
-        e = emp.data[0]
-        SECTOR_MAP = {"Alimentación y bebidas":1,"Textil y confección":2,"Cuero y calzado":3,
-            "Química y plásticos":4,"Minerales no metálicos":5,"Metalmecanico":6,
-            "Maquinaria equipo":7,"Otras manufacturas":8,"Electrónica, telecomunicaciones":9,
-            "Informática, software. Robótica, IA":10,"Actividades I+D: biotech, farmacia":11,
-            "Transporte y logística":12,"Consultoría y servicios profesionales":13,
-            "Turismo y hosteleria":14,"Retail y comercio":15,"Otros servicios":16}
-        MACRO_MAP = {1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:2,10:2,11:2,12:3,13:3,14:3,15:3,16:3}
-        TAMANIOS_INV = {"Pequeña":1,"Mediana":2,"Grande":3}
-        REGIONES_INV = {"Andalucia":1,"Aragon":2,"Asturias":3,"Baleares":4,"Canarias":5,
-            "Cantabria":6,"Castilla la Mancha":7,"Castilla y León":8,"Cataluña":9,
-            "Com Valenciana":10,"Extremadura":11,"Galicia":12,"Madrid":13,
-            "Murcia":14,"Navarra":15,"Pais Vasco":16}
-        EXPORT_INV = {"Menos 10 %":1,"10 - 30 %":2,"30 - 60 %":3,"> 60 %":4}
-        ANTI_INV = {"Menos 10 años":1,"10-30 años":2,"> 30 años":3}
-        sector_cod = SECTOR_MAP.get(e.get('sector',''), 0)
-        macro_cod  = MACRO_MAP.get(sector_cod, 3)
-        st.session_state.update({
-            'save_sector_nombre': e.get('sector',''),
-            'save_tam_nombre':    e.get('tamano',''),
-            'save_reg_nombre':    e.get('region',''),
-            'save_export_nombre': e.get('exportacion',''),
-            'save_anti_nombre':   e.get('antiguedad',''),
-            'save_ventas':        e.get('ventas', 0),
-            'save_empleados':     e.get('empleados', 0),
-            'save_roa':           e.get('roa', 0),
-            'save_var_vtas':      e.get('var_ventas', 0),
-            'save_var_empl':      e.get('var_empleados', 0),
-            'save_productiv':     e.get('productividad', 0),
-            'save_coste_emp':     e.get('coste_empleado', 0),
-            'save_endeud':        e.get('endeudamiento', 0),
-            'save_reg_user':      REGIONES_INV.get(e.get('region',''), 0),
-            'save_tam_user':      TAMANIOS_INV.get(e.get('tamano',''), 0),
-            'save_sector_cod':    sector_cod,
-            'save_macro_cod':     macro_cod,
-            'save_export_cod':    EXPORT_INV.get(e.get('exportacion',''), 0),
-            'save_anti_cod':      ANTI_INV.get(e.get('antiguedad',''), 0),
-        })
-    except Exception:
-        pass
-
-if not st.session_state.get('save_reg_user'):
-    cargar_datos_empresa_supabase()
+def cargar_perfil():
     if os.path.exists(PERFIL_FILE):
         with open(PERFIL_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
@@ -122,8 +68,17 @@ for k, v in perfil.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
+# ── Cargar datos de empresa desde Supabase si no están en session_state ───────
+try:
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+    from cargar_empresa import cargar_datos_empresa
+    cargar_datos_empresa()
+except Exception:
+    pass
+
 if not st.session_state.get('save_reg_user'):
-    st.warning("⚠️ Primero completa tu perfil de empresa en la página de Inicio.")
+    st.warning("⚠️ Primero completa tu perfil de empresa en **Mi Empresa → Datos de la empresa**.")
     st.stop()
 
 # ── Cargar Excel ──────────────────────────────────────────────────────────────
@@ -149,69 +104,31 @@ SECTOR_MACRO = {1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:2,10:2,11:2,12:3,13:3,14:3,15:
 # FUNCIÓN: CALCULAR ÍNDICES SOBRE UN DATAFRAME
 # ═════════════════════════════════════════════════════════════════════════════
 def pct_rank(series, valor, invertido=False):
-    """Percentil de 'valor' dentro de 'series'. Si invertido, menor = mejor."""
     if invertido:
         return float(np.sum(series >= valor) / len(series) * 100)
     return float(np.sum(series <= valor) / len(series) * 100)
 
 def norm_col(series, valor, invertido=False):
-    """Normaliza valor a 0-100 según su percentil en la serie."""
     return pct_rank(series, valor, invertido)
 
 def calcular_indices(df_ref, mis_datos):
-    """
-    Calcula los 6 índices + SSG para 'mis_datos' respecto a df_ref.
-    mis_datos: dict con claves de columnas del Excel.
-    Devuelve dict con nombre->valor 0-100.
-    """
     def p(col, inv=False):
         if col not in df_ref.columns: return 50.0
         return norm_col(df_ref[col], mis_datos.get(col, df_ref[col].mean()), inv)
 
-    # ── ICE: Índice de Competitividad Empresarial ─────────────────────────────
-    ICE = (p('Prod_Venta_Emp')        * 0.30 +
-           p('Var_Ventas_5a')         * 0.25 +
-           p('Var_Emp_5a')            * 0.15 +
-           p('Ratio_Endeudamiento', True) * 0.15 +
-           p('Exportacion')           * 0.15)
+    ICE = (p('Prod_Venta_Emp')*0.30 + p('Var_Ventas_5a')*0.25 + p('Var_Emp_5a')*0.15 +
+           p('Ratio_Endeudamiento',True)*0.15 + p('Exportacion')*0.15)
+    ISF = (p('Ratio_Endeudamiento',True)*0.40 + p('ROA')*0.35 + p('Coste_Med_Emp',True)*0.25)
+    IEO = (p('Prod_Venta_Emp')*0.50 + p('Coste_Med_Emp',True)*0.30 + p('Var_Ventas_5a')*0.20)
+    IDC = (p('Var_Ventas_5a')*0.40 + p('Var_Emp_5a')*0.35 + p('ROA')*0.25)
+    IIE = (p('Exportacion')*0.60 + p('Var_Ventas_5a')*0.20 + p('Prod_Venta_Emp')*0.20)
+    IPT = (p('Prod_Venta_Emp')*0.40 + p('Coste_Med_Emp')*0.30 + p('Var_Emp_5a')*0.30)
+    SSG = (ICE*0.25 + ISF*0.20 + IEO*0.20 + IDC*0.15 + IIE*0.10 + IPT*0.10)
 
-    # ── ISF: Índice de Solidez Financiera ─────────────────────────────────────
-    ISF = (p('Ratio_Endeudamiento', True) * 0.40 +
-           p('ROA')                   * 0.35 +
-           p('Coste_Med_Emp', True)   * 0.25)
-
-    # ── IEO: Índice de Eficiencia Operativa ───────────────────────────────────
-    IEO = (p('Prod_Venta_Emp')        * 0.50 +
-           p('Coste_Med_Emp', True)   * 0.30 +
-           p('Var_Ventas_5a')         * 0.20)
-
-    # ── IDC: Índice de Dinamismo y Crecimiento ────────────────────────────────
-    IDC = (p('Var_Ventas_5a')         * 0.40 +
-           p('Var_Emp_5a')            * 0.35 +
-           p('ROA')                   * 0.25)
-
-    # ── IIE: Índice de Intensidad Exportadora ─────────────────────────────────
-    IIE = (p('Exportacion')           * 0.60 +
-           p('Var_Ventas_5a')         * 0.20 +
-           p('Prod_Venta_Emp')        * 0.20)
-
-    # ── IPT: Índice de Productividad y Talento ────────────────────────────────
-    IPT = (p('Prod_Venta_Emp')        * 0.40 +
-           p('Coste_Med_Emp')         * 0.30 +   # directo: coste alto = talento cualificado
-           p('Var_Emp_5a')            * 0.30)
-
-    # ── SSG: Score Estratégico Global ─────────────────────────────────────────
-    SSG = (ICE * 0.25 + ISF * 0.20 + IEO * 0.20 +
-           IDC * 0.15 + IIE * 0.10 + IPT * 0.10)
-
-    return {
-        'ICE': round(ICE, 1), 'ISF': round(ISF, 1), 'IEO': round(IEO, 1),
-        'IDC': round(IDC, 1), 'IIE': round(IIE, 1), 'IPT': round(IPT, 1),
-        'SSG': round(SSG, 1),
-    }
+    return {'ICE':round(ICE,1),'ISF':round(ISF,1),'IEO':round(IEO,1),
+            'IDC':round(IDC,1),'IIE':round(IIE,1),'IPT':round(IPT,1),'SSG':round(SSG,1)}
 
 def calcular_indices_df(df_ref, df_calc):
-    """Calcula índices para todas las filas de df_calc respecto a df_ref."""
     resultados = []
     for _, row in df_calc.iterrows():
         resultados.append(calcular_indices(df_ref, row.to_dict()))
@@ -219,20 +136,20 @@ def calcular_indices_df(df_ref, df_calc):
 
 # ── Datos de mi empresa ───────────────────────────────────────────────────────
 mis_datos = {
-    'Ventas':               st.session_state.get('save_ventas', 0),
-    'Empleados':            st.session_state.get('save_empleados', 0),
-    'ROA':                  st.session_state.get('save_roa', 0),
-    'Var_Ventas_5a':        st.session_state.get('save_var_vtas', 0),
-    'Var_Emp_5a':           st.session_state.get('save_var_empl', 0),
-    'Prod_Venta_Emp':       st.session_state.get('save_productiv', 0),
-    'Coste_Med_Emp':        st.session_state.get('save_coste_emp', 0),
-    'Ratio_Endeudamiento':  st.session_state.get('save_endeud', 0),
-    'Exportacion':          st.session_state.get('save_export_cod', 1),
-    'Region':               st.session_state.get('save_reg_user', 1),
-    'Tamaño':               st.session_state.get('save_tam_user', 1),
-    'Macrosector':          st.session_state.get('save_macro_cod', 1),
-    'Sector':               st.session_state.get('save_sector_cod', 1),
-    'Antigüedad':           st.session_state.get('save_anti_cod', 1),
+    'Ventas':              st.session_state.get('save_ventas', 0),
+    'Empleados':           st.session_state.get('save_empleados', 0),
+    'ROA':                 st.session_state.get('save_roa', 0),
+    'Var_Ventas_5a':       st.session_state.get('save_var_vtas', 0),
+    'Var_Emp_5a':          st.session_state.get('save_var_empl', 0),
+    'Prod_Venta_Emp':      st.session_state.get('save_productiv', 0),
+    'Coste_Med_Emp':       st.session_state.get('save_coste_emp', 0),
+    'Ratio_Endeudamiento': st.session_state.get('save_endeud', 0),
+    'Exportacion':         st.session_state.get('save_export_cod', 1),
+    'Region':              st.session_state.get('save_reg_user', 1),
+    'Tamaño':              st.session_state.get('save_tam_user', 1),
+    'Macrosector':         st.session_state.get('save_macro_cod', 1),
+    'Sector':              st.session_state.get('save_sector_cod', 1),
+    'Antigüedad':          st.session_state.get('save_anti_cod', 1),
 }
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -276,8 +193,8 @@ n = len(dff)
 
 # ── Calcular índices ──────────────────────────────────────────────────────────
 idx_empresa  = calcular_indices(dff, mis_datos)
-idx_total    = calcular_indices(df,  mis_datos)   # vs 1.000 empresas
-grp_indices  = calcular_indices_df(dff, dff)      # índices de todo el grupo
+idx_total    = calcular_indices(df,  mis_datos)
+grp_indices  = calcular_indices_df(dff, dff)
 grp_medias   = {k: round(grp_indices[k].mean(), 1) for k in ['ICE','ISF','IEO','IDC','IIE','IPT','SSG']}
 tot_indices  = calcular_indices_df(df, df)
 tot_medias   = {k: round(tot_indices[k].mean(), 1) for k in ['ICE','ISF','IEO','IDC','IIE','IPT','SSG']}
@@ -367,7 +284,6 @@ with c_ssg2:
     st.caption(f"🟣 Línea = media grupo ({grp_medias['SSG']})")
 
 with c_ssg3:
-    # Composición del SSG en barras horizontales
     pesos_ssg = {'ICE':0.25,'ISF':0.20,'IEO':0.20,'IDC':0.15,'IIE':0.10,'IPT':0.10}
     contrib_labels = list(pesos_ssg.keys())
     contrib_vals   = [round(idx_empresa[k]*v, 1) for k,v in pesos_ssg.items()]
@@ -390,7 +306,6 @@ with c_ssg3:
                     for v,c in zip(contrib_vals, contrib_cols)],
             "label":{"show":True,"position":"right","color":"#e2e8f0","fontSize":11,
                      "formatter":"{c}"},
-            "emphasis":{"itemStyle":{"shadowBlur":10}},
         }]
     }
     st_echarts(options=ssg_comp, height="220px")
@@ -429,11 +344,10 @@ st.divider()
 st.markdown('<div class="section-title">🕸️ Radar de Índices — Mi empresa vs. grupo vs. total</div>', unsafe_allow_html=True)
 
 c_rad, c_bar = st.columns(2)
-
 indices_labels = list(INDICES_INFO.keys())
-emp_r   = [idx_empresa[k]  for k in indices_labels]
-grp_r   = [grp_medias[k]   for k in indices_labels]
-tot_r   = [tot_medias[k]   for k in indices_labels]
+emp_r = [idx_empresa[k] for k in indices_labels]
+grp_r = [grp_medias[k]  for k in indices_labels]
+tot_r = [tot_medias[k]  for k in indices_labels]
 
 with c_rad:
     radar_opt = {
@@ -452,20 +366,14 @@ with c_rad:
         },
         "series":[{"type":"radar","data":[
             {"value":emp_r,"name":"Mi Empresa",
-             "itemStyle":{"color":"#a855f7"},
-             "lineStyle":{"color":"#a855f7","width":2},
-             "areaStyle":{"color":"rgba(168,85,247,0.2)"},
-             "symbol":"circle","symbolSize":6},
+             "itemStyle":{"color":"#a855f7"},"lineStyle":{"color":"#a855f7","width":2},
+             "areaStyle":{"color":"rgba(168,85,247,0.2)"},"symbol":"circle","symbolSize":6},
             {"value":grp_r,"name":f"Media Grupo ({n})",
-             "itemStyle":{"color":"#10b981"},
-             "lineStyle":{"color":"#10b981","width":2,"type":"dashed"},
-             "areaStyle":{"color":"rgba(16,185,129,0.07)"},
-             "symbol":"circle","symbolSize":5},
+             "itemStyle":{"color":"#10b981"},"lineStyle":{"color":"#10b981","width":2,"type":"dashed"},
+             "areaStyle":{"color":"rgba(16,185,129,0.07)"},"symbol":"circle","symbolSize":5},
             {"value":tot_r,"name":"Media Total",
-             "itemStyle":{"color":"#f59e0b"},
-             "lineStyle":{"color":"#f59e0b","width":1.5,"type":"dotted"},
-             "areaStyle":{"color":"rgba(245,158,11,0.04)"},
-             "symbol":"circle","symbolSize":4},
+             "itemStyle":{"color":"#f59e0b"},"lineStyle":{"color":"#f59e0b","width":1.5,"type":"dotted"},
+             "areaStyle":{"color":"rgba(245,158,11,0.04)"},"symbol":"circle","symbolSize":4},
         ]}],
     }
     st_echarts(options=radar_opt, height="420px")
@@ -487,15 +395,12 @@ with c_bar:
         "series":[
             {"name":"Mi Empresa","type":"bar","data":emp_r,
              "itemStyle":{"color":"#a855f7","borderRadius":[4,4,0,0]},
-             "emphasis":{"itemStyle":{"shadowBlur":15,"shadowColor":"rgba(168,85,247,0.5)"}},
              "label":{"show":True,"position":"top","color":"#a855f7","fontSize":10,"formatter":"{c}"}},
             {"name":f"Grupo ({n})","type":"bar","data":grp_r,
              "itemStyle":{"color":"#10b981","borderRadius":[4,4,0,0]},
-             "emphasis":{"itemStyle":{"shadowBlur":15}},
              "label":{"show":True,"position":"top","color":"#10b981","fontSize":10,"formatter":"{c}"}},
             {"name":"Total","type":"bar","data":tot_r,
              "itemStyle":{"color":"#f59e0b","borderRadius":[4,4,0,0]},
-             "emphasis":{"itemStyle":{"shadowBlur":15}},
              "label":{"show":True,"position":"top","color":"#f59e0b","fontSize":10,"formatter":"{c}"}},
         ]
     }
@@ -504,7 +409,7 @@ with c_bar:
 st.divider()
 
 # ═════════════════════════════════════════════════════════════════════════════
-# VELOCÍMETROS DE LOS 6 ÍNDICES
+# VELOCÍMETROS
 # ═════════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">⚡ Velocímetros — Posición en cada índice</div>', unsafe_allow_html=True)
 
@@ -540,13 +445,12 @@ for i, (cod, (nombre, desc, icono)) in enumerate(INDICES_INFO.items()):
 st.divider()
 
 # ═════════════════════════════════════════════════════════════════════════════
-# RANKING PERCENTIL INTERACTIVO
+# RANKING PERCENTIL
 # ═════════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">🏆 Ranking Percentil de los 6 Índices</div>', unsafe_allow_html=True)
-st.caption("Tu posición exacta dentro del grupo en cada índice. Verde = top 33% · Amarillo = medio · Rojo = tercio inferior.")
 
-pct_vals = [idx_empresa[k] for k in indices_labels]
-pct_cols = [color_val(v) for v in pct_vals]
+pct_vals  = [idx_empresa[k] for k in indices_labels]
+pct_cols  = [color_val(v) for v in pct_vals]
 pct_names = [f"{icono} {cod} — {nombre}" for cod, (nombre, _, icono) in INDICES_INFO.items()]
 
 rank_opt = {
@@ -566,12 +470,8 @@ rank_opt = {
                 for v,c in zip(pct_vals, pct_cols)],
         "label":{"show":True,"position":"right","color":"#e2e8f0","fontSize":12,
                  "fontFamily":"Rajdhani","formatter":"{c} / 100"},
-        "emphasis":{"itemStyle":{"shadowBlur":15,"shadowColor":"rgba(168,85,247,0.4)"}},
-        "markLine":{
-            "silent":True,
-            "lineStyle":{"color":"#7c3aed","type":"dashed","width":2},
-            "data":[{"xAxis":50,"label":{"formatter":"Mediana","color":"#7c3aed","fontSize":10}}]
-        },
+        "markLine":{"silent":True,"lineStyle":{"color":"#7c3aed","type":"dashed","width":2},
+            "data":[{"xAxis":50,"label":{"formatter":"Mediana","color":"#7c3aed","fontSize":10}}]},
     }]
 }
 st_echarts(options=rank_opt, height="380px")
@@ -579,64 +479,44 @@ st_echarts(options=rank_opt, height="380px")
 st.divider()
 
 # ═════════════════════════════════════════════════════════════════════════════
-# RANKINGS POR SECTOR / REGIÓN / TAMAÑO / EXPORTACIÓN
+# RANKINGS POR PERFIL
 # ═════════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">📊 Rankings Comparativos por Perfil</div>', unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4 = st.tabs(["🏭 Por Macrosector", "📍 Por Región", "🏢 Por Tamaño", "🌍 Por Exportación"])
 
-def ranking_tab(df_ref, col_agrup, mapa, indice='SSG'):
-    """Genera tabla y gráfico de barras de media de un índice por grupo."""
+def ranking_tab(df_ref, col_agrup, mapa):
+    ind_sel_rank = st.selectbox("Índice a comparar", list(INDICES_INFO.keys()),
+                                key=f"rank_{col_agrup}", index=0)
     rows = []
     for cod, nombre in mapa.items():
         subset = df_ref[df_ref[col_agrup] == cod]
         if len(subset) >= 5:
             idx_sub = calcular_indices_df(df_ref, subset)
             rows.append({'Grupo': nombre, 'N': len(subset),
-                         indice: round(idx_sub[indice].mean(), 1)})
+                         ind_sel_rank: round(idx_sub[ind_sel_rank].mean(), 1)})
     if not rows:
         st.info("No hay suficientes datos para este ranking.")
         return
-    df_rank = pd.DataFrame(rows).sort_values(indice, ascending=False).reset_index(drop=True)
-    df_rank['Pos'] = df_rank.index + 1
-
-    ind_sel_rank = st.selectbox(f"Índice a comparar", list(INDICES_INFO.keys()),
-                                 key=f"rank_{col_agrup}", index=0)
-    rows2 = []
-    for cod, nombre in mapa.items():
-        subset = df_ref[df_ref[col_agrup] == cod]
-        if len(subset) >= 5:
-            idx_sub = calcular_indices_df(df_ref, subset)
-            rows2.append({'Grupo': nombre, 'N': len(subset),
-                          ind_sel_rank: round(idx_sub[ind_sel_rank].mean(), 1)})
-    if not rows2: return
-    df_rank2 = pd.DataFrame(rows2).sort_values(ind_sel_rank, ascending=False).reset_index(drop=True)
-
-    bar_data   = df_rank2[ind_sel_rank].tolist()
-    bar_labels = df_rank2['Grupo'].tolist()
+    df_rank = pd.DataFrame(rows).sort_values(ind_sel_rank, ascending=False).reset_index(drop=True)
+    bar_data   = df_rank[ind_sel_rank].tolist()
+    bar_labels = df_rank['Grupo'].tolist()
     bar_colors = [color_val(v) for v in bar_data]
-
     opt = {
         "backgroundColor": "#0a0e1a",
-        "tooltip": {"trigger":"axis","axisPointer":{"type":"shadow"},
-                    "backgroundColor":"#1e293b","textStyle":{"color":"#e2e8f0"}},
+        "tooltip": {"trigger":"axis","backgroundColor":"#1e293b","textStyle":{"color":"#e2e8f0"}},
         "grid": {"left":"3%","right":"10%","bottom":"5%","containLabel":True},
-        "xAxis": {"type":"value","min":0,"max":100,
-                  "axisLabel":{"color":"#64748b"},
+        "xAxis": {"type":"value","min":0,"max":100,"axisLabel":{"color":"#64748b"},
                   "splitLine":{"lineStyle":{"color":"#1e3a5f"}}},
         "yAxis": {"type":"category","data":bar_labels,"inverse":True,
                   "axisLabel":{"color":"#94a3b8","fontSize":11}},
-        "series":[{
-            "type":"bar",
+        "series":[{"type":"bar",
             "data":[{"value":v,"itemStyle":{"color":c,"borderRadius":[0,4,4,0]}}
                     for v,c in zip(bar_data, bar_colors)],
-            "label":{"show":True,"position":"right","color":"#e2e8f0","fontSize":11,
-                     "formatter":"{c}"},
-            "emphasis":{"itemStyle":{"shadowBlur":10}},
-        }]
+            "label":{"show":True,"position":"right","color":"#e2e8f0","fontSize":11,"formatter":"{c}"}}]
     }
     st_echarts(options=opt, height=f"{max(250, len(bar_labels)*45)}px")
-    st.dataframe(df_rank2.rename(columns={ind_sel_rank: f"Media {ind_sel_rank}"}),
+    st.dataframe(df_rank.rename(columns={ind_sel_rank: f"Media {ind_sel_rank}"}),
                  use_container_width=True, hide_index=True)
 
 with tab1: ranking_tab(dff, 'Macrosector', MACROSECTORES)
@@ -647,7 +527,7 @@ with tab4: ranking_tab(dff, 'Exportacion', EXPORTACIONES)
 st.divider()
 
 # ═════════════════════════════════════════════════════════════════════════════
-# TABLA RESUMEN FINAL
+# TABLA RESUMEN
 # ═════════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">📋 Tabla Resumen de Índices</div>', unsafe_allow_html=True)
 
@@ -657,24 +537,14 @@ for cod, (nombre, desc, icono) in INDICES_INFO.items():
     gv = grp_medias[cod]
     tv = tot_medias[cod]
     nivel = "🟢 Alto" if v >= 66 else ("🟡 Medio" if v >= 33 else "🔴 Bajo")
-    tabla_data.append({
-        'Índice': f"{icono} {cod}",
-        'Nombre': nombre,
-        'Mi Empresa': v,
-        f'Media Grupo ({n} emp)': gv,
-        'Media Total (1.000)': tv,
-        'Diferencia vs grupo': f"{v-gv:+.1f}",
-        'Nivel': nivel,
-    })
-tabla_data.append({
-    'Índice': '⭐ SSG',
-    'Nombre': 'Score Estratégico Global',
-    'Mi Empresa': idx_empresa['SSG'],
-    f'Media Grupo ({n} emp)': grp_medias['SSG'],
-    'Media Total (1.000)': tot_medias['SSG'],
-    'Diferencia vs grupo': f"{idx_empresa['SSG']-grp_medias['SSG']:+.1f}",
-    'Nivel': "🟢 Alto" if idx_empresa['SSG'] >= 66 else ("🟡 Medio" if idx_empresa['SSG'] >= 33 else "🔴 Bajo"),
-})
+    tabla_data.append({'Índice': f"{icono} {cod}",'Nombre': nombre,'Mi Empresa': v,
+        f'Media Grupo ({n} emp)': gv,'Media Total (1.000)': tv,
+        'Diferencia vs grupo': f"{v-gv:+.1f}",'Nivel': nivel})
+tabla_data.append({'Índice':'⭐ SSG','Nombre':'Score Estratégico Global',
+    'Mi Empresa':idx_empresa['SSG'],f'Media Grupo ({n} emp)':grp_medias['SSG'],
+    'Media Total (1.000)':tot_medias['SSG'],
+    'Diferencia vs grupo':f"{idx_empresa['SSG']-grp_medias['SSG']:+.1f}",
+    'Nivel':"🟢 Alto" if idx_empresa['SSG']>=66 else ("🟡 Medio" if idx_empresa['SSG']>=33 else "🔴 Bajo")})
 st.dataframe(pd.DataFrame(tabla_data), use_container_width=True, hide_index=True)
 
 st.divider()

@@ -1,49 +1,68 @@
 import streamlit as st
-import json, os, random, string
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
- 
+import json, os
+
 st.set_page_config(page_title="Acceso · Diagnóstico Estratégico", layout="wide")
- 
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap');
-.acceso-box {
-    max-width: 480px; margin: 60px auto; background: #ffffff;
-    border: 1px solid #e2e8f0; border-radius: 16px; padding: 36px 40px;
-    box-shadow: 0 4px 24px rgba(0,0,0,.08);
-}
 </style>
 """, unsafe_allow_html=True)
- 
+
 try:
-    from supabase_client import get_supabase
-    sb = get_supabase()
+    from supabase import create_client
+    def get_supabase():
+        url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL",""))
+        key = st.secrets.get("SUPABASE_KEY", os.environ.get("SUPABASE_KEY",""))
+        if url and key: return create_client(url, key)
+        return None
 except Exception:
-    sb = None
- 
+    def get_supabase(): return None
+
 PERFIL_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'perfil_empresa.json')
+
 def cargar_perfil():
     if os.path.exists(PERFIL_FILE):
         with open(PERFIL_FILE,'r',encoding='utf-8') as f: return json.load(f)
     return {}
+
 def guardar_perfil(datos):
-    with open(PERFIL_FILE,'w',encoding='utf-8') as f: json.dump(datos,f,ensure_ascii=False,indent=2)
- 
-# ── Si ya hay sesión activa ────────────────────────────────
+    perfil = cargar_perfil(); perfil.update(datos)
+    with open(PERFIL_FILE,'w',encoding='utf-8') as f: json.dump(perfil,f,ensure_ascii=False,indent=2)
+
+# ── Cargar sesión guardada automáticamente ────────────────────────────────────
+perfil = cargar_perfil()
+if not st.session_state.get('usuario_email') and perfil.get('sesion_email'):
+    st.session_state['usuario_email']  = perfil['sesion_email']
+    st.session_state['empresa_codigo'] = perfil.get('sesion_codigo','')
+    st.session_state['es_admin']       = perfil.get('sesion_es_admin', False)
+    st.session_state['usuario_nombre'] = perfil.get('sesion_nombre','')
+    st.session_state['usuario_rol']    = perfil.get('sesion_rol','colaborador')
+    # Cargar también datos del perfil
+    for k,v in perfil.items():
+        if k not in st.session_state: st.session_state[k] = v
+
+# ── Si ya hay sesión activa ────────────────────────────────────────────────────
 if st.session_state.get('usuario_email') and st.session_state.get('empresa_codigo'):
     email  = st.session_state['usuario_email']
     codigo = st.session_state['empresa_codigo']
     es_admin = st.session_state.get('es_admin', False)
-    rol = "Administrador" if es_admin else "Colaborador"
+    rol = "Administrador" if es_admin else st.session_state.get('usuario_rol','Colaborador').capitalize()
+
     st.success(f"✅ Sesión activa · {email} · {rol} · Empresa {codigo}")
+
     if st.button("Cerrar sesión", type="secondary"):
-        for k in ['usuario_email','empresa_codigo','es_admin','usuario_nombre']:
+        # Limpiar sesión del perfil
+        guardar_perfil({
+            'sesion_email': None, 'sesion_codigo': None,
+            'sesion_es_admin': False, 'sesion_nombre': '', 'sesion_rol': ''
+        })
+        for k in ['usuario_email','empresa_codigo','es_admin','usuario_nombre','usuario_rol']:
             st.session_state.pop(k, None)
         st.rerun()
     st.stop()
- 
-# ── Formulario de acceso ───────────────────────────────────
+
+# ── Formulario de acceso ───────────────────────────────────────────────────────
 st.markdown("""
 <div style="text-align:center;margin-bottom:28px;">
   <h1 style="font-family:'Rajdhani',sans-serif;color:#1e293b;font-size:2rem;margin-bottom:4px;">
@@ -51,7 +70,7 @@ st.markdown("""
   <p style="color:#64748b;font-size:.92rem;">Introduce tus datos para acceder al cuestionario</p>
 </div>
 """, unsafe_allow_html=True)
- 
+
 col_l, col_c, col_r = st.columns([1,2,1])
 with col_c:
     st.markdown("#### Acceder al cuestionario")
@@ -59,58 +78,72 @@ with col_c:
     email  = st.text_input("Tu email", placeholder="nombre@empresa.com")
     codigo = st.text_input("Código de empresa", placeholder="EMP-XXXX",
                            help="El administrador de tu empresa te lo habrá proporcionado")
- 
+
     st.markdown("<br>", unsafe_allow_html=True)
- 
+
     if st.button("Entrar", use_container_width=True, type="primary"):
         if not nombre or not email or not codigo:
             st.error("Por favor rellena todos los campos.")
-        elif sb is None:
-            st.error("Error de conexión con la base de datos.")
         else:
-            codigo = codigo.strip().upper()
-            # Verificar que la empresa existe
-            try:
-                emp = sb.table('empresas').select('*').eq('codigo', codigo).execute()
-                if not emp.data:
-                    st.error("❌ Código de empresa no encontrado. Comprueba que es correcto.")
-                else:
-                    empresa = emp.data[0]
-                    # Verificar que el email está autorizado
-                    usr = sb.table('usuarios').select('*')\
-                        .eq('empresa_codigo', codigo)\
-                        .eq('email', email.strip().lower()).execute()
-                    if not usr.data:
-                        st.error("❌ Tu email no está autorizado para esta empresa. Contacta con el administrador.")
+            sb = get_supabase()
+            if sb is None:
+                st.error("Error de conexión con la base de datos.")
+            else:
+                codigo = codigo.strip().upper()
+                try:
+                    emp = sb.table('empresas').select('*').eq('codigo', codigo).execute()
+                    if not emp.data:
+                        st.error("❌ Código de empresa no encontrado.")
                     else:
-                        usuario = usr.data[0]
-                        # Guardar sesión
-                        st.session_state['usuario_email']   = email.strip().lower()
-                        st.session_state['usuario_nombre']  = nombre
-                        st.session_state['empresa_codigo']  = codigo
-                        st.session_state['es_admin']        = usuario.get('es_admin', False)
-                        # Cargar perfil de empresa en session_state
-                        for campo in ['sector','tamano','region','exportacion','antiguedad',
-                                      'ventas','empleados','roa','var_ventas','var_empleados',
-                                      'productividad','coste_empleado','endeudamiento']:
-                            if empresa.get(campo) is not None:
-                                mapa = {
-                                    'sector':'save_sector_nombre','tamano':'save_tam_nombre',
-                                    'region':'save_reg_nombre','exportacion':'save_export_nombre',
-                                    'antiguedad':'save_anti_nombre','ventas':'save_ventas',
-                                    'empleados':'save_empleados','roa':'save_roa',
-                                    'var_ventas':'save_var_vtas','var_empleados':'save_var_empl',
-                                    'productividad':'save_productiv','coste_empleado':'save_coste_emp',
-                                    'endeudamiento':'save_endeud'
-                                }
-                                st.session_state[mapa[campo]] = empresa[campo]
-                        st.success(f"✅ Bienvenido/a, {nombre}. Ya puedes completar el cuestionario.")
-                        st.rerun()
-            except Exception as e:
-                st.error(f"Error de conexión: {e}")
- 
+                        empresa = emp.data[0]
+                        usr = sb.table('usuarios').select('*')\
+                            .eq('empresa_codigo', codigo)\
+                            .eq('email', email.strip().lower()).execute()
+                        if not usr.data:
+                            st.error("❌ Tu email no está autorizado. Contacta con el administrador.")
+                        else:
+                            usuario = usr.data[0]
+                            es_admin = usuario.get('es_admin', False)
+                            rol = usuario.get('rol', 'admin' if es_admin else 'colaborador')
+
+                            # Guardar sesión en session_state
+                            st.session_state['usuario_email']  = email.strip().lower()
+                            st.session_state['usuario_nombre'] = nombre
+                            st.session_state['empresa_codigo'] = codigo
+                            st.session_state['es_admin']       = es_admin
+                            st.session_state['usuario_rol']    = rol
+
+                            # Guardar sesión en perfil local para persistencia
+                            guardar_perfil({
+                                'sesion_email':    email.strip().lower(),
+                                'sesion_codigo':   codigo,
+                                'sesion_es_admin': es_admin,
+                                'sesion_nombre':   nombre,
+                                'sesion_rol':      rol,
+                            })
+
+                            # Cargar datos de empresa en session_state
+                            mapa = {
+                                'sector':'save_sector_nombre','tamano':'save_tam_nombre',
+                                'region':'save_reg_nombre','exportacion':'save_export_nombre',
+                                'antiguedad':'save_anti_nombre','ventas':'save_ventas',
+                                'empleados':'save_empleados','roa':'save_roa',
+                                'var_ventas':'save_var_vtas','var_empleados':'save_var_empl',
+                                'productividad':'save_productiv','coste_empleado':'save_coste_emp',
+                                'endeudamiento':'save_endeud'
+                            }
+                            for campo, ss_key in mapa.items():
+                                if empresa.get(campo) is not None:
+                                    st.session_state[ss_key] = empresa[campo]
+
+                            rol_txt = "Administrador" if es_admin else rol.capitalize()
+                            st.success(f"✅ Bienvenido/a, {nombre}. Rol: {rol_txt}")
+                            st.rerun()
+                except Exception as e:
+                    st.error(f"Error de conexión: {e}")
+
     st.markdown("---")
     st.markdown("""<div style="text-align:center;font-size:.82rem;color:#94a3b8;">
         ¿Eres el administrador y aún no has registrado tu empresa?<br>
-        Ve a la página <strong>Mi Empresa</strong> en el menú lateral.</div>""",
+        Ve a la página <strong>Registro Empresa</strong> en el menú lateral.</div>""",
         unsafe_allow_html=True)

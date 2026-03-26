@@ -90,7 +90,7 @@ else:
 # ── Valores por defecto ───────────────────────────────────────────────────────
 def val(key, default=1):
     if resp_prev: return int(resp_prev.get(key, default))
-    if ec and ue: return default  # empresa nueva sin respuestas
+    if empresa_codigo and usuario_email: return default  # empresa nueva sin respuestas
     return int(perfil.get(key, default))
 
 v111 = val('it_111')

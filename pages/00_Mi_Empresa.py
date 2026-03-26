@@ -365,7 +365,53 @@ with tab3:
                     'informes_activados': True,
                     'promedios_activados': True,
                 })
-                st.success("✅ ¡Promedios activados! Ahora puedes acceder a todos los informes e índices.")
+                # ── Añadir empresa al benchmark con peso 5.0 ──────────
+                try:
+                    SECTOR_MAP = {"Alimentación y bebidas":1,"Textil y confección":2,
+                        "Cuero y calzado":3,"Química y plásticos":4,"Minerales no metálicos":5,
+                        "Metalmecanico":6,"Maquinaria equipo":7,"Otras manufacturas":8,
+                        "Electrónica, telecomunicaciones":9,"Informática, software. Robótica, IA":10,
+                        "Actividades I+D: biotech, farmacia":11,"Transporte y logística":12,
+                        "Consultoría y servicios profesionales":13,"Turismo y hosteleria":14,
+                        "Retail y comercio":15,"Otros servicios":16}
+                    MACRO_MAP = {1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:2,10:2,11:2,12:3,13:3,14:3,15:3,16:3}
+                    sector_cod = SECTOR_MAP.get(empresa.get('sector',''),0)
+                    macro_cod  = MACRO_MAP.get(sector_cod, 3)
+                    sb.table('benchmark_empresas').upsert({
+                        'id':            emp_codigo,
+                        'macrosector':   macro_cod,
+                        'sector':        sector_cod,
+                        'tamano':        TAMANIOS.get(empresa.get('tamano','Pequeña'),1),
+                        'exportacion':   EXPORTACIONES.get(empresa.get('exportacion','Menos 10 %'),1),
+                        'antiguedad':    ANTIGUEDADES.get(empresa.get('antiguedad','Menos 10 años'),1),
+                        'region':        REGIONES.get(empresa.get('region','Madrid'),1),
+                        'ventas':        empresa.get('ventas'),
+                        'empleados':     empresa.get('empleados'),
+                        'roa':           empresa.get('roa'),
+                        'var_ventas_5a': empresa.get('var_ventas'),
+                        'var_emp_5a':    empresa.get('var_empleados'),
+                        'prod_venta_emp':empresa.get('productividad'),
+                        'coste_med_emp': empresa.get('coste_empleado'),
+                        'ratio_endeudamiento':empresa.get('endeudamiento'),
+                        'validada':      True,
+                        'es_nueva':      True,
+                        'pendiente_validar': True,
+                        'peso':          5.0,
+                    }).execute()
+                    for key, valor in promedios.items():
+                        parts = key.split('_', 1)
+                        if len(parts) == 2:
+                            sb.table('benchmark_indicadores').upsert({
+                                'empresa_id': emp_codigo,
+                                'modulo':     'innovacion',
+                                'indicador':  parts[1],
+                                'valor':      float(valor),
+                                'peso':       5.0,
+                            }, on_conflict='empresa_id,modulo,indicador').execute()
+                    st.success("✅ ¡Promedios activados y empresa añadida al benchmark con peso 5x!")
+                except Exception as e:
+                    st.warning(f"⚠️ Promedios activados pero error al añadir al benchmark: {e}")
+                    st.success("✅ ¡Promedios activados!")
                 st.balloons()
         else:
             st.warning("No hay suficientes respuestas para calcular promedios.")

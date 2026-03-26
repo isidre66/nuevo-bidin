@@ -113,6 +113,20 @@ with col_c:
                             st.session_state['es_admin']       = es_admin
                             st.session_state['usuario_rol']    = rol
 
+                            # Limpiar scores locales si cambia de empresa
+                            codigo_anterior = perfil.get('sesion_codigo','')
+                            if codigo_anterior != codigo:
+                                for k in ['score_b1','score_b2','score_b3','score_b4','score_b5',
+                                          'b1_finalizado','b2_finalizado','b3_finalizado',
+                                          'b4_finalizado','b5_finalizado']:
+                                    st.session_state.pop(k, None)
+                                guardar_perfil({
+                                    'score_b1':0,'score_b2':0,'score_b3':0,'score_b4':0,'score_b5':0,
+                                    'b1_finalizado':False,'b2_finalizado':False,'b3_finalizado':False,
+                                    'b4_finalizado':False,'b5_finalizado':False,
+                                    'informes_activados':False,'promedios_activados':False,
+                                })
+
                             # Guardar sesión en perfil local para persistencia
                             guardar_perfil({
                                 'sesion_email':    email.strip().lower(),

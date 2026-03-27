@@ -719,7 +719,14 @@ if st.session_state.get('plan_generado') and st.session_state['plan_texto'].get(
     # ── Descarga ───────────────────────────────────────────
     st.markdown("<br>",unsafe_allow_html=True)
     st.divider()
-
+    diagnostico = locals().get('diagnostico','')
+    vision = locals().get('vision','')
+    h1 = locals().get('h1','')
+    h2 = locals().get('h2','')
+    h3 = locals().get('h3','')
+    factores = locals().get('factores','')
+    alerta = locals().get('alerta','')
+```
     def generar_html_completo():
         acc_html=""
         for i,ac in enumerate(acciones):

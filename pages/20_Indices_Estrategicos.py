@@ -570,4 +570,99 @@ tabla_data.append({'Índice':'⭐ SSG','Nombre':'Score Estratégico Global',
 st.dataframe(pd.DataFrame(tabla_data), use_container_width=True, hide_index=True)
 
 st.divider()
-st.caption("💡 Los índices se calculan como percentil ponderado dentro del grupo de referencia seleccionado. 0 = peor posición · 100 = mejor posición.")
+st.divider()
+
+# ═════════════════════════════════════════════════════════════════════════════
+# DESCARGA — HTML y WORD
+# ═════════════════════════════════════════════════════════════════════════════
+st.markdown('<div class="section-title">📥 Descargar Índices Estratégicos</div>', unsafe_allow_html=True)
+
+from datetime import date as _date
+hoy = _date.today().strftime("%d/%m/%Y")
+nom_sector = st.session_state.get('save_sector_nombre','—')
+
+def generar_html_indices():
+    idx_tabla = "".join([
+        f"<tr><td><strong>{icono} {cod}</strong></td><td>{nombre}</td>"
+        f"<td style='text-align:center;font-weight:700;color:{'green' if idx_empresa[cod]>=66 else 'orange' if idx_empresa[cod]>=33 else 'red'};'>{idx_empresa[cod]}/100</td>"
+        f"<td style='text-align:center;color:#666;'>{grp_medias[cod]}/100</td>"
+        f"<td style='text-align:center;color:#888;'>{tot_medias[cod]}/100</td>"
+        f"<td style='text-align:center;font-weight:600;color:{'green' if idx_empresa[cod]>=grp_medias[cod] else 'red'};'>{idx_empresa[cod]-grp_medias[cod]:+.1f}</td></tr>"
+        for cod,(nombre,desc,icono) in INDICES_INFO.items()
+    ])
+    ssg_color = 'green' if idx_empresa['SSG']>=66 else 'orange' if idx_empresa['SSG']>=33 else 'red'
+    return f"""<!DOCTYPE html><html><head><meta charset='utf-8'>
+<style>body{{font-family:Georgia,serif;margin:50px auto;max-width:900px;color:#1a1a1a;line-height:1.75;}}
+h1{{color:#7c3aed;border-bottom:3px solid #7c3aed;padding-bottom:10px;font-size:1.8rem;}}
+.perfil{{background:#f5f3ff;border-radius:8px;padding:16px;margin:16px 0;font-size:.9rem;}}
+.ssg{{font-size:2.8rem;font-weight:700;color:{ssg_color};}}
+table{{border-collapse:collapse;width:100%;margin:16px 0;font-size:.9rem;}}
+th{{background:#7c3aed;color:white;padding:10px;text-align:left;}}
+td{{padding:9px 11px;border-bottom:1px solid #e5e7eb;}}
+.notas{{border:1px dashed #9ca3af;border-radius:8px;padding:40px 16px;margin:20px 0;
+    color:#9ca3af;font-style:italic;text-align:center;}}
+@media print{{body{{margin:20px;}}}}</style></head><body>
+<h1>📐 Índices Estratégicos y de Competitividad</h1>
+<div class="perfil">
+<strong>{nom_sector}</strong> | {st.session_state.get('save_tam_nombre','—')} | {st.session_state.get('save_reg_nombre','—')}<br>
+Grupo de referencia: <strong>{n} empresas</strong> | Fecha: {hoy}
+</div>
+<p>Score Estratégico Global (SSG): <span class="ssg">{idx_empresa['SSG']}</span>/100
+&nbsp;·&nbsp; {'🟢 Alto' if idx_empresa['SSG']>=66 else '🟡 Medio' if idx_empresa['SSG']>=33 else '🔴 Bajo'}</p>
+<h2 style='color:#7c3aed;'>Los 6 Índices Estratégicos</h2>
+<table>
+<tr><th>Índice</th><th>Nombre</th><th>Mi Empresa</th><th>Media Grupo</th><th>Media Total</th><th>Dif. vs grupo</th></tr>
+{idx_tabla}
+</table>
+<div class="notas">✏️ Espacio para tus anotaciones y comentarios</div>
+<hr style='margin-top:40px;'/>
+<p style='color:#9ca3af;font-size:.78rem;text-align:center;'>Plataforma de Diagnóstico Estratégico · {hoy}</p>
+</body></html>"""
+
+def generar_word_indices():
+    try:
+        from docx import Document
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        import io
+        doc = Document()
+        t = doc.add_heading('Índices Estratégicos y de Competitividad', 0)
+        t.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.add_paragraph(f"Empresa: {nom_sector} | {st.session_state.get('save_tam_nombre','—')} | {st.session_state.get('save_reg_nombre','—')}")
+        doc.add_paragraph(f"Grupo de referencia: {n} empresas | Fecha: {hoy}")
+        doc.add_paragraph(f"Score Estratégico Global (SSG): {idx_empresa['SSG']}/100 — {'Alto' if idx_empresa['SSG']>=66 else 'Medio' if idx_empresa['SSG']>=33 else 'Bajo'}")
+        doc.add_heading('Los 6 Índices Estratégicos', level=1)
+        tabla = doc.add_table(rows=1, cols=5); tabla.style = 'Table Grid'
+        hdr = tabla.rows[0].cells
+        hdr[0].text='Índice'; hdr[1].text='Nombre'; hdr[2].text='Mi Empresa'; hdr[3].text='Media Grupo'; hdr[4].text='Dif. vs grupo'
+        for cod,(nombre,desc,icono) in INDICES_INFO.items():
+            row = tabla.add_row().cells
+            row[0].text=f"{icono} {cod}"; row[1].text=nombre
+            row[2].text=f"{idx_empresa[cod]}/100"; row[3].text=f"{grp_medias[cod]}/100"
+            row[4].text=f"{idx_empresa[cod]-grp_medias[cod]:+.1f}"
+        doc.add_heading('Notas y comentarios del equipo directivo', level=1)
+        doc.add_paragraph("[ Escribe aquí tus conclusiones y próximos pasos ]")
+        for _ in range(8):
+            p=doc.add_paragraph(); p.add_run('_'*80)
+        buf=io.BytesIO(); doc.save(buf); buf.seek(0); return buf.getvalue()
+    except ImportError: return None
+
+html_idx = generar_html_indices()
+word_idx = generar_word_indices()
+
+st.markdown("""<div style="background:#f5f3ff;border:1px solid #7c3aed;border-radius:10px;
+    padding:14px 18px;margin-bottom:16px;font-size:.87rem;color:#4c1d95;">
+    📋 <strong>El documento Word es completamente editable</strong> — incluye todos los índices y espacio para tus anotaciones.
+</div>""", unsafe_allow_html=True)
+
+c1,c2,c3 = st.columns(3)
+with c1:
+    st.download_button("📄 Descargar Word (.docx)", data=word_idx if word_idx else b"",
+        file_name=f"indices_estrategicos_{nom_sector[:15].replace(' ','_')}.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        type="primary", use_container_width=True, disabled=word_idx is None)
+with c2:
+    st.download_button("🌐 Descargar HTML", data=html_idx,
+        file_name=f"indices_estrategicos_{nom_sector[:15].replace(' ','_')}.html",
+        mime="text/html", use_container_width=True)
+with c3:
+    st.info("Para PDF: abre el HTML → **Ctrl+P** → **Guardar como PDF**")

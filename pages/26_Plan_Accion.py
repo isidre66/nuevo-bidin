@@ -124,7 +124,7 @@ for k,v in cargar_perfil().items():
     if k not in st.session_state: st.session_state[k] = v
 
 if not st.session_state.get('save_reg_user'):
-    try:
+try:
         from supabase import create_client
         _url=st.secrets.get("SUPABASE_URL",os.environ.get("SUPABASE_URL",""))
         _key=st.secrets.get("SUPABASE_KEY",os.environ.get("SUPABASE_KEY",""))

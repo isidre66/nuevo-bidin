@@ -124,7 +124,24 @@ for k,v in cargar_perfil().items():
     if k not in st.session_state: st.session_state[k] = v
 
 if not st.session_state.get('save_reg_user'):
-    st.warning("⚠️ Primero completa tu perfil en Inicio."); st.stop()
+    try:
+        from supabase import create_client
+        _url=st.secrets.get("SUPABASE_URL",os.environ.get("SUPABASE_URL",""))
+        _key=st.secrets.get("SUPABASE_KEY",os.environ.get("SUPABASE_KEY",""))
+        _ec=st.session_state.get('empresa_codigo','') or cargar_perfil().get('sesion_codigo','')
+        if _url and _key and _ec:
+            _sb=create_client(_url,_key)
+            _ed=_sb.table('empresas').select('*').eq('codigo',_ec).execute().data
+            if _ed:
+                _e=_ed[0]
+                _SM={"Alimentación y bebidas":1,"Textil y confección":2,"Cuero y calzado":3,"Química y plásticos":4,"Minerales no metálicos":5,"Metalmecanico":6,"Maquinaria equipo":7,"Otras manufacturas":8,"Electrónica, telecomunicaciones":9,"Informática, software. Robótica, IA":10,"Actividades I+D: biotech, farmacia":11,"Transporte y logística":12,"Consultoría y servicios profesionales":13,"Turismo y hosteleria":14,"Retail y comercio":15,"Otros servicios":16}
+                _MM={1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:2,10:2,11:2,12:3,13:3,14:3,15:3,16:3}
+                _sc=_SM.get(_e.get('sector',''),0)
+                st.session_state.update({'save_sector_nombre':_e.get('sector',''),'save_tam_nombre':_e.get('tamano',''),'save_reg_nombre':_e.get('region',''),'save_anti_nombre':_e.get('antiguedad',''),'save_ventas':float(_e.get('ventas') or 0),'save_empleados':int(_e.get('empleados') or 0),'save_roa':float(_e.get('roa') or 0),'save_var_vtas':float(_e.get('var_ventas') or 0),'save_var_empl':float(_e.get('var_empleados') or 0),'save_productiv':float(_e.get('productividad') or 0),'save_coste_emp':float(_e.get('coste_empleado') or 0),'save_endeud':float(_e.get('endeudamiento') or 0),'save_reg_user':{"Andalucia":1,"Aragon":2,"Asturias":3,"Baleares":4,"Canarias":5,"Cantabria":6,"Castilla la Mancha":7,"Castilla y León":8,"Cataluña":9,"Com Valenciana":10,"Extremadura":11,"Galicia":12,"Madrid":13,"Murcia":14,"Navarra":15,"Pais Vasco":16}.get(_e.get('region',''),0),'save_tam_user':{"Pequeña":1,"Mediana":2,"Grande":3}.get(_e.get('tamano',''),0),'save_sector_cod':_sc,'save_macro_cod':_MM.get(_sc,3),'empresa_codigo':_ec})
+    except Exception: pass
+
+if not st.session_state.get('save_reg_user'):
+    st.warning("⚠️ Primero completa tu perfil en **Mi Empresa → Datos de la empresa**."); st.stop()
 
 mac_cod    = int(st.session_state.get('save_macro_cod',1))
 nom_sector = st.session_state.get('save_sector_nombre','—')

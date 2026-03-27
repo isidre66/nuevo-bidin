@@ -605,15 +605,166 @@ Plataforma de Diagnóstico Estratégico Empresarial · {hoy}</p>
 </body></html>"""
 
 html_out = generar_html_pdf()
-c1, c2 = st.columns(2)
+# ═══════════════════════════════════════════════════════════════════════════
+# DESCARGA — PDF y WORD
+# ═══════════════════════════════════════════════════════════════════════════
+st.markdown('<div class="section-title">📥 Descargar Informe</div>', unsafe_allow_html=True)
+
+def generar_html_pdf():
+    ia_html = ""
+    colores_sec = {
+        'POSICION':'#0066cc','ANALISIS':'#0066cc',
+        'FORTALEZA':'#dc2626','RIESGO':'#dc2626',
+        'RECOMENDACION':'#d97706','PREDICCION':'#7c3aed'
+    }
+    for titulo_norm, titulo_orig, cuerpo in secciones:
+        color = '#0066cc'
+        for kw, c in colores_sec.items():
+            if kw in titulo_norm:
+                color = c; break
+        ia_html += f"""<h2 style='color:{color};border-left:4px solid {color};
+            padding-left:10px;margin-top:28px;'>{titulo_orig}</h2>
+            <p style='line-height:1.75;'>{cuerpo.replace(chr(10),'<br>')}</p>"""
+
+    idx_tabla = "".join([
+        f"<tr><td><strong>{cod}</strong></td><td>{desc}</td>"
+        f"<td style='text-align:center;font-weight:700;"
+        f"color:{'green' if idx[cod]>=66 else 'orange' if idx[cod]>=33 else 'red'};'>"
+        f"{idx[cod]}/100</td></tr>"
+        for cod,desc in [
+            ('SSG','Score Estratégico Global'),('ICE','Competitividad Empresarial'),
+            ('ISF','Solidez Financiera'),('IEO','Eficiencia Operativa'),
+            ('IDC','Dinamismo y Crecimiento'),('IIE','Intensidad Exportadora'),
+            ('IPT','Productividad y Talento')
+        ]
+    ])
+
+    return f"""<!DOCTYPE html><html><head><meta charset='utf-8'>
+<style>
+body{{font-family:Georgia,serif;margin:50px auto;max-width:860px;
+     color:#1a1a1a;line-height:1.75;}}
+h1{{color:#0066cc;border-bottom:3px solid #0066cc;padding-bottom:10px;font-size:1.8rem;}}
+.perfil{{background:#f0f7ff;border-radius:8px;padding:16px;margin:16px 0;font-size:.9rem;}}
+.ssg{{display:inline-block;font-size:2.8rem;font-weight:700;
+      color:{'green' if idx['SSG']>=66 else 'orange' if idx['SSG']>=33 else 'red'};}}
+table{{border-collapse:collapse;width:100%;margin:16px 0;font-size:.9rem;}}
+th{{background:#0066cc;color:white;padding:10px;text-align:left;}}
+td{{padding:9px 11px;border-bottom:1px solid #e5e7eb;}}
+.nota-edit{{background:#fff8e1;border:1px solid #fbbf24;border-radius:8px;
+    padding:12px 16px;margin:20px 0;font-size:.85rem;color:#92400e;}}
+.espacio-notas{{border:1px dashed #9ca3af;border-radius:8px;padding:40px 16px;
+    margin:16px 0;color:#9ca3af;font-style:italic;font-size:.85rem;text-align:center;}}
+@media print{{body{{margin:20px;}}}}
+</style></head><body>
+<h1>Informe Estratégico · Diagnóstico Competitivo</h1>
+<div class="perfil">
+<strong>{nom_sector}</strong> &nbsp;|&nbsp; {nom_tam} &nbsp;|&nbsp; {nom_reg}
+&nbsp;|&nbsp; Exportación: {nom_export} &nbsp;|&nbsp; {nom_anti}<br>
+Referencia: <strong>{n_ref} empresas comparables</strong>
+&nbsp;|&nbsp; Fecha: {hoy}
+</div>
+<p>Score Estratégico Global (SSG): <span class="ssg">{idx['SSG']}</span> / 100
+&nbsp;&nbsp;·&nbsp;&nbsp; {nivel(idx['SSG']).upper()}</p>
+<h2 style='color:#0066cc;'>Índices Estratégicos</h2>
+<table>
+<tr><th>Índice</th><th>Descripción</th><th>Valor (0-100)</th></tr>
+{idx_tabla}
+</table>
+{ia_html if ia_html else
+ '<p style="color:#6b7280;font-style:italic;">Genera el análisis IA antes de descargar.</p>'}
+<div class="nota-edit">
+✏️ <strong>Espacio para tus anotaciones y comentarios</strong> — Puedes editar este documento en Word o añadir notas a mano.
+</div>
+<div class="espacio-notas">[ Escribe aquí tus conclusiones y próximos pasos ]</div>
+<hr style='margin-top:40px;'/>
+<p style='color:#9ca3af;font-size:.78rem;text-align:center;'>
+Plataforma de Diagnóstico Estratégico Empresarial · {hoy}</p>
+</body></html>"""
+
+def generar_word():
+    try:
+        from docx import Document
+        from docx.shared import Pt, RGBColor, Inches
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+        doc = Document()
+
+        # Título
+        titulo = doc.add_heading('Informe Estratégico · Diagnóstico Competitivo', 0)
+        titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        # Perfil
+        doc.add_paragraph(f"Empresa: {nom_sector} | {nom_tam} | {nom_reg} | Exportación: {nom_export} | {nom_anti}")
+        doc.add_paragraph(f"Referencia: {n_ref} empresas comparables | Fecha: {hoy}")
+        doc.add_paragraph(f"Score Estratégico Global (SSG): {idx['SSG']} / 100 — {nivel(idx['SSG']).upper()}")
+
+        doc.add_heading('Índices Estratégicos', level=1)
+        tabla = doc.add_table(rows=1, cols=3)
+        tabla.style = 'Table Grid'
+        hdr = tabla.rows[0].cells
+        hdr[0].text = 'Índice'; hdr[1].text = 'Descripción'; hdr[2].text = 'Valor (0-100)'
+        for cod, desc in [
+            ('SSG','Score Estratégico Global'),('ICE','Competitividad Empresarial'),
+            ('ISF','Solidez Financiera'),('IEO','Eficiencia Operativa'),
+            ('IDC','Dinamismo y Crecimiento'),('IIE','Intensidad Exportadora'),
+            ('IPT','Productividad y Talento')
+        ]:
+            row = tabla.add_row().cells
+            row[0].text = cod; row[1].text = desc; row[2].text = f"{idx[cod]}/100"
+
+        # Secciones IA
+        if secciones:
+            for titulo_norm, titulo_orig, cuerpo in secciones:
+                doc.add_heading(titulo_orig, level=1)
+                doc.add_paragraph(cuerpo)
+        else:
+            doc.add_paragraph("Genera el análisis IA en la plataforma antes de descargar.")
+
+        # Espacio para notas
+        doc.add_heading('Notas y comentarios del equipo directivo', level=1)
+        doc.add_paragraph("[ Escribe aquí tus conclusiones, observaciones y próximos pasos ]")
+        for _ in range(8):
+            p = doc.add_paragraph()
+            p.add_run('_' * 80)
+
+        # Guardar en memoria
+        import io
+        buffer = io.BytesIO()
+        doc.save(buffer)
+        buffer.seek(0)
+        return buffer.getvalue()
+    except ImportError:
+        return None
+
+# ── Botones de descarga ───────────────────────────────────────────────────
+html_out = generar_html_pdf()
+word_out = generar_word()
+
+st.markdown("""<div style="background:#f0fdf4;border:1px solid #10b981;border-radius:10px;
+    padding:14px 18px;margin-bottom:16px;font-size:.87rem;color:#065f46;">
+    📋 <strong>El documento Word es completamente editable</strong> — puedes añadir texto, 
+    modificar el contenido, insertar el logo de tu empresa y personalizar el informe 
+    antes de enviarlo a tu equipo directivo.
+</div>""", unsafe_allow_html=True)
+
+c1, c2, c3 = st.columns(3)
 with c1:
     st.download_button(
-        "📥 Descargar Informe HTML",
-        data=html_out,
-        file_name=f"informe_competitivo_{nom_sector[:15].replace(' ','_')}.html",
-        mime="text/html",
+        "📄 Descargar Word (.docx)",
+        data=word_out if word_out else b"",
+        file_name=f"informe_estrategico_{nom_sector[:15].replace(' ','_')}.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         type="primary",
-        use_container_width=True
+        use_container_width=True,
+        disabled=word_out is None
     )
 with c2:
-    st.info("Abre el archivo en tu navegador → **Ctrl+P** → **Guardar como PDF**")
+    st.download_button(
+        "🌐 Descargar HTML",
+        data=html_out,
+        file_name=f"informe_estrategico_{nom_sector[:15].replace(' ','_')}.html",
+        mime="text/html",
+        use_container_width=True
+    )
+with c3:
+    st.info("Para PDF: abre el HTML en navegador → **Ctrl+P** → **Guardar como PDF**")

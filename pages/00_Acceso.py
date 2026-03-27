@@ -30,17 +30,63 @@ def guardar_perfil(datos):
     perfil = cargar_perfil(); perfil.update(datos)
     with open(PERFIL_FILE,'w',encoding='utf-8') as f: json.dump(perfil,f,ensure_ascii=False,indent=2)
 
-# ── Cargar sesión guardada automáticamente ────────────────────────────────────
+# ── Inicializar cookies ───────────────────────────────────────────────────────
+try:
+    from streamlit_cookies_manager import EncryptedCookieManager
+    cookies = EncryptedCookieManager(prefix="diagnostico360_", password="D1agn0st1c0360Secret!")
+    if not cookies.ready():
+        st.stop()
+    COOKIES_OK = True
+except Exception:
+    cookies = None
+    COOKIES_OK = False
+
+def guardar_sesion_cookie(email, codigo, es_admin, nombre, rol):
+    if not COOKIES_OK or cookies is None: return
+    try:
+        cookies['usuario_email']  = email
+        cookies['empresa_codigo'] = codigo
+        cookies['es_admin']       = str(es_admin)
+        cookies['usuario_nombre'] = nombre
+        cookies['usuario_rol']    = rol
+        cookies.save()
+    except Exception: pass
+
+def limpiar_sesion_cookie():
+    if not COOKIES_OK or cookies is None: return
+    try:
+        for k in ['usuario_email','empresa_codigo','es_admin','usuario_nombre','usuario_rol']:
+            cookies[k] = ''
+        cookies.save()
+    except Exception: pass
+
+def cargar_sesion_cookie():
+    if not COOKIES_OK or cookies is None: return False
+    try:
+        email = cookies.get('usuario_email','')
+        codigo = cookies.get('empresa_codigo','')
+        if email and codigo:
+            st.session_state['usuario_email']  = email
+            st.session_state['empresa_codigo'] = codigo
+            st.session_state['es_admin']       = cookies.get('es_admin','False') == 'True'
+            st.session_state['usuario_nombre'] = cookies.get('usuario_nombre','')
+            st.session_state['usuario_rol']    = cookies.get('usuario_rol','colaborador')
+            return True
+    except Exception: pass
+    return False
+
+# ── Cargar sesión de cookie si no hay sesión activa ───────────────────────────
 perfil = cargar_perfil()
-if not st.session_state.get('usuario_email') and perfil.get('sesion_email'):
-    st.session_state['usuario_email']  = perfil['sesion_email']
-    st.session_state['empresa_codigo'] = perfil.get('sesion_codigo','')
-    st.session_state['es_admin']       = perfil.get('sesion_es_admin', False)
-    st.session_state['usuario_nombre'] = perfil.get('sesion_nombre','')
-    st.session_state['usuario_rol']    = perfil.get('sesion_rol','colaborador')
-    # Cargar también datos del perfil
-    for k,v in perfil.items():
-        if k not in st.session_state: st.session_state[k] = v
+if not st.session_state.get('usuario_email'):
+    # Intentar desde perfil local
+    if perfil.get('sesion_email'):
+        st.session_state['usuario_email']  = perfil['sesion_email']
+        st.session_state['empresa_codigo'] = perfil.get('sesion_codigo','')
+        st.session_state['es_admin']       = perfil.get('sesion_es_admin', False)
+        st.session_state['usuario_nombre'] = perfil.get('sesion_nombre','')
+        st.session_state['usuario_rol']    = perfil.get('sesion_rol','colaborador')
+    else:
+        cargar_sesion_cookie()
 
 # ── Si ya hay sesión activa ────────────────────────────────────────────────────
 if st.session_state.get('usuario_email') and st.session_state.get('empresa_codigo'):
@@ -52,11 +98,8 @@ if st.session_state.get('usuario_email') and st.session_state.get('empresa_codig
     st.success(f"✅ Sesión activa · {email} · {rol} · Empresa {codigo}")
 
     if st.button("Cerrar sesión", type="secondary"):
-        # Limpiar sesión del perfil
-        guardar_perfil({
-            'sesion_email': None, 'sesion_codigo': None,
-            'sesion_es_admin': False, 'sesion_nombre': '', 'sesion_rol': ''
-        })
+        guardar_perfil({'sesion_email':None,'sesion_codigo':None,'sesion_es_admin':False,'sesion_nombre':'','sesion_rol':''})
+        limpiar_sesion_cookie()
         for k in ['usuario_email','empresa_codigo','es_admin','usuario_nombre','usuario_rol']:
             st.session_state.pop(k, None)
         st.rerun()
@@ -78,7 +121,6 @@ with col_c:
     email  = st.text_input("Tu email", placeholder="nombre@empresa.com")
     codigo = st.text_input("Código de empresa", placeholder="EMP-XXXX",
                            help="El administrador de tu empresa te lo habrá proporcionado")
-
     st.markdown("<br>", unsafe_allow_html=True)
 
     if st.button("Entrar", use_container_width=True, type="primary"):
@@ -105,15 +147,9 @@ with col_c:
                             usuario = usr.data[0]
                             es_admin = usuario.get('es_admin', False)
                             rol = usuario.get('rol', 'admin' if es_admin else 'colaborador')
+                            email_clean = email.strip().lower()
 
-                            # Guardar sesión en session_state
-                            st.session_state['usuario_email']  = email.strip().lower()
-                            st.session_state['usuario_nombre'] = nombre
-                            st.session_state['empresa_codigo'] = codigo
-                            st.session_state['es_admin']       = es_admin
-                            st.session_state['usuario_rol']    = rol
-
-                            # Limpiar scores locales si cambia de empresa
+                            # Limpiar scores si cambia de empresa
                             codigo_anterior = perfil.get('sesion_codigo','')
                             if codigo_anterior != codigo:
                                 for k in ['score_b1','score_b2','score_b3','score_b4','score_b5',
@@ -127,16 +163,24 @@ with col_c:
                                     'informes_activados':False,'promedios_activados':False,
                                 })
 
-                            # Guardar sesión en perfil local para persistencia
+                            # Guardar sesión
+                            st.session_state['usuario_email']  = email_clean
+                            st.session_state['usuario_nombre'] = nombre
+                            st.session_state['empresa_codigo'] = codigo
+                            st.session_state['es_admin']       = es_admin
+                            st.session_state['usuario_rol']    = rol
+
+                            # Guardar en perfil local y cookie
                             guardar_perfil({
-                                'sesion_email':    email.strip().lower(),
+                                'sesion_email':    email_clean,
                                 'sesion_codigo':   codigo,
                                 'sesion_es_admin': es_admin,
                                 'sesion_nombre':   nombre,
                                 'sesion_rol':      rol,
                             })
+                            guardar_sesion_cookie(email_clean, codigo, es_admin, nombre, rol)
 
-                            # Cargar datos de empresa en session_state
+                            # Cargar datos de empresa
                             mapa = {
                                 'sector':'save_sector_nombre','tamano':'save_tam_nombre',
                                 'region':'save_reg_nombre','exportacion':'save_export_nombre',

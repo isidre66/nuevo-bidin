@@ -1,4 +1,5 @@
 import streamlit as st
+from asistentes import mostrar_felix
 import pandas as pd
 import plotly.graph_objects as go
 import json, os, numpy as np, requests, unicodedata
@@ -273,6 +274,7 @@ def render(texto, estilo='normal'):
     return f'<div class="{css_class}"><p>{html}</p></div>'
 
 # ── Cabecera ──────────────────────────────────────────────────────────────
+mostrar_felix(pagina='informe_estrategico')
 ssg_c = col_v(idx['SSG'])
 st.markdown(f"""
 <div class="report-header">

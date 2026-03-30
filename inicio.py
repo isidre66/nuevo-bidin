@@ -38,7 +38,7 @@ if not st.session_state.get('usuario_email') and perfil.get('sesion_email'):
 def cargar_desde_supabase():
     ec = st.session_state.get('empresa_codigo')
     if not ec: return
-    if st.session_state.get('save_reg_user') and st.session_state.get('save_sector_nombre'): return
+    if st.session_state.get('save_reg_user') and st.session_state.get('save_sector_nombre') and st.session_state.get('score_b1'): return
     try:
         from supabase import create_client
         url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL",""))

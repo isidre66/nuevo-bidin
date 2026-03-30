@@ -49,6 +49,7 @@ SOBRE LA PLATAFORMA:
 - Compara con más de 1.000 empresas auditadas de referencia
 - Genera índices, informes, benchmarking y planes de acción con IA
 - TOTAL ANONIMATO: los datos individuales nunca se divulgan
+- PRECIO: La plataforma está actualmente en etapa de introducción y es totalmente gratuita durante esta fase
 - Tiempo estimado cuestionario innovación: 10-15 minutos
 
 SECCIONES DEL MENÚ:

@@ -212,7 +212,7 @@ else:
         st.page_link("pages/00_Registro_Empresa.py", label="🏢 Registrar nueva empresa", use_container_width=True)
     with col_b:
         st.page_link("pages/00_Acceso.py", label="🔑 Acceder con código de empresa", use_container_width=True)
-        try:
+try:
     mostrar_melissa()
 except Exception as e:
-    st.error(f"Error Melissa: {e}")
+    st.error(f"Error Melissa: {e}")        

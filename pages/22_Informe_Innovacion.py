@@ -1,4 +1,5 @@
 import streamlit as st
+from asistentes import mostrar_felix, aviso_promedios
 import pandas as pd
 import plotly.graph_objects as go
 import json, os, numpy as np, requests, unicodedata
@@ -314,6 +315,8 @@ def render(texto, estilo='normal'):
     return f'<div class="{css}"><p>{html}</p></div>'
 
 # ── Cabecera ──────────────────────────────────────────────────────────────
+mostrar_felix(pagina='informe_innovacion')
+aviso_promedios()
 macro_c = col_v(macro_inn)
 st.markdown(f"""
 <div class="report-header">

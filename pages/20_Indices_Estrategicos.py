@@ -247,6 +247,7 @@ def color_val(v):
 nom_reg = st.session_state.get('save_reg_nombre','—')
 nom_tam = st.session_state.get('save_tam_nombre','—')
 ssg_v   = idx_empresa['SSG']
+mostrar_felix(pagina='indices')
 ssg_col = color_val(ssg_v)
 
 st.markdown(f"""
@@ -667,4 +668,4 @@ with c2:
         mime="text/html", use_container_width=True)
 with c3:
     st.info("Para PDF: abre el HTML → **Ctrl+P** → **Guardar como PDF**")
-    mostrar_felix(pagina='indices')
+mostrar_felix(pagina='indices')

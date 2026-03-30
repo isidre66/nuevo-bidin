@@ -122,7 +122,27 @@ if not st.session_state.get('save_reg_user'):
 
 if not st.session_state.get('save_reg_user'):
     st.warning("⚠️ Primero completa tu perfil en **Mi Empresa → Datos de la empresa**."); st.stop()
-
+if not st.session_state.get('score_b1'):
+    try:
+        from supabase import create_client as _sc
+        _url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL",""))
+        _key = st.secrets.get("SUPABASE_KEY", os.environ.get("SUPABASE_KEY",""))
+        _ec  = st.session_state.get('empresa_codigo','') or perfil.get('sesion_codigo','')
+        if _url and _key and _ec:
+            _sb = _sc(_url, _key)
+            _resp = _sb.table('respuestas').select('*').eq('empresa_codigo',_ec).execute().data or []
+            if _resp:
+                from collections import defaultdict as _dd
+                _sumas = _dd(list)
+                for _r in _resp:
+                    _sumas[f"B{_r['bloque']}_{_r['item']}"].append(_r['valor'])
+                _proms = {k: round(sum(v)/len(v),2) for k,v in _sumas.items()}
+                for _b in range(1,6):
+                    _items = [v for k,v in _proms.items() if k.startswith(f"B{_b}_")]
+                    if _items: st.session_state[f'score_b{_b}'] = round(sum(_items)/len(_items),2)
+                if len(set(_r['bloque'] for _r in _resp)) >= 5:
+                    st.session_state['informes_activados'] = True
+    except Exception: pass
 ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','datos.xlsx')
 if not os.path.exists(ruta): ruta = "datos.xlsx"
 try:

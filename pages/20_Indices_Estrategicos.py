@@ -1,4 +1,5 @@
 import streamlit as st
+from asistentes import mostrar_felix
 import pandas as pd
 import plotly.graph_objects as go
 import json
@@ -666,3 +667,4 @@ with c2:
         mime="text/html", use_container_width=True)
 with c3:
     st.info("Para PDF: abre el HTML → **Ctrl+P** → **Guardar como PDF**")
+    mostrar_felix(pagina='indices')

@@ -196,17 +196,18 @@ with col_c:
 
                             rol_txt = "Administrador" if es_admin else rol.capitalize()
                             try:
-                                resp_scores = sb.table('respuestas').select('bloque,item,valor').eq('empresa_codigo', codigo).execute().data or []
-                                if resp_scores:
+                                todas_resp = sb.table('respuestas').select('*').eq('empresa_codigo', codigo).execute().data or []
+                                if todas_resp:
                                     from collections import defaultdict
                                     sumas = defaultdict(list)
-                                    for r in resp_scores:
-                                        sumas[r['bloque']].append(r['valor'])
+                                    for r in todas_resp:
+                                        sumas[f"B{r['bloque']}_{r['item']}"].append(r['valor'])
+                                    promedios = {k: round(sum(v)/len(v),2) for k,v in sumas.items()}
                                     for b in range(1,6):
-                                        vals = sumas.get(b,[])
-                                        if vals:
-                                            st.session_state[f'score_b{b}'] = round(sum(vals)/len(vals),2)
-                                    bloques = set(r['bloque'] for r in resp_scores)
+                                        items_b = [v for k,v in promedios.items() if k.startswith(f"B{b}_")]
+                                        if items_b:
+                                            st.session_state[f'score_b{b}'] = round(sum(items_b)/len(items_b),2)
+                                    bloques = set(r['bloque'] for r in todas_resp)
                                     if len(bloques) >= 5:
                                         st.session_state['informes_activados'] = True
                             except Exception:

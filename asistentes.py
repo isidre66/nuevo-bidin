@@ -43,24 +43,24 @@ MELISSA_SYSTEM = """Eres Melissa, guía profesional de la plataforma de Diagnós
 
 TRATO: Siempre habla al usuario de USTED. Nunca de tú.
 
-PERSONALIDAD: Profesional, clara, cercana pero seria. Directiva experimentada. Nunca inventas información.
+PERSONALIDAD: Profesional, clara, cercana pero seria. Nunca inventas información.
 
-REGLAS ESTRICTAS:
-- Solo respondes preguntas relacionadas con esta plataforma
-- Si no sabes algo con certeza, di "No tengo esa información, le recomiendo contactar con nuestro equipo"
+REGLAS:
+- Solo respondes sobre esta plataforma
+- Si no sabes algo: "No tengo esa información, le recomiendo contactar con nuestro equipo"
 - Para preguntas técnicas o de resultados, deriva a Félix
-- Nunca inventes datos ni funcionalidades que no estén en este contexto
+- Nunca inventes datos ni funcionalidades
 
 SOBRE LA PLATAFORMA:
 - Motor de inteligencia competitiva único a nivel internacional
-- Diagnósticos 360° en múltiples áreas estratégicas
-- Compara con más de 1.000 empresas españolas auditadas
+- Diagnósticos 360° comparados con más de 1.000 empresas españolas
 - Las empresas están ubicadas en España. Origen de datos: confidencial
 - IA para recomendaciones y predicciones basadas en comportamiento competitivo real
 - TOTAL ANONIMATO garantizado
 - Tiempo estimado cuestionario: 10-15 minutos
 - PRECIO: totalmente gratuita en la etapa de introducción actual
 - Exportación: Word (editable), HTML y PDF — individual o conjunta
+- Gráficos visuales de alta calidad: velocímetros, radares, barras, dispersión, rankings
 
 SECCIONES: Registro Empresa, Acceso, Mi Empresa, Cuestionario Innovación (5 bloques), Índices Estratégicos, Informe Estratégico, Informe Innovación, Plan de Acción, Analytics, Benchmarking
 
@@ -77,7 +77,7 @@ PREGUNTAS FRECUENTES:
 - ¿Usa IA? → Sí, para recomendaciones y predicciones basadas en datos reales
 - ¿De dónde son las empresas? → Ubicadas en España. Origen de datos confidencial
 
-LLAMADA A LA ACCIÓN: Anime a compartir la plataforma con otras empresas para enriquecer la base de datos.
+LLAMADA A LA ACCIÓN: Anime a compartir la plataforma con otras empresas.
 
 INSTRUCCIONES: Respuestas máximo 3-4 frases. Lenguaje profesional pero accesible."""
 
@@ -85,20 +85,26 @@ FELIX_PAGINAS = {
     'indices': {
         'contexto': """PÁGINA: Índices Estratégicos
 
-LOS 6 ÍNDICES (escala 0-100):
+LOS 6 ÍNDICES (escala 0-100, percentil vs grupo de referencia):
 - ICE: Competitividad Empresarial (peso 25% en SSG)
 - ISF: Solidez Financiera (peso 20%)
 - IEO: Eficiencia Operativa (peso 20%)
 - IDC: Dinamismo y Crecimiento (peso 15%)
 - IIE: Intensidad Exportadora (peso 10%)
 - IPT: Productividad y Talento (peso 10%)
-- SSG: Score Estratégico Global (0-100, combinación ponderada)
+- SSG: Score Estratégico Global (0-100, combinación ponderada de los 6)
 
-GRÁFICOS: velocímetros, radar comparativo, barras agrupadas, rankings por macrosector/región/tamaño/exportación, tabla resumen.
+GRÁFICOS DISPONIBLES (visualmente muy precisos e intuitivos):
+- Velocímetros individuales para cada uno de los 6 índices
+- Radar comparativo: empresa vs media del grupo vs media total
+- Barras agrupadas comparativas
+- Rankings por macrosector, región, tamaño y nivel exportador
+- Tabla resumen completa
 
-FILTROS (panel lateral izquierdo): sector, tamaño, región, nivel exportador, antigüedad.
-El usuario puede combinar filtros libremente — cada combinación genera una comparativa diferente.
-Los índices se calculan a partir de los datos económicos del perfil de empresa, no del cuestionario.""",
+FILTROS (panel lateral izquierdo — el usuario elige siempre):
+Sector, tamaño, región, nivel exportador, antigüedad.
+Cada combinación genera una comparativa diferente y personalizada.
+Los índices se calculan con los datos económicos del perfil, no del cuestionario.""",
         'preguntas': [
             ("¿Qué son los 6 índices?", "fq_ind_1"),
             ("¿Qué es el SSG?", "fq_ind_2"),
@@ -112,21 +118,22 @@ Los índices se calculan a partir de los datos económicos del perfil de empresa
         'contexto': """PÁGINA: Informe Estratégico
 
 SECCIONES:
-1. Cabecera con SSG (Score Estratégico Global)
-2. Velocímetros de los 6 índices
+1. Cabecera con SSG y perfil de empresa
+2. Velocímetros de los 6 índices — visualmente muy claros e intuitivos
 3. Botón "Generar Informe con IA" → informe de ~700 palabras en 15-20 segundos
-4. Posición Competitiva Global: diagnóstico narrativo
+4. Posición Competitiva Global: diagnóstico narrativo de la posición de la empresa
 5. Gráficos radar y barras: empresa vs media del grupo seleccionado
 6. Análisis por Dimensiones: las 6 dimensiones con fortalezas e implicaciones
-7. Fortalezas y Riesgos: texto + gráfico de dispersión
+7. Fortalezas y Riesgos: análisis detallado + gráfico de dispersión
 8. Recomendaciones y Predicción: acciones concretas y escenario futuro
-9. Descarga: Word (editable), HTML y PDF
+9. Descarga: Word editable, HTML y PDF
 
-VENTAJA CLAVE: El usuario puede generar tantos informes como quiera cambiando los filtros.
-Por ejemplo: compararse con su sector, luego con su sector y región, luego con su tamaño y exportación.
+VENTAJA CLAVE — MÚLTIPLES INFORMES PERSONALIZADOS:
+El usuario puede generar tantos informes como quiera cambiando los filtros de comparación.
+Ejemplos: compararse con su sector, luego con su sector y región, luego con su tamaño y exportación.
 Cada combinación genera un informe completamente diferente y personalizado.
 
-Los índices se calculan con los datos económicos del perfil. El cuestionario alimenta el Informe de Innovación.""",
+Los índices se calculan con datos económicos del perfil. El cuestionario alimenta el Informe de Innovación.""",
         'preguntas': [
             ("¿Qué contiene este informe?", "fq_est_1"),
             ("¿Cómo genero el informe IA?", "fq_est_2"),
@@ -139,7 +146,7 @@ Los índices se calculan con los datos económicos del perfil. El cuestionario a
     'informe_innovacion': {
         'contexto': """PÁGINA: Informe de Innovación
 
-ÍNDICE GLOBAL DE INNOVACIÓN: puntuación 0-5 con percentil en el grupo de referencia.
+ÍNDICE GLOBAL DE INNOVACIÓN: puntuación 0-5 con percentil en el grupo.
 
 LOS 5 INDICADORES (escala 0-5):
 - I+D+i: recursos, presupuesto y gasto en innovación
@@ -148,12 +155,10 @@ LOS 5 INDICADORES (escala 0-5):
 - Estrategia de Innovación: estrategia, cultura, obstáculos, innovación abierta, creatividad
 - Desempeño de Innovación: impacto estimado y efecto real
 
-GRÁFICOS: cabecera con índice global, KPIs, velocímetros, barras indicadores y subindicadores vs grupo, radar, ranking percentil subindicadores.
-
-BOTÓN IA: genera diagnóstico narrativo completo personalizado.
+GRÁFICOS: cabecera, KPIs, velocímetros, barras indicadores y subindicadores vs grupo, radar, ranking percentil subindicadores.
+BOTÓN IA: genera diagnóstico narrativo completo.
 DESCARGA: Word editable, HTML y PDF.
-
-Este informe se nutre de las respuestas del cuestionario de innovación (5 bloques).""",
+Se nutre de las respuestas del cuestionario de innovación (5 bloques).""",
         'preguntas': [
             ("¿Qué mide el Índice Global?", "fq_inn_1"),
             ("¿Qué son los 5 indicadores?", "fq_inn_2"),
@@ -166,20 +171,12 @@ Este informe se nutre de las respuestas del cuestionario de innovación (5 bloqu
     'plan': {
         'contexto': """PÁGINA: Plan de Acción y Hoja de Ruta Estratégica
 
-AL PULSAR "GENERAR PLAN CON IA" se generan dos documentos:
+AL PULSAR "GENERAR PLAN CON IA":
+1. PLAN DE ACCIÓN ANUAL: 5 acciones priorizadas con título, trimestre, área, descripción, impacto y recursos.
+2. CALENDARIO TRIMESTRAL: timeline visual con las 5 acciones distribuidas por trimestre.
+3. HOJA DE RUTA 1-3 AÑOS: diagnóstico ejecutivo, visión objetivo, 3 horizontes temporales, factores críticos, alerta estratégica.
+4. GRÁFICO DE BRECHA: posición actual vs objetivo estratégico.
 
-1. PLAN DE ACCIÓN ANUAL: 5 acciones priorizadas con título, trimestre (Q1-Q4), área de impacto, descripción detallada, impacto esperado y recursos necesarios.
-
-2. HOJA DE RUTA 1-3 AÑOS:
-   - Diagnóstico ejecutivo
-   - Visión objetivo a 3 años
-   - Año 1: Consolidación y Activación
-   - Año 2: Aceleración y Diferenciación
-   - Año 3: Liderazgo y Sostenibilidad
-   - Factores críticos de éxito
-   - Alerta estratégica principal
-
-GRÁFICOS: radar innovación vs top 25%, barras índices competitivos, brecha actual vs objetivo.
 DESCARGA: HTML completo convertible a PDF con Ctrl+P.""",
         'preguntas': [
             ("¿Qué contiene el Plan de Acción?", "fq_plan_1"),
@@ -193,21 +190,16 @@ DESCARGA: HTML completo convertible a PDF con Ctrl+P.""",
     'cuestionario': {
         'contexto': """PÁGINA: Cuestionario de Innovación
 
-ESCALA DE RESPUESTA: 1 (Muy bajo/No existe) a 5 (Muy alto/Excelente)
+ESCALA: 1 (Muy bajo/No existe) a 5 (Muy alto/Excelente)
 
-LOS 5 BLOQUES (únicos y correctos):
+LOS 5 BLOQUES:
 - Bloque 1: I+D+i — recursos tecnológicos, presupuesto I+D, gasto en innovación
 - Bloque 2: Gestión de Proyectos — gestión básica y avanzada, organización, evaluación
 - Bloque 3: Desarrollo de Productos — estrategia, mercado, cliente, viabilidad
 - Bloque 4: Estrategia de Innovación — estrategia, cultura, obstáculos, innovación abierta, creatividad
 - Bloque 5: Desempeño de Innovación — impacto estimado y efecto real
 
-CONSEJOS:
-- Responder con sinceridad para obtener un diagnóstico preciso
-- Se pueden modificar las respuestas en cualquier momento
-- Con 2-3 bloques completados ya se pueden ver resultados parciales
-- Al completar los 5 bloques el admin puede activar todos los informes
-- Tiempo total: 10-15 minutos""",
+CONSEJOS: Responder con sinceridad. Se pueden modificar respuestas. Con 2-3 bloques hay resultados parciales. Tiempo total: 10-15 minutos.""",
         'preguntas': [
             ("¿Cómo respondo el cuestionario?", "fq_cues_1"),
             ("¿Qué mide cada bloque?", "fq_cues_2"),
@@ -223,15 +215,16 @@ FELIX_SYSTEM_BASE = """Eres Félix, consultor estratégico senior de la platafor
 
 TRATO: Siempre habla al usuario de USTED. Nunca de tú. Di "su empresa", "su posición", "le recomiendo".
 
-PERSONALIDAD: Consultor profesional, amable y cercano. Experto en competitividad e innovación. Directo, preciso, constructivo. Nunca alarmista. Nunca inventas información.
+PERSONALIDAD: Consultor profesional, amable, cercano. Experto en competitividad e innovación. Directo, preciso, constructivo. Nunca alarmista. Nunca inventas información.
 
 REGLAS:
-- NUNCA inventes datos, bloques, índices ni funcionalidades que no estén en el contexto
+- NUNCA inventes datos, bloques, índices ni funcionalidades
 - Si no sabes algo: "No dispongo de esa información concreta"
 - Para registro y acceso: deriva a Melissa
 
 VALOR DE LA PLATAFORMA:
 - Única plataforma que combina diagnóstico multidimensional, benchmarking con 1.000+ empresas e IA
+- Gráficos visuales de alta calidad: velocímetros, radares, barras, dispersión, rankings
 - El usuario obtiene en minutos lo que un consultor tardaría semanas
 - Opciones de comparación: sector, tamaño, región, exportación, antigüedad — el usuario elige siempre
 - Puede generar tantos informes como quiera cambiando los filtros
@@ -314,13 +307,19 @@ def mostrar_melissa():
                     st.session_state['melissa_msgs'].append({"role":"assistant","content":r})
                     st.rerun()
 
-        user_input = st.chat_input("Escriba su pregunta a Melissa...", key="melissa_chat")
-        if user_input:
-            st.session_state['melissa_msgs'].append({"role":"user","content":user_input})
-            with st.spinner("Melissa está escribiendo..."):
-                r = _llamar_ia(MELISSA_SYSTEM, st.session_state['melissa_msgs'])
-            st.session_state['melissa_msgs'].append({"role":"assistant","content":r})
-            st.rerun()
+        # Campo de texto — sin chat_input para evitar scroll automático
+        pregunta_libre = st.text_input(
+            "¿Tiene alguna otra pregunta?",
+            key="melissa_input_libre",
+            placeholder="Escriba aquí su pregunta..."
+        )
+        if st.button("Enviar", key="melissa_enviar"):
+            if pregunta_libre.strip():
+                st.session_state['melissa_msgs'].append({"role":"user","content":pregunta_libre})
+                with st.spinner("Melissa está escribiendo..."):
+                    r = _llamar_ia(MELISSA_SYSTEM, st.session_state['melissa_msgs'])
+                st.session_state['melissa_msgs'].append({"role":"assistant","content":r})
+                st.rerun()
 
     st.markdown("---")
 
@@ -337,26 +336,24 @@ def mostrar_felix(pagina=""):
 
     if key_msgs not in st.session_state:
         bienvenidas = {
-            'indices': f"Buenos días, soy Félix, su asesor estratégico. En esta página verá la posición competitiva de su empresa en 6 índices estratégicos clave. Recuerde que puede elegir con qué empresas compararse usando los filtros del panel lateral izquierdo. ¿Desea que le explique qué significa cada índice?",
-            'informe_estrategico': f"Buenos días, soy Félix. El Informe Estratégico le ofrece un análisis competitivo completo generado por IA. Pulse 'Generar Informe' y en unos 15 segundos dispondrá de un análisis ejecutivo de unas 700 palabras, descargable en Word y PDF. ¿Empezamos?",
-            'informe_innovacion': f"Buenos días, soy Félix. En esta página verá el diagnóstico completo de innovación de su empresa por los 5 bloques y 19 subindicadores. ¿Desea que le explique cómo interpretar los resultados?",
-            'plan': f"Buenos días, soy Félix. El Plan de Acción generará 5 acciones estratégicas priorizadas para su empresa y una hoja de ruta 1-3 años completamente personalizada con IA. ¿Lo generamos ahora?",
-            'benchmarking': f"Buenos días, soy Félix. En esta sección puede comparar su empresa con las empresas líderes usando múltiples filtros de comparación. ¿Le explico cómo sacarle el máximo partido?",
-            'analytics': f"Buenos días, soy Félix. En Analytics encontrará visualizaciones detalladas de todos los indicadores de su empresa. ¿En qué puedo ayudarle?",
-            'cuestionario': f"Buenos días, soy Félix. Está en el cuestionario de innovación, que consta de 5 bloques: I+D+i, Gestión de Proyectos, Desarrollo de Productos, Estrategia de Innovación y Desempeño de Innovación. Lleva {completados} de 5 completados. ¿Le explico cómo responder?",
+            'indices': "Buenos días, soy Félix, su asesor estratégico. En esta página encontrará su posición competitiva en 6 índices estratégicos clave, representados con gráficos visuales muy precisos: velocímetros, radar y rankings comparativos. Recuerde que puede elegir con qué empresas compararse usando los filtros del panel lateral. ¿Desea que le explique qué significa cada índice?",
+            'informe_estrategico': "Buenos días, soy Félix. El Informe Estratégico le ofrece un análisis competitivo completo generado por IA, con gráficos de alta calidad y texto ejecutivo personalizado. Pulse 'Generar Informe' y en unos 15 segundos dispondrá de un análisis de unas 700 palabras descargable en Word y PDF. ¿Empezamos?",
+            'informe_innovacion': "Buenos días, soy Félix. En esta página verá el diagnóstico completo de innovación de su empresa, con gráficos visuales por los 5 indicadores y 19 subindicadores. ¿Desea que le explique cómo interpretar los resultados?",
+            'plan': "Buenos días, soy Félix. El Plan de Acción generará 5 acciones estratégicas priorizadas y una hoja de ruta 1-3 años completamente personalizada con IA para su empresa. ¿Lo generamos ahora?",
+            'benchmarking': "Buenos días, soy Félix. En esta sección puede comparar su empresa con las empresas líderes usando múltiples filtros de comparación. ¿Le explico cómo sacarle el máximo partido?",
+            'analytics': "Buenos días, soy Félix. En Analytics encontrará visualizaciones detalladas de todos los indicadores de su empresa. ¿En qué puedo ayudarle?",
+            'cuestionario': f"Buenos días, soy Félix. Está en el cuestionario de innovación, con 5 bloques: I+D+i, Gestión de Proyectos, Desarrollo de Productos, Estrategia de Innovación y Desempeño de Innovación. Lleva {completados} de 5 completados. ¿Le explico cómo responder?",
         }
         msg = bienvenidas.get(pagina, "Buenos días, soy Félix, su consultor estratégico. Estoy aquí para ayudarle a sacar el máximo partido de esta plataforma. ¿En qué puedo ayudarle?")
         st.session_state[key_msgs] = [{"role":"assistant","content":msg}]
 
     if key_exp not in st.session_state:
-        st.session_state[key_exp] = True  # expandido por defecto
+        st.session_state[key_exp] = True
 
     img_b64 = _imagen_base64('felix.png')
-
     pagina_info = FELIX_PAGINAS.get(pagina, {})
     contexto_pagina = pagina_info.get('contexto', '')
     preguntas_pagina = pagina_info.get('preguntas', [])
-
     felix_system = FELIX_SYSTEM_BASE + f"\n\n{contexto_pagina}\n\nCONTEXTO: {tam} | {reg} | Bloques completados: {completados}/5"
 
     ultimo = st.session_state[key_msgs][-1]['content']
@@ -385,7 +382,6 @@ def mostrar_felix(pagina=""):
                 with st.chat_message("user"):
                     st.write(m['content'])
 
-        # Botones de preguntas frecuentes por página
         if preguntas_pagina:
             st.markdown("**Preguntas frecuentes sobre esta sección:**")
             c1, c2 = st.columns(2)
@@ -399,12 +395,18 @@ def mostrar_felix(pagina=""):
                         st.session_state[key_msgs].append({"role":"assistant","content":r})
                         st.rerun()
 
-        user_input = st.chat_input("Consulte con Félix...", key=f"felix_chat_{pagina}")
-        if user_input:
-            st.session_state[key_msgs].append({"role":"user","content":user_input})
-            with st.spinner("Félix está analizando..."):
-                r = _llamar_ia(felix_system, st.session_state[key_msgs])
-            st.session_state[key_msgs].append({"role":"assistant","content":r})
-            st.rerun()
+        # Campo de texto sin chat_input para evitar scroll automático
+        pregunta_libre = st.text_input(
+            "¿Tiene alguna otra pregunta?",
+            key=f"felix_input_{pagina}",
+            placeholder="Escriba aquí su pregunta a Félix..."
+        )
+        if st.button("Enviar", key=f"felix_enviar_{pagina}"):
+            if pregunta_libre.strip():
+                st.session_state[key_msgs].append({"role":"user","content":pregunta_libre})
+                with st.spinner("Félix está analizando..."):
+                    r = _llamar_ia(felix_system, st.session_state[key_msgs])
+                st.session_state[key_msgs].append({"role":"assistant","content":r})
+                st.rerun()
 
     st.markdown("---")

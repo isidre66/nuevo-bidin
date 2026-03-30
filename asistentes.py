@@ -22,7 +22,7 @@ def _imagen_base64(nombre):
     ruta = os.path.join(base, 'assets', nombre)
     if not os.path.exists(ruta):
         ruta = os.path.join('/mount/src/nuevo-bidin/assets', nombre)
-```
+
     if os.path.exists(ruta):
         with open(ruta, 'rb') as f:
             return base64.b64encode(f.read()).decode()

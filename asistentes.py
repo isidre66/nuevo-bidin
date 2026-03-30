@@ -18,7 +18,11 @@ def _get_api_key():
 
 def _imagen_base64(nombre):
     """Carga imagen de assets como base64."""
-    ruta = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', nombre)
+    base = os.path.dirname(os.path.abspath(__file__))
+    ruta = os.path.join(base, 'assets', nombre)
+    if not os.path.exists(ruta):
+        ruta = os.path.join('/mount/src/nuevo-bidin/assets', nombre)
+```
     if os.path.exists(ruta):
         with open(ruta, 'rb') as f:
             return base64.b64encode(f.read()).decode()

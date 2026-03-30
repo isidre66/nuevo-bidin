@@ -218,6 +218,5 @@ with col_b:
         st.page_link("pages/00_Acceso.py", label="🔑 Acceder con código de empresa", use_container_width=True)
 
 try:
-    mostrar_melissa()
 except Exception as e:
     st.error(f"Error Melissa: {e}")  

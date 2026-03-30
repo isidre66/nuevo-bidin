@@ -4,7 +4,7 @@ Importar en cada página con:
     from asistentes import mostrar_melissa, mostrar_felix
 """
 import streamlit as st
-from asistentes import mostrar_melissa
+
 import requests
 import os
 import base64

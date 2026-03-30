@@ -94,12 +94,7 @@ LOS 6 ÍNDICES (escala 0-100, percentil vs grupo de referencia):
 - IPT: Productividad y Talento (peso 10%)
 - SSG: Score Estratégico Global (0-100, combinación ponderada de los 6)
 
-GRÁFICOS DISPONIBLES (visualmente muy precisos e intuitivos):
-- Velocímetros individuales para cada uno de los 6 índices
-- Radar comparativo: empresa vs media del grupo vs media total
-- Barras agrupadas comparativas
-- Rankings por macrosector, región, tamaño y nivel exportador
-- Tabla resumen completa
+GRÁFICOS: velocímetros, radar comparativo, barras agrupadas, rankings por macrosector/región/tamaño/exportación, tabla resumen.
 
 FILTROS (panel lateral izquierdo — el usuario elige siempre):
 Sector, tamaño, región, nivel exportador, antigüedad.
@@ -119,20 +114,16 @@ Los índices se calculan con los datos económicos del perfil, no del cuestionar
 
 SECCIONES:
 1. Cabecera con SSG y perfil de empresa
-2. Velocímetros de los 6 índices — visualmente muy claros e intuitivos
+2. Velocímetros de los 6 índices — muy visuales e intuitivos
 3. Botón "Generar Informe con IA" → informe de ~700 palabras en 15-20 segundos
-4. Posición Competitiva Global: diagnóstico narrativo de la posición de la empresa
+4. Posición Competitiva Global: diagnóstico narrativo
 5. Gráficos radar y barras: empresa vs media del grupo seleccionado
 6. Análisis por Dimensiones: las 6 dimensiones con fortalezas e implicaciones
 7. Fortalezas y Riesgos: análisis detallado + gráfico de dispersión
 8. Recomendaciones y Predicción: acciones concretas y escenario futuro
 9. Descarga: Word editable, HTML y PDF
 
-VENTAJA CLAVE — MÚLTIPLES INFORMES PERSONALIZADOS:
-El usuario puede generar tantos informes como quiera cambiando los filtros de comparación.
-Ejemplos: compararse con su sector, luego con su sector y región, luego con su tamaño y exportación.
-Cada combinación genera un informe completamente diferente y personalizado.
-
+VENTAJA CLAVE: El usuario puede generar tantos informes como quiera cambiando los filtros.
 Los índices se calculan con datos económicos del perfil. El cuestionario alimenta el Informe de Innovación.""",
         'preguntas': [
             ("¿Qué contiene este informe?", "fq_est_1"),
@@ -146,26 +137,55 @@ Los índices se calculan con datos económicos del perfil. El cuestionario alime
     'informe_innovacion': {
         'contexto': """PÁGINA: Informe de Innovación
 
-ÍNDICE GLOBAL DE INNOVACIÓN: puntuación 0-5 con percentil en el grupo.
+VALOR Y DESCRIPCIÓN:
+Esta es una de las secciones más valiosas y únicas de la plataforma. Ofrece un diagnóstico personalizado y completo sobre el posicionamiento de la empresa en el área de innovación, que es fundamental en el entorno competitivo actual.
 
-LOS 5 INDICADORES (escala 0-5):
-- I+D+i: recursos, presupuesto y gasto en innovación
-- Gestión de Proyectos: gestión básica, avanzada, organización, evaluación
-- Desarrollo de Productos: estrategia, mercado, cliente, viabilidad
+ESTRUCTURA COMPLETA DE LA PÁGINA:
+
+1. INDICADOR GLOBAL DE INNOVACIÓN (macro-indicador):
+Gran marcador visible con la puntuación global de innovación (escala 0-5).
+Es un valor agregado — para un análisis más preciso conviene explorar los indicadores y subindicadores que lo componen.
+
+2. LOS 5 INDICADORES DE INNOVACIÓN (escala 0-5 con velocímetros):
+- I+D+i: recursos tecnológicos, presupuesto I+D, gasto en innovación
+- Gestión de Proyectos: gestión básica y avanzada, organización, evaluación
+- Desarrollo de Productos: estrategia, mercado, orientación al cliente, viabilidad
 - Estrategia de Innovación: estrategia, cultura, obstáculos, innovación abierta, creatividad
 - Desempeño de Innovación: impacto estimado y efecto real
+Cada velocímetro muestra el valor de la empresa y la media del grupo de referencia ("media grupo").
 
-GRÁFICOS: cabecera, KPIs, velocímetros, barras indicadores y subindicadores vs grupo, radar, ranking percentil subindicadores.
-BOTÓN IA: genera diagnóstico narrativo completo.
-DESCARGA: Word editable, HTML y PDF.
-Se nutre de las respuestas del cuestionario de innovación (5 bloques).""",
+3. INDICADORES Y SUBINDICADORES VS GRUPO (más de 20 indicadores):
+Gráfico de barras horizontal que muestra la puntuación de la empresa en cada uno de los 5 indicadores y sus subindicadores, comparados con la media del grupo.
+Los 5 indicadores aparecen destacados y debajo cada uno muestra sus subindicadores.
+Permite identificar fácilmente las áreas fuertes y débiles con gran precisión.
+
+4. BOTÓN "GENERAR INFORME DE INNOVACIÓN CON IA":
+Al pulsarlo, la IA genera en 15-25 segundos:
+- Diagnóstico de innovación: 2-3 párrafos con el perfil innovador, patrón de la empresa, puntos fuertes y débiles
+- Gráfico de radar: posición de la empresa en los 5 indicadores vs media del grupo
+- Fortalezas y brechas: análisis por percentiles (0=peor, 100=mejor, 50=media del grupo) con ranking de subindicadores
+- Recomendaciones y predicción: acciones concretas a implementar y posicionamiento esperado si se implementan exitosamente
+
+5. DESCARGA: Word editable, HTML y PDF completo.
+
+FILTROS DE COMPARACIÓN (MUY IMPORTANTE — recordar siempre):
+El usuario puede cambiar en cualquier momento los criterios de comparación:
+sector, tamaño, región, nivel exportador, antigüedad, indicadores de desempeño económico.
+Cada combinación genera un diagnóstico diferente comparado con un perfil de empresa diferente.
+La base de datos cuenta con más de 1.000 empresas españolas.
+
+LOS VALORES SON PROMEDIOS DEL EQUIPO:
+Los indicadores reflejan el promedio de todos los usuarios de la empresa que han respondido el cuestionario.
+Si más usuarios responden, los promedios se actualizan automáticamente.
+
+PERCENTILES: escala 0-100. Percentil 50 = exactamente en la media del grupo. Percentil 100 = mejor posición posible.""",
         'preguntas': [
             ("¿Qué mide el Índice Global?", "fq_inn_1"),
             ("¿Qué son los 5 indicadores?", "fq_inn_2"),
             ("¿Qué son los subindicadores?", "fq_inn_3"),
-            ("¿Cómo interpreto mi posición?", "fq_inn_4"),
+            ("¿Cómo interpreto los percentiles?", "fq_inn_4"),
             ("¿Cómo mejoro mi innovación?", "fq_inn_5"),
-            ("¿Cómo descargo el informe?", "fq_inn_6"),
+            ("¿Puedo cambiar los filtros?", "fq_inn_6"),
         ]
     },
     'plan': {
@@ -215,29 +235,34 @@ FELIX_SYSTEM_BASE = """Eres Félix, consultor estratégico senior de la platafor
 
 TRATO: Siempre habla al usuario de USTED. Nunca de tú. Di "su empresa", "su posición", "le recomiendo".
 
-PERSONALIDAD: Consultor profesional, amable, cercano. Experto en competitividad e innovación. Directo, preciso, constructivo. Nunca alarmista. Nunca inventas información.
+PERSONALIDAD: Consultor profesional, amable, cercano. Experto en competitividad e innovación. Directo, preciso, constructivo. Nunca alarmista. Nunca inventas información. Tono positivo que resalta el valor de la plataforma.
 
 REGLAS:
 - NUNCA inventes datos, bloques, índices ni funcionalidades
-- Si no sabes algo: "No dispongo de esa información concreta"
+- Si no sabes algo: "No dispongo de esa información concreta, pero puedo orientarle sobre..."
 - Para registro y acceso: deriva a Melissa
 
-VALOR DE LA PLATAFORMA:
-- Única plataforma que combina diagnóstico multidimensional, benchmarking con 1.000+ empresas e IA
+VALOR DE LA PLATAFORMA (mencionar con orgullo pero sin exageración):
+- Única plataforma que combina diagnóstico multidimensional, benchmarking con 1.000+ empresas españolas e informes con IA
+- Más de 20 indicadores y subindicadores de innovación — cobertura sin precedentes en el mercado
 - Gráficos visuales de alta calidad: velocímetros, radares, barras, dispersión, rankings
-- El usuario obtiene en minutos lo que un consultor tardaría semanas
-- Opciones de comparación: sector, tamaño, región, exportación, antigüedad — el usuario elige siempre
+- El usuario obtiene en minutos lo que un consultor tardaría semanas y costaría miles de euros
+- Flexibilidad total: el usuario elige siempre con qué empresas compararse
+- Filtros disponibles: sector, tamaño, región, exportación, antigüedad + indicadores de desempeño económico
 - Puede generar tantos informes como quiera cambiando los filtros
 
-EXPORTACIÓN: Word, HTML y PDF — individual o todo junto
+EXPORTACIÓN: Word (editable), HTML y PDF — individual o todo junto
 PRECIO: Gratuita durante la etapa de introducción
-EMPRESAS: Ubicadas en España. Origen de datos: confidencial. Total anonimato.
+EMPRESAS: Más de 1.000 empresas ubicadas en España. Origen de datos: confidencial. Total anonimato.
+
+PERCENTILES: escala 0-100. Percentil 50 = media del grupo. Percentil 100 = mejor posición posible.
+Describir siempre en lenguaje natural: "por debajo de la media", "en el tercio superior", "próximo a la media"
 
 INSTRUCCIONES:
 - Máximo 3-4 frases por respuesta
-- Describe percentiles en lenguaje natural: "por debajo de la media del sector", "en el tercio superior"
-- PROHIBIDO: "alarmante", "catastrófico", "urgente", "excelente", "fantástico"
-- USA: "margen de mejora", "posición sólida", "área prioritaria", "ventaja competitiva" """
+- Tono positivo y motivador, destacando el valor y oportunidades de mejora
+- PROHIBIDO: "alarmante", "catastrófico", "urgente", "grave"
+- USA: "margen de mejora", "posición sólida", "área prioritaria", "oportunidad de desarrollo" """
 
 def _banner_asistente(img_b64, nombre, subtitulo, color, ultimo_msg):
     img_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:3px solid #fff;flex-shrink:0;">' if img_b64 else f'<div style="width:52px;height:52px;border-radius:50%;background:{color};flex-shrink:0;"></div>'
@@ -307,12 +332,7 @@ def mostrar_melissa():
                     st.session_state['melissa_msgs'].append({"role":"assistant","content":r})
                     st.rerun()
 
-        # Campo de texto — sin chat_input para evitar scroll automático
-        pregunta_libre = st.text_input(
-            "¿Tiene alguna otra pregunta?",
-            key="melissa_input_libre",
-            placeholder="Escriba aquí su pregunta..."
-        )
+        pregunta_libre = st.text_input("¿Tiene alguna otra pregunta?", key="melissa_input_libre", placeholder="Escriba aquí su pregunta...")
         if st.button("Enviar", key="melissa_enviar"):
             if pregunta_libre.strip():
                 st.session_state['melissa_msgs'].append({"role":"user","content":pregunta_libre})
@@ -336,9 +356,9 @@ def mostrar_felix(pagina=""):
 
     if key_msgs not in st.session_state:
         bienvenidas = {
-            'indices': "Buenos días, soy Félix, su asesor estratégico. En esta página encontrará su posición competitiva en 6 índices estratégicos clave, representados con gráficos visuales muy precisos: velocímetros, radar y rankings comparativos. Recuerde que puede elegir con qué empresas compararse usando los filtros del panel lateral. ¿Desea que le explique qué significa cada índice?",
+            'indices': "Buenos días, soy Félix, su asesor estratégico. En esta página encontrará la posición competitiva de su empresa en 6 índices estratégicos clave, con gráficos visuales muy precisos. Recuerde que puede elegir con qué empresas compararse usando los filtros del panel lateral. ¿Desea que le explique qué significa cada índice?",
             'informe_estrategico': "Buenos días, soy Félix. El Informe Estratégico le ofrece un análisis competitivo completo generado por IA, con gráficos de alta calidad y texto ejecutivo personalizado. Pulse 'Generar Informe' y en unos 15 segundos dispondrá de un análisis de unas 700 palabras descargable en Word y PDF. ¿Empezamos?",
-            'informe_innovacion': "Buenos días, soy Félix. En esta página verá el diagnóstico completo de innovación de su empresa, con gráficos visuales por los 5 indicadores y 19 subindicadores. ¿Desea que le explique cómo interpretar los resultados?",
+            'informe_innovacion': f"Buenos días, soy Félix. Esta sección contiene uno de los activos más valiosos de la plataforma: un diagnóstico completo e inédito de su posicionamiento en innovación, con más de 20 indicadores y subindicadores comparados con más de 1.000 empresas españolas. Tiene {completados} de 5 bloques completados. ¿Le explico cómo sacarle el máximo partido?",
             'plan': "Buenos días, soy Félix. El Plan de Acción generará 5 acciones estratégicas priorizadas y una hoja de ruta 1-3 años completamente personalizada con IA para su empresa. ¿Lo generamos ahora?",
             'benchmarking': "Buenos días, soy Félix. En esta sección puede comparar su empresa con las empresas líderes usando múltiples filtros de comparación. ¿Le explico cómo sacarle el máximo partido?",
             'analytics': "Buenos días, soy Félix. En Analytics encontrará visualizaciones detalladas de todos los indicadores de su empresa. ¿En qué puedo ayudarle?",
@@ -395,12 +415,7 @@ def mostrar_felix(pagina=""):
                         st.session_state[key_msgs].append({"role":"assistant","content":r})
                         st.rerun()
 
-        # Campo de texto sin chat_input para evitar scroll automático
-        pregunta_libre = st.text_input(
-            "¿Tiene alguna otra pregunta?",
-            key=f"felix_input_{pagina}",
-            placeholder="Escriba aquí su pregunta a Félix..."
-        )
+        pregunta_libre = st.text_input("¿Tiene alguna otra pregunta?", key=f"felix_input_{pagina}", placeholder="Escriba aquí su pregunta a Félix...")
         if st.button("Enviar", key=f"felix_enviar_{pagina}"):
             if pregunta_libre.strip():
                 st.session_state[key_msgs].append({"role":"user","content":pregunta_libre})
@@ -410,3 +425,27 @@ def mostrar_felix(pagina=""):
                 st.rerun()
 
     st.markdown("---")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# AVISO DE PROMEDIOS
+# ══════════════════════════════════════════════════════════════════════════
+def aviso_promedios():
+    """Muestra un aviso informativo sobre que los valores son promedios del equipo."""
+    try:
+        from supabase import create_client
+        import os
+        url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL",""))
+        key = st.secrets.get("SUPABASE_KEY", os.environ.get("SUPABASE_KEY",""))
+        ec  = st.session_state.get('empresa_codigo','')
+        if url and key and ec:
+            sb = create_client(url, key)
+            resp = sb.table('respuestas').select('usuario_email').eq('empresa_codigo', ec).execute().data or []
+            n_usuarios = len(set(r['usuario_email'] for r in resp))
+            if n_usuarios > 0:
+                msg = f"📊 Los valores mostrados son el **promedio de {n_usuarios} {'usuario' if n_usuarios==1 else 'usuarios'}** que han respondido el cuestionario en su empresa."
+                if n_usuarios == 1:
+                    msg += " Para un diagnóstico más representativo, invite a más miembros de su equipo a participar."
+                st.info(msg)
+    except Exception:
+        pass

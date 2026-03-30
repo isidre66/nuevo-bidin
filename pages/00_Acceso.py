@@ -195,6 +195,22 @@ with col_c:
                                     st.session_state[ss_key] = empresa[campo]
 
                             rol_txt = "Administrador" if es_admin else rol.capitalize()
+                            try:
+                                resp_scores = sb.table('respuestas').select('bloque,item,valor').eq('empresa_codigo', codigo).execute().data or []
+                                if resp_scores:
+                                    from collections import defaultdict
+                                    sumas = defaultdict(list)
+                                    for r in resp_scores:
+                                        sumas[r['bloque']].append(r['valor'])
+                                    for b in range(1,6):
+                                        vals = sumas.get(b,[])
+                                        if vals:
+                                            st.session_state[f'score_b{b}'] = round(sum(vals)/len(vals),2)
+                                    bloques = set(r['bloque'] for r in resp_scores)
+                                    if len(bloques) >= 5:
+                                        st.session_state['informes_activados'] = True
+                            except Exception:
+                                pass
                             st.success(f"✅ Bienvenido/a, {nombre}. Rol: {rol_txt}")
                             st.rerun()
                 except Exception as e:

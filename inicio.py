@@ -138,7 +138,7 @@ if usuario_email and empresa_codigo:
         padding:8px 16px;margin-bottom:12px;font-size:.84rem;color:#065f46;display:flex;justify-content:space-between;align-items:center;">
         <span>✅ Sesión activa · <strong>{usuario_email}</strong> · {rol} · Empresa <strong>{empresa_codigo}</strong></span>
     </div>""", unsafe_allow_html=True)
-
+mostrar_melissa()
 # ── HERO ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero-box">

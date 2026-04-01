@@ -1,4 +1,5 @@
 import streamlit as st
+from asistentes import mostrar_felix
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -307,7 +308,7 @@ st.markdown("<br>",unsafe_allow_html=True)
 
 if 'plan_generado' not in st.session_state: st.session_state['plan_generado']=False
 if 'plan_texto'    not in st.session_state: st.session_state['plan_texto']={}
-
+mostrar_felix(pagina='plan')
 col_btn,col_info=st.columns([1,2])
 with col_btn:
     generar=st.button("🚀 Generar Plan Completo con IA",type="primary",use_container_width=True)

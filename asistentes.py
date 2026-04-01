@@ -191,20 +191,45 @@ PERCENTILES: escala 0-100. Percentil 50 = exactamente en la media del grupo. Per
     'plan': {
         'contexto': """PÁGINA: Plan de Acción y Hoja de Ruta Estratégica
 
-AL PULSAR "GENERAR PLAN CON IA":
-1. PLAN DE ACCIÓN ANUAL: 5 acciones priorizadas con título, trimestre, área, descripción, impacto y recursos.
-2. CALENDARIO TRIMESTRAL: timeline visual con las 5 acciones distribuidas por trimestre.
-3. HOJA DE RUTA 1-3 AÑOS: diagnóstico ejecutivo, visión objetivo, 3 horizontes temporales, factores críticos, alerta estratégica.
-4. GRÁFICO DE BRECHA: posición actual vs objetivo estratégico.
+VALOR Y DESCRIPCIÓN:
+El Plan de Acción es la guinda del pastel y el componente más valioso de la plataforma.
+Todos los informes, índices, benchmarking y analytics generados se sintetizan en esta sección,
+indispensable para guiar la toma de decisiones empresariales.
+Todos los contenidos son totalmente personalizados a partir de la situación real de la empresa.
 
-DESCARGA: HTML completo convertible a PDF con Ctrl+P.""",
+ESTRUCTURA COMPLETA (al pulsar "Generar Plan Completo con IA"):
+
+1. DIAGNÓSTICO DE PARTIDA:
+- Gráfico radar: posición de la empresa en los 5 indicadores de innovación vs top 25% del grupo
+- Gráfico de barras: percentil de la empresa en los 6 índices competitivos y el score global
+- Permite identificar rápidamente la distancia respecto a los mejores y en qué indicadores está más lejos o más cerca
+
+2. PLAN DE ACCIÓN A 12 MESES (corto plazo):
+- 5 acciones esenciales, estratégicas y prioritarias para el desempeño futuro
+- Para cada acción: trimestre recomendado de implantación, impacto esperado y recursos a movilizar
+
+3. CALENDARIO DE EJECUCIÓN:
+- Timeline visual que ubica cada una de las 5 acciones en su trimestre correspondiente
+
+4. HOJA DE RUTA ESTRATÉGICA 3 AÑOS (medio plazo):
+- Documento estratégico por excelencia
+- Gráfico de barras con posición actual y brecha respecto al objetivo estratégico a 3 años
+
+5. HORIZONTES ESTRATÉGICOS:
+- Objetivos a conseguir año a año (Año 1, Año 2, Año 3)
+- Estrategia determinante para lograr cada horizonte
+
+6. FACTORES CRÍTICOS DE ÉXITO:
+- Los factores clave que determinarán el éxito de la estrategia para esta empresa concreta
+
+DESCARGA: Word editable, HTML y PDF completo.""",
         'preguntas': [
             ("¿Qué contiene el Plan de Acción?", "fq_plan_1"),
-            ("¿Qué es la Hoja de Ruta?", "fq_plan_2"),
+            ("¿Qué es la Hoja de Ruta 3 años?", "fq_plan_2"),
             ("¿Cómo se generan las acciones?", "fq_plan_3"),
-            ("¿Qué es el gráfico de brecha?", "fq_plan_4"),
-            ("¿Puedo descargar el plan?", "fq_plan_5"),
-            ("¿Puedo regenerar el plan?", "fq_plan_6"),
+            ("¿Qué son los Horizontes Estratégicos?", "fq_plan_4"),
+            ("¿Qué son los Factores Críticos?", "fq_plan_5"),
+            ("¿Cómo descargo el plan?", "fq_plan_6"),
         ]
     },
     'cuestionario': {
@@ -359,7 +384,7 @@ def mostrar_felix(pagina=""):
             'indices': "Buenos días, soy Félix, su asesor estratégico. En esta página encontrará la posición competitiva de su empresa en 6 índices estratégicos clave, con gráficos visuales muy precisos. Recuerde que puede elegir con qué empresas compararse usando los filtros del panel lateral. ¿Desea que le explique qué significa cada índice?",
             'informe_estrategico': "Buenos días, soy Félix. El Informe Estratégico le ofrece un análisis competitivo completo generado por IA, con gráficos de alta calidad y texto ejecutivo personalizado. Pulse 'Generar Informe' y en unos 15 segundos dispondrá de un análisis de unas 700 palabras descargable en Word y PDF. ¿Empezamos?",
             'informe_innovacion': f"Buenos días, soy Félix. Esta sección contiene uno de los activos más valiosos de la plataforma: un diagnóstico completo e inédito de su posicionamiento en innovación, con más de 20 indicadores y subindicadores comparados con más de 1.000 empresas españolas. Tiene {completados} de 5 bloques completados. ¿Le explico cómo sacarle el máximo partido?",
-            'plan': "Buenos días, soy Félix. El Plan de Acción generará 5 acciones estratégicas priorizadas y una hoja de ruta 1-3 años completamente personalizada con IA para su empresa. ¿Lo generamos ahora?",
+            'plan': "Buenos días, soy Félix. El Plan de Acción es la guinda del pastel de esta plataforma — sintetiza todos sus diagnósticos en 5 acciones prioritarias y una hoja de ruta estratégica a 3 años, completamente personalizadas para su empresa con IA. Pulse 'Generar Plan Completo con IA' para obtenerlo en segundos. ¿Empezamos?",
             'benchmarking': "Buenos días, soy Félix. En esta sección puede comparar su empresa con las empresas líderes usando múltiples filtros de comparación. ¿Le explico cómo sacarle el máximo partido?",
             'analytics': "Buenos días, soy Félix. En Analytics encontrará visualizaciones detalladas de todos los indicadores de su empresa. ¿En qué puedo ayudarle?",
             'cuestionario': f"Buenos días, soy Félix. Está en el cuestionario de innovación, con 5 bloques: I+D+i, Gestión de Proyectos, Desarrollo de Productos, Estrategia de Innovación y Desempeño de Innovación. Lleva {completados} de 5 completados. ¿Le explico cómo responder?",

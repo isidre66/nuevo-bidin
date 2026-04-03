@@ -1,4 +1,5 @@
 import streamlit as st
+from asistentes import mostrar_felix
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -259,6 +260,7 @@ def barras_h(rows, titulo, xmax):
 # ═══════════════════════════════════════════════════════════
 # CABECERA
 # ═══════════════════════════════════════════════════════════
+mostrar_felix(pagina='benchmarking')
 st.markdown(f"""
 <div class="report-header">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">

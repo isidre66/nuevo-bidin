@@ -281,6 +281,51 @@ FILTROS: sector, tamaño, región, exportación, antigüedad, ventas, ROA. El us
             ("¿Puedo elegir los indicadores?", "fq_ana_6"),
         ]
     },
+    'benchmarking': {
+        'contexto': """PÁGINA: Benchmarking
+
+VALOR Y DESCRIPCIÓN:
+Esta sección es una potente herramienta de consultoría estratégica dentro del motor de inteligencia competitiva 360 all in one.
+Ofrece un dashboard completo para determinar la posición en cualquier indicador de innovación o desempeño empresarial con un nivel de detalle sin precedentes.
+
+ESTRUCTURA — 4 SECCIONES DESPLEGABLES:
+
+1. BENCHMARKING:
+- Posición comparada con el Top 25% del sector y Top 25% de la región
+- En los 5 indicadores de innovación y los 6 índices de competitividad
+- Visualizados en formato radar
+- 3 gráficos de barras: indicadores de innovación, índices estratégicos y 6 variables económicas vs promedio del Top 25%
+- Tabla resumen ejecutivo: fortalezas a la derecha, áreas de mejora prioritarias a la izquierda
+
+2. TU GRUPO ESTRATÉGICO:
+- Todas las empresas clasificadas en 5 niveles (quintiles): Rezagadas, En Desarrollo, Intermedias, Sólidas, Líderes
+- Se indica el grupo estratégico al que pertenece la empresa
+- Gráficos comparativos con el grupo inmediatamente superior
+- Ejemplo: si está en "Intermedias", se compara con "Sólidas"
+- Cuadro con acciones prioritarias para ascender al grupo superior
+
+3. MEJORES PRÁCTICAS:
+- Para cada indicador de innovación, compara con el Top 25% y la media global
+- Los subindicadores con mayor diferencial entre el Top y la media son las "prácticas diferenciales"
+- Identifica dónde se concentra la ventaja competitiva real
+- 2 gráficos visuales con subindicadores críticos donde más debe incidir la empresa
+
+4. SIMULADOR + MAPA (totalmente interactivo):
+- El usuario puede variar valores de indicadores de innovación y variables económicas
+- Muestra cómo cambiaría la posición si los valores fueran distintos
+- Funciona como predictor de posicionamiento
+- Nube de puntos interactiva: muestra cómo variaría la posición dentro de los 5 grupos estratégicos
+
+LO QUE NO EXISTE: No se puede seleccionar un percentil concreto. No se puede identificar empresas individuales.""",
+        'preguntas': [
+            ("¿Qué son los 4 apartados?", "fq_ben_1"),
+            ("¿Qué es el Grupo Estratégico?", "fq_ben_2"),
+            ("¿Qué son las Mejores Prácticas?", "fq_ben_3"),
+            ("¿Cómo funciona el Simulador?", "fq_ben_4"),
+            ("¿Qué es el Top 25%?", "fq_ben_5"),
+            ("¿Cómo asciendo de grupo?", "fq_ben_6"),
+        ]
+    },
 }
 
 FELIX_SYSTEM_BASE = """Eres Félix, consultor estratégico senior de la plataforma Etelvia — el primer y único motor de inteligencia competitiva 360 all in one.
@@ -437,7 +482,7 @@ def mostrar_felix(pagina=""):
             'informe_estrategico': "Buenos días, soy Félix. El Informe Estratégico le ofrece un análisis competitivo completo generado por IA, con gráficos de alta calidad y texto ejecutivo personalizado. Pulse 'Generar Informe' y en unos 15 segundos dispondrá de un análisis de unas 700 palabras descargable en Word y PDF. ¿Empezamos?",
             'informe_innovacion': f"Buenos días, soy Félix. Esta sección contiene uno de los activos más valiosos de la plataforma: un diagnóstico completo e inédito de su posicionamiento en innovación, con más de 20 indicadores y subindicadores comparados con más de 1.000 empresas españolas. Tiene {completados} de 5 bloques completados. ¿Le explico cómo sacarle el máximo partido?",
             'plan': "Buenos días, soy Félix. El Plan de Acción es la guinda del pastel de esta plataforma — sintetiza todos sus diagnósticos en 5 acciones prioritarias y una hoja de ruta estratégica a 3 años, completamente personalizadas para su empresa con IA. Pulse 'Generar Plan Completo con IA' para obtenerlo en segundos. ¿Empezamos?",
-            'benchmarking': "Buenos días, soy Félix. En esta sección puede comparar su empresa con las empresas líderes usando múltiples filtros de comparación. ¿Le explico cómo sacarle el máximo partido?",
+            'benchmarking': "Buenos días, soy Félix. Benchmarking es una de las secciones más potentes de la plataforma — encontrará su posición frente al Top 25% del sector y región, su grupo estratégico, las mejores prácticas diferenciales y un simulador interactivo de posicionamiento. ¿Por dónde desea empezar?",
             'analytics': "Buenos días, soy Félix. Analytics es la sección más profunda y flexible de la plataforma — le permite comparar su empresa con cualquier perfil usando más de 20 indicadores y subindicadores a su elección. ¿Le explico cómo sacarle el máximo partido?",
             'cuestionario': f"Buenos días, soy Félix. Está en el cuestionario de innovación, con 5 bloques: I+D+i, Gestión de Proyectos, Desarrollo de Productos, Estrategia de Innovación y Desempeño de Innovación. Lleva {completados} de 5 completados. ¿Le explico cómo responder?",
         }

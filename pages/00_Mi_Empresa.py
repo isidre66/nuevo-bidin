@@ -94,6 +94,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ── Tabs ───────────────────────────────────────────────────────────────────────
+mostrar_melissa_mi_empresa()
 tab1, tab2, tab3 = st.tabs(["👥 Equipo y progreso", "🏢 Datos de la empresa", "📊 Promedios y resultados"])
 
 # ─────────────────────────────────────────────────────

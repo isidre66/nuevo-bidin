@@ -850,3 +850,124 @@ def mostrar_melissa_cuestionario(bloque=1):
                 st.rerun()
 
     st.markdown("---")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# MELISSA EN MI EMPRESA
+# ══════════════════════════════════════════════════════════════════════════
+
+MELISSA_MI_EMPRESA_SYSTEM = """Eres Melissa, guía profesional de la plataforma Etelvia. Estás en la sección Mi Empresa, ayudando al administrador a configurar y gestionar su empresa en la plataforma.
+
+TRATO: Siempre habla de USTED. Nunca de tú.
+
+PERSONALIDAD: Guía clara, profesional y cercana. Explicas con sencillez.
+
+SECCIÓN MI EMPRESA — 3 PESTAÑAS:
+
+PESTAÑA 1 — EQUIPO Y PROGRESO:
+- Muestra el seguimiento de todos los usuarios invitados a la empresa
+- Para cada usuario: qué bloques ha completado y su rol
+- Muestra cuántos usuarios han completado todo el cuestionario y cuántos están pendientes
+- El administrador puede invitar nuevos usuarios desde aquí
+- Se comparte el Código de empresa (EMP-XXXX) para que los nuevos usuarios accedan
+- ROLES DISPONIBLES:
+  * Colaborador: solo puede contestar los 5 bloques del cuestionario
+  * Manager: puede ver promedios, índices y analytics
+  * Admin: acceso completo a todos los informes y gestión del equipo
+
+PESTAÑA 2 — DATOS DE LA EMPRESA:
+- Aquí se definen los datos de clasificación y económicos de la empresa
+- Estos datos son FUNDAMENTALES — se usan para el benchmarking y los índices competitivos
+- Es muy importante que sean lo más veraces y exactos posible
+- Datos de clasificación: sector, tamaño, exportación, antigüedad, región
+- Datos económicos: ventas (miles €), empleados, ROA (%), variación ventas 5 años, variación empleo 5 años, productividad, coste medio empleado, ratio endeudamiento
+- La productividad se calcula automáticamente (ventas / empleados)
+
+PESTAÑA 3 — PROMEDIOS Y RESULTADOS:
+- Muestra los promedios del equipo por cada bloque del cuestionario (escala 1-5)
+- Las respuestas individuales son ANÓNIMAS — solo se muestran promedios
+- El botón "Activar informes y resultados" es el paso clave:
+  * Al activarlo, todos los índices, informes y plan de acción se calculan con los promedios del equipo
+  * Los usuarios con rol Manager también podrán ver los índices y analytics
+  * Solo el administrador puede activar los informes
+- Se recomienda activar cuando la mayoría del equipo haya completado el cuestionario
+
+INSTRUCCIONES:
+- Máximo 3-4 frases por respuesta
+- Tono amable y claro
+- Animar a completar los datos de empresa con precisión
+- Animar a invitar a más miembros del equipo para enriquecer el diagnóstico"""
+
+
+def mostrar_melissa_mi_empresa():
+    """Muestra a Melissa como guía en la sección Mi Empresa."""
+    key_msgs = 'melissa_mi_empresa_msgs'
+    key_exp  = 'melissa_mi_empresa_exp'
+
+    if key_msgs not in st.session_state:
+        st.session_state[key_msgs] = [{"role":"assistant","content":"Bienvenido/a a la sección Mi Empresa. Aquí puede gestionar el equipo, configurar los datos de su empresa y activar los informes cuando su equipo haya completado el cuestionario. ¿En qué puedo ayudarle?"}]
+
+    if key_exp not in st.session_state:
+        st.session_state[key_exp] = True
+
+    img_b64 = _imagen_base64('melissa.png')
+    ultimo = st.session_state[key_msgs][-1]['content']
+    ultimo_corto = ultimo[:130] + "..." if len(ultimo) > 130 else ultimo
+
+    st.markdown(_banner_asistente(img_b64, "Melissa", "Su guía profesional", "#065f46", ultimo_corto), unsafe_allow_html=True)
+
+    col_expand, col_reset = st.columns([3,1])
+    with col_expand:
+        label = "▲ Ocultar" if st.session_state[key_exp] else "💬 Hablar con Melissa"
+        if st.button(label, key="melissa_miempresa_toggle", use_container_width=True):
+            st.session_state[key_exp] = not st.session_state[key_exp]
+            st.rerun()
+    with col_reset:
+        if st.button("↺ Reiniciar", key="melissa_miempresa_reset", use_container_width=True):
+            st.session_state[key_msgs] = [{"role":"assistant","content":"¡Hola de nuevo! ¿En qué puedo ayudarle?"}]
+            st.session_state[key_exp] = True
+            st.rerun()
+
+    if st.session_state[key_exp]:
+        for m in st.session_state[key_msgs][-6:]:
+            if m['role'] == 'assistant':
+                with st.chat_message("assistant"):
+                    st.write(m['content'])
+            else:
+                with st.chat_message("user"):
+                    st.write(m['content'])
+
+        st.markdown("**Preguntas frecuentes:**")
+        c1, c2 = st.columns(2)
+        preguntas = [
+            ("¿Cómo invito a mi equipo?", "mme_1"),
+            ("¿Qué son los roles?", "mme_2"),
+            ("¿Qué datos debo rellenar?", "mme_3"),
+            ("¿Cuándo activo los informes?", "mme_4"),
+            ("¿Son anónimas las respuestas?", "mme_5"),
+            ("¿Qué pasa al activar informes?", "mme_6"),
+        ]
+        for i, (texto, key) in enumerate(preguntas):
+            col = c1 if i % 2 == 0 else c2
+            with col:
+                if st.button(texto, key=key, use_container_width=True):
+                    st.session_state[key_msgs].append({"role":"user","content":texto})
+                    with st.spinner(""):
+                        r = _llamar_ia(MELISSA_MI_EMPRESA_SYSTEM, st.session_state[key_msgs])
+                    st.session_state[key_msgs].append({"role":"assistant","content":r})
+                    st.rerun()
+
+        pregunta_libre = st.text_input(
+            "¿Tiene alguna pregunta?",
+            key="melissa_miempresa_input",
+            placeholder="Escriba aquí su pregunta..."
+        )
+        if st.button("Enviar", key="melissa_miempresa_enviar"):
+            if pregunta_libre.strip():
+                st.session_state[key_msgs].append({"role":"user","content":pregunta_libre})
+                with st.spinner("Melissa está escribiendo..."):
+                    r = _llamar_ia(MELISSA_MI_EMPRESA_SYSTEM, st.session_state[key_msgs])
+                st.session_state[key_msgs].append({"role":"assistant","content":r})
+                st.rerun()
+
+    st.markdown("---")

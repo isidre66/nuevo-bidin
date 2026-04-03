@@ -1,4 +1,5 @@
 import streamlit as st
+from asistentes import mostrar_melissa_cuestionario
 import json, os
 
 st.set_page_config(page_title="Desempeño e Impacto", layout="wide")
@@ -62,6 +63,7 @@ def aclaracion(key, texto):
 
 opt={1:"Nulo, negativo",2:"Escaso",3:"Moderado",4:"Alto",5:"Muy alto"}
 
+mostrar_melissa_cuestionario(bloque=5)
 st.title("📈 Bloque 5: Desempeño e Impacto de la Innovación")
 if resp_prev: st.success("✅ Tienes respuestas guardadas. Puedes modificarlas y volver a guardar.")
 elif st.session_state.get('b5_finalizado'): st.success("✅ Bloque completado. Puedes modificar y volver a guardar.")

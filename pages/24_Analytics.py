@@ -1,4 +1,5 @@
 import streamlit as st
+from asistentes import mostrar_felix
 import pandas as pd
 import plotly.graph_objects as go
 import json
@@ -136,6 +137,7 @@ mis_valores_map = {
 # SIDEBAR
 # ═════════════════════════════════════════════════════════════════════════════
 with st.sidebar:
+   mostrar_felix(pagina='analytics')
     st.markdown("### 🔍 Filtros de Comparación")
     st.caption("Vacío = sin filtro (todas las empresas)")
     st.divider()

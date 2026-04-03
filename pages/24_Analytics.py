@@ -136,9 +136,9 @@ mis_valores_map = {
 # ═════════════════════════════════════════════════════════════════════════════
 # SIDEBAR
 # ═════════════════════════════════════════════════════════════════════════════
+mostrar_felix(pagina='analytics')
 with st.sidebar:
-   mostrar_felix(pagina='analytics')
-    st.markdown("### 🔍 Filtros de Comparación")
+st.markdown("### 🔍 Filtros de Comparación")
     st.caption("Vacío = sin filtro (todas las empresas)")
     st.divider()
     REG_INV = {v:k for k,v in REGIONES.items()}

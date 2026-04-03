@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st  # v2
 import requests
 import os
 import base64

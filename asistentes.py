@@ -254,6 +254,33 @@ CONSEJOS: Responder con sinceridad. Se pueden modificar respuestas. Con 2-3 bloq
             ("¿Cuánto tiempo tarda?", "fq_cues_6"),
         ]
     },
+    'analytics': {
+        'contexto': """PÁGINA: Analytics
+
+VALOR: En Analytics su empresa se compara a nivel profundo con el perfil de empresas seleccionado.
+Puede cambiar el perfil comparativo en cualquier momento: sector, tamaño, región, nivel exportador, etc.
+Puede elegir cualquiera de los más de 20 indicadores y subindicadores para establecer comparaciones.
+
+ESTRUCTURA:
+1. Pestañas de los 5 indicadores con todos sus subindicadores seleccionables
+2. Posición en el Grupo: puntuación, percentil y distancia respecto al promedio
+3. Comparativa Interactiva: barras con empresa, grupo y total
+4. Radar Interactivo: posición comparativa visual
+5. Percentil en los 5 indicadores vs media del grupo
+6. Velocímetros: posicionamiento intuitivo
+7. Nube de Puntos: todas las empresas del grupo, posición propia y promedio
+8. Desempeño Económico: 6 indicadores con colores semáforo (rojo=peor, verde=mejor)
+
+FILTROS: sector, tamaño, región, exportación, antigüedad, ventas, ROA. El usuario elige siempre.""",
+        'preguntas': [
+            ("¿Qué muestra esta sección?", "fq_ana_1"),
+            ("¿Cómo uso los filtros?", "fq_ana_2"),
+            ("¿Qué es la nube de puntos?", "fq_ana_3"),
+            ("¿Cómo interpreto los percentiles?", "fq_ana_4"),
+            ("¿Qué es el desempeño económico?", "fq_ana_5"),
+            ("¿Puedo elegir los indicadores?", "fq_ana_6"),
+        ]
+    },
 }
 
 FELIX_SYSTEM_BASE = """Eres Félix, consultor estratégico senior de la plataforma Etelvia — el primer y único motor de inteligencia competitiva 360 all in one.

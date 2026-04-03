@@ -1,4 +1,4 @@
-import streamlit as st  # v2
+import streamlit as st
 import requests
 import os
 import base64
@@ -574,3 +574,279 @@ def aviso_promedios():
                 st.info(msg)
     except Exception:
         pass
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# MELISSA EN EL CUESTIONARIO
+# ══════════════════════════════════════════════════════════════════════════
+
+MELISSA_BLOQUES = {
+    1: {
+        'nombre': 'I+D+i — Actividades de Investigación, Desarrollo e Innovación',
+        'descripcion': """Este bloque evalúa los recursos y esfuerzo inversor de su empresa en I+D+i. Tiene 3 subindicadores con 7 preguntas en total.
+
+SUBINDICADOR 1.1 — Departamento I+D (2 preguntas):
+- Recursos técnicos dedicados a I+D (escala 1=Nulo a 5=Muy alto)
+- Recursos humanos dedicados a I+D (1=Ningún personal propio hasta 5=Departamento I+D con más de 5 personas o más del 5% de plantilla)
+
+SUBINDICADOR 1.2 — Presupuesto I+D (3 preguntas):
+- Presupuesto específico para I+D (1=No se asigna presupuesto hasta 5=Presupuesto anual desglosado con indicadores de resultados)
+- I+D subvencionado: % financiación por subvenciones públicas (1=0-10% hasta 5=>50%)
+- Participación en proyectos con financiación pública (1=No hasta 5=Liderazgo en proyectos internacionales)
+
+SUBINDICADOR 1.3 — Gasto en innovación (2 preguntas):
+- Gasto estimado anual en innovación sobre ventas (1=0% hasta 5=>10%)
+- Evolución futura del gasto en innovación (1=Reducción hasta 5=Gran crecimiento)
+
+CONSEJO: Responda con honestidad. No hay respuestas buenas o malas — el diagnóstico es más preciso cuanto más refleja la realidad de su empresa.""",
+        'preguntas': [
+            ("¿Qué mide este bloque?", "mq_b1_1"),
+            ("¿Cómo valoro los recursos de I+D?", "mq_b1_2"),
+            ("¿Qué es el presupuesto I+D?", "mq_b1_3"),
+            ("¿Qué incluye el gasto en innovación?", "mq_b1_4"),
+            ("¿Cómo afectan mis respuestas al diagnóstico?", "mq_b1_5"),
+        ]
+    },
+    2: {
+        'nombre': 'Gestión de Proyectos de Innovación',
+        'descripcion': """Este bloque evalúa cómo gestiona su empresa los proyectos de innovación. Tiene 4 subindicadores con 9 preguntas.
+
+SUBINDICADOR 2.1 — Gestión básica (4 preguntas):
+- Equipos multidisciplinares en proyectos (1=Nunca hasta 5=Cooperación activa siempre)
+- Grado de entendimiento y consenso en proyectos (1=Inexistente hasta 5=Alineación sistemática siempre)
+- Apoyo directivo a los proyectos de innovación (1=Inexistente hasta 5=Apoyo continuo y sistemático)
+- Planificación de proyectos de innovación (1=Nunca hasta 5=En todos los proyectos)
+
+SUBINDICADOR 2.2 — Gestión avanzada (3 preguntas):
+- Acceso a tecnologías avanzadas (1=Nulo hasta 5=Muy alto)
+- Gestión de propiedad industrial e intelectual (1=Nunca hasta 5=Siempre con expertos internos y externos)
+- Herramientas y metodologías ágiles: Scrum, Kanban... (1=Se desconocen hasta 5=Sistema integrado digitalizado)
+
+SUBINDICADOR 2.3 — Organización de proyectos (2 preguntas):
+- Organización/administración de proyectos (1=Inexistente hasta 5=Monitorización continua digitalizada)
+- Fomento de competencia entre equipos internos (1=Nunca hasta 5=Siempre con apoyo de agentes externos)
+
+SUBINDICADOR 2.4 — Evaluación del rendimiento (2 preguntas):
+- Evaluación del rendimiento de proyectos (1=Inexistente hasta 5=Análisis sistemático de desviaciones)
+- Evaluación de resultados de proyectos""",
+        'preguntas': [
+            ("¿Qué mide este bloque?", "mq_b2_1"),
+            ("¿Qué son equipos multidisciplinares?", "mq_b2_2"),
+            ("¿Qué son metodologías ágiles?", "mq_b2_3"),
+            ("¿Qué es la propiedad industrial?", "mq_b2_4"),
+            ("¿Cómo afecta la gestión de proyectos?", "mq_b2_5"),
+        ]
+    },
+    3: {
+        'nombre': 'Desarrollo de Nuevos Productos',
+        'descripcion': """Este bloque evalúa la capacidad de su empresa para desarrollar y lanzar nuevos productos o servicios. Tiene 5 subindicadores con 11 preguntas.
+
+SUBINDICADOR 3.1 — Estrategia de desarrollo (2 preguntas):
+- Estrategia de desarrollo de nuevos productos (1=Inexistente hasta 5=Enfoque multidisciplinar I+D, marketing, producción)
+- Recursos para el desarrollo de nuevos productos (1=No se asignan recursos hasta 5=Colaboración sistemática con agentes externos)
+
+SUBINDICADOR 3.2 — Oportunidad de mercado (4 preguntas):
+- Capacidad de identificar oportunidades de mercado desatendidas (1=No, nunca hasta 5=Habitualmente)
+- Tamaño del mercado vinculado a las innovaciones (1=Nulo/marginal hasta 5=Muy grande)
+- Potencial de ventas y crecimiento de nuevos productos (1=Nulo hasta 5=Muy alto)
+- Rentabilidad de los nuevos productos (1=Negativa/nula hasta 5=Muy superior al promedio)
+
+SUBINDICADOR 3.3 — Receptividad y valor (3 preguntas):
+- Predisposición de clientes a probar nuevos productos (1=Negativa/nula hasta 5=Muy alta)
+- Predisposición a pagar por nuevos productos (1=Negativa/nula hasta 5=Muy alta)
+- Nivel de diferenciación respecto a la competencia (1=Nulo hasta 5=Muy alto)
+
+SUBINDICADOR 3.4 — Interacción con clientes (2 preguntas):
+- Uso de design thinking y rapid prototyping (1=No conocido hasta 5=Total)
+- Interacción con clientes durante el desarrollo (1=Nunca hasta 5=Siempre)
+
+SUBINDICADOR 3.5 — Viabilidad del producto (2 preguntas):
+- Viabilidad económico-financiera del producto
+- Viabilidad comercial del nuevo producto""",
+        'preguntas': [
+            ("¿Qué mide este bloque?", "mq_b3_1"),
+            ("¿Qué es el design thinking?", "mq_b3_2"),
+            ("¿Qué valora la oportunidad de mercado?", "mq_b3_3"),
+            ("¿Qué es la receptividad del cliente?", "mq_b3_4"),
+            ("¿Cómo valoro la viabilidad?", "mq_b3_5"),
+        ]
+    },
+    4: {
+        'nombre': 'Estrategia de Innovación',
+        'descripcion': """Este bloque evalúa cómo está integrada la innovación en la estrategia y cultura de su empresa. Tiene 5 subindicadores con 12 preguntas.
+
+SUBINDICADOR 4.1 — Innovación estratégica (3 preguntas):
+- Alineación entre innovación y estrategia empresarial (1=Nula alineación hasta 5=Estrategia proactiva de búsqueda de oportunidades)
+- Liderazgo organizativo en innovación (1=No se contempla hasta 5=Innovación sistemática y disruptiva)
+- Objetivos de la estrategia de innovación (1=Nula hasta 5=Definición exhaustiva de objetivos e impactos)
+
+SUBINDICADOR 4.2 — Cultura de innovación (3 preguntas — ATENCIÓN: algunas preguntas tienen valoración INVERSA):
+- Innovación incremental: VALORACIÓN INVERSA (1=mejor, 5=peor). Marcar 1 si NUNCA prioriza solo innovaciones de bajo impacto
+- Riesgo apertura nuevos mercados: VALORACIÓN INVERSA (1=mejor = No asigna riesgo inasumible)
+- Conocimiento interno de proyectos de innovación (1=No hasta 5=Conocimiento profundo de todos)
+
+SUBINDICADOR 4.3 — Obstáculos a la innovación (2 preguntas — VALORACIÓN INVERSA):
+- Obstáculos internos: VALORACIÓN INVERSA (1=mejor = No hay obstáculos relevantes)
+- Obstáculos externos: VALORACIÓN INVERSA (1=mejor = No hay obstáculos relevantes)
+
+SUBINDICADOR 4.4 — Innovación abierta (2 preguntas):
+- Colaboración externa en innovación
+- Redes de cooperación para innovar
+
+SUBINDICADOR 4.5 — Creatividad y talento (2 preguntas):
+- Fomento de creatividad y nuevas ideas (1=No hasta 5=La creatividad es un pilar fundamental)
+- Evaluación de ideas de innovación (1=No en absoluto hasta 5=Elevada efectividad)
+
+NOTA IMPORTANTE: Algunos ítems tienen valoración INVERSA — la plataforma lo indica claramente. En estos casos, una puntuación baja (1) es la mejor situación posible.""",
+        'preguntas': [
+            ("¿Qué mide este bloque?", "mq_b4_1"),
+            ("¿Qué es la valoración inversa?", "mq_b4_2"),
+            ("¿Qué es la innovación abierta?", "mq_b4_3"),
+            ("¿Qué son los obstáculos a la innovación?", "mq_b4_4"),
+            ("¿Cómo valoro la cultura innovadora?", "mq_b4_5"),
+        ]
+    },
+    5: {
+        'nombre': 'Desempeño e Impacto de la Innovación',
+        'descripcion': """Este bloque evalúa el impacto real que han tenido las innovaciones de su empresa. Tiene 2 subindicadores con muchas preguntas detalladas.
+
+SUBINDICADOR 5.1 — Impacto estimado de la innovación:
+Evalúa el impacto de las innovaciones en diferentes áreas (escala 1=Nulo/negativo hasta 5=Muy alto):
+
+Innovación en PRODUCTO:
+- Impacto en el crecimiento en ventas
+- Impacto en el empleo de la compañía
+- Impacto en la rentabilidad
+- Impacto en el grado de internacionalización
+
+Innovación en PROCESO:
+- Impacto en reducción de costes y productividad
+- Impacto en eficiencia energética y sostenibilidad
+- Impacto en métodos productivos más eficientes
+
+Innovación ORGANIZATIVA:
+- Impacto en recursos humanos (motivación y satisfacción del personal)
+- Impacto en la administración y gestión de la compañía
+
+SUBINDICADOR 5.2 — Impacto efectivo de la innovación:
+- Número de nuevos productos/servicios lanzados en los últimos 5 años (1=Ninguno hasta 5=Lanzamiento de nuevas líneas de negocio)
+- Porcentaje de ventas de productos/servicios innovadores lanzados en últimos 5 años (1=0% hasta 5=>50%)
+- Tasa de éxito de innovaciones lanzadas
+
+CONSEJO: Este bloque mide resultados reales, no intenciones. Responda basándose en lo que realmente ha ocurrido en su empresa en los últimos 3-5 años.""",
+        'preguntas': [
+            ("¿Qué mide este bloque?", "mq_b5_1"),
+            ("¿Qué es el impacto estimado?", "mq_b5_2"),
+            ("¿Qué es el impacto efectivo?", "mq_b5_3"),
+            ("¿Cómo valoro el impacto en ventas?", "mq_b5_4"),
+            ("¿Qué cuenta como innovación?", "mq_b5_5"),
+        ]
+    },
+}
+
+MELISSA_CUESTIONARIO_SYSTEM = """Eres Melissa, guía profesional de la plataforma Etelvia. Estás ayudando al usuario a cumplimentar el cuestionario de innovación.
+
+TRATO: Siempre habla de USTED. Nunca de tú.
+
+PERSONALIDAD: Guía paciente, clara y alentadora. Explicas con sencillez sin usar jerga técnica innecesaria.
+
+SOBRE EL CUESTIONARIO:
+- Consta de 5 bloques que evalúan diferentes dimensiones de la innovación empresarial
+- Escala de respuesta: 1 (peor/menor) a 5 (mejor/mayor), salvo indicación de valoración inversa
+- Responder con honestidad es fundamental — el diagnóstico es más preciso cuanto más refleja la realidad
+- Se pueden modificar las respuestas en cualquier momento
+- Con 2-3 bloques completados ya se pueden ver resultados parciales
+- Al completar los 5 bloques el administrador puede activar todos los informes
+
+VALORACIÓN INVERSA (importante explicar si preguntan):
+Algunos ítems del Bloque 4 tienen valoración inversa: el 1 es la mejor situación y el 5 la peor.
+Por ejemplo, en "obstáculos a la innovación": si NO tiene obstáculos relevantes, marque 1.
+La plataforma lo indica claramente en cada pregunta.
+
+INSTRUCCIONES:
+- Máximo 3-4 frases por respuesta
+- Tono amable, paciente y motivador
+- Animar siempre a completar el cuestionario y recordar el valor del diagnóstico
+- Si no sabe algo, decirlo claramente sin redirigir a Félix"""
+
+
+def mostrar_melissa_cuestionario(bloque=1):
+    """Muestra a Melissa como guía en cada bloque del cuestionario."""
+    key_msgs = f'melissa_cues_msgs_{bloque}'
+    key_exp  = f'melissa_cues_exp_{bloque}'
+
+    bloque_info = MELISSA_BLOQUES.get(bloque, {})
+    nombre_bloque = bloque_info.get('nombre', f'Bloque {bloque}')
+    descripcion = bloque_info.get('descripcion', '')
+    preguntas = bloque_info.get('preguntas', [])
+
+    if key_msgs not in st.session_state:
+        bienvenidas = {
+            1: f"Bienvenido/a al Bloque 1 — I+D+i. En este bloque valorará los recursos técnicos, humanos y presupuestarios que su empresa dedica a la investigación e innovación. Son 7 preguntas sencillas. ¿Le explico qué mide cada subindicador?",
+            2: f"Está en el Bloque 2 — Gestión de Proyectos. Aquí valorará cómo organiza y gestiona su empresa los proyectos de innovación, desde la planificación hasta la evaluación de resultados. Son 9 preguntas. ¿Tiene alguna duda antes de empezar?",
+            3: f"Bienvenido/a al Bloque 3 — Desarrollo de Nuevos Productos. Este bloque evalúa su capacidad para identificar oportunidades de mercado y desarrollar productos o servicios innovadores. Son 11 preguntas. ¿Le explico qué valora cada sección?",
+            4: f"Está en el Bloque 4 — Estrategia de Innovación. Aquí evaluará cómo integra la innovación en la estrategia y cultura de su empresa. Atención: algunas preguntas tienen valoración inversa — la plataforma lo indica. ¿Le explico cómo funciona?",
+            5: f"Bienvenido/a al Bloque 5 — Desempeño de la Innovación. Este bloque mide el impacto real que han tenido las innovaciones de su empresa en ventas, empleo, rentabilidad y otros resultados. Responda basándose en hechos reales de los últimos 3-5 años. ¿Alguna duda?",
+        }
+        msg = bienvenidas.get(bloque, f"Bienvenido/a al Bloque {bloque}. ¿En qué puedo ayudarle?")
+        st.session_state[key_msgs] = [{"role":"assistant","content":msg}]
+
+    if key_exp not in st.session_state:
+        st.session_state[key_exp] = True
+
+    img_b64 = _imagen_base64('melissa.png')
+    system = MELISSA_CUESTIONARIO_SYSTEM + f"\n\nBLOQUE ACTUAL: {nombre_bloque}\n\nDETALLE DEL BLOQUE:\n{descripcion}"
+
+    ultimo = st.session_state[key_msgs][-1]['content']
+    ultimo_corto = ultimo[:130] + "..." if len(ultimo) > 130 else ultimo
+
+    st.markdown(_banner_asistente(img_b64, "Melissa", "Su guía del cuestionario", "#065f46", ultimo_corto), unsafe_allow_html=True)
+
+    col_expand, col_reset = st.columns([3,1])
+    with col_expand:
+        label = "▲ Ocultar" if st.session_state[key_exp] else "💬 Hablar con Melissa"
+        if st.button(label, key=f"melissa_cues_exp_{bloque}", use_container_width=True):
+            st.session_state[key_exp] = not st.session_state[key_exp]
+            st.rerun()
+    with col_reset:
+        if st.button("↺ Reiniciar", key=f"melissa_cues_reset_{bloque}", use_container_width=True):
+            st.session_state[key_msgs] = [{"role":"assistant","content":f"¡Hola de nuevo! ¿En qué puedo ayudarle con el Bloque {bloque}?"}]
+            st.session_state[key_exp] = True
+            st.rerun()
+
+    if st.session_state[key_exp]:
+        for m in st.session_state[key_msgs][-6:]:
+            if m['role'] == 'assistant':
+                with st.chat_message("assistant"):
+                    st.write(m['content'])
+            else:
+                with st.chat_message("user"):
+                    st.write(m['content'])
+
+        if preguntas:
+            st.markdown("**Preguntas frecuentes sobre este bloque:**")
+            c1, c2 = st.columns(2)
+            for i, (texto, key) in enumerate(preguntas):
+                col = c1 if i % 2 == 0 else c2
+                with col:
+                    if st.button(texto, key=key, use_container_width=True):
+                        st.session_state[key_msgs].append({"role":"user","content":texto})
+                        with st.spinner(""):
+                            r = _llamar_ia(system, st.session_state[key_msgs])
+                        st.session_state[key_msgs].append({"role":"assistant","content":r})
+                        st.rerun()
+
+        pregunta_libre = st.text_input(
+            "¿Tiene alguna duda sobre este bloque?",
+            key=f"melissa_cues_input_{bloque}",
+            placeholder="Escriba aquí su pregunta..."
+        )
+        if st.button("Enviar", key=f"melissa_cues_enviar_{bloque}"):
+            if pregunta_libre.strip():
+                st.session_state[key_msgs].append({"role":"user","content":pregunta_libre})
+                with st.spinner("Melissa está escribiendo..."):
+                    r = _llamar_ia(system, st.session_state[key_msgs])
+                st.session_state[key_msgs].append({"role":"assistant","content":r})
+                st.rerun()
+
+    st.markdown("---")

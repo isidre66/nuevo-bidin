@@ -1,4 +1,5 @@
 import streamlit as st
+from asistentes import mostrar_melissa_cuestionario
 import json, os
 
 st.set_page_config(page_title="Estrategia de Innovación", layout="wide")
@@ -60,6 +61,7 @@ def aclaracion(key, texto):
         st.session_state[f"show_acl_{key}"] = not st.session_state.get(f"show_acl_{key}", False)
     if st.session_state.get(f"show_acl_{key}"): st.info(texto)
 
+mostrar_melissa_cuestionario(bloque=4)
 st.title("🎯 Bloque 4: Estrategia de Innovación")
 if resp_prev: st.success("✅ Tienes respuestas guardadas. Puedes modificarlas y volver a guardar.")
 elif st.session_state.get('b4_finalizado'): st.success("✅ Bloque completado. Puedes modificar y volver a guardar.")

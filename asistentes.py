@@ -285,38 +285,41 @@ FILTROS: sector, tamaño, región, exportación, antigüedad, ventas, ROA. El us
         'contexto': """PÁGINA: Benchmarking
 
 VALOR Y DESCRIPCIÓN:
-Esta sección es una potente herramienta de consultoría estratégica dentro del motor de inteligencia competitiva 360 all in one.
-Ofrece un dashboard completo para determinar la posición en cualquier indicador de innovación o desempeño empresarial con un nivel de detalle sin precedentes.
+Esta es una de las secciones más potentes y completas de la plataforma. Es un dashboard esencial para determinar la posición competitiva con un nivel de detalle sin precedentes, y una herramienta de consultoría estratégica dentro del motor de inteligencia competitiva 360 all in one.
+Permite afinar la posición en cualquier indicador de innovación o desempeño empresarial y definir estrategias concretas.
 
-ESTRUCTURA — 4 SECCIONES DESPLEGABLES:
+ESTRUCTURA — 4 BOTONES DESPLEGABLES:
 
 1. BENCHMARKING:
-- Posición comparada con el Top 25% del sector y Top 25% de la región
-- En los 5 indicadores de innovación y los 6 índices de competitividad
-- Visualizados en formato radar
-- 3 gráficos de barras: indicadores de innovación, índices estratégicos y 6 variables económicas vs promedio del Top 25%
-- Tabla resumen ejecutivo: fortalezas a la derecha, áreas de mejora prioritarias a la izquierda
+Compara la empresa con el Top 25% del sector y el Top 25% de la región simultáneamente.
+- Gráficos de radar: posición en los 5 indicadores de innovación y los 6 índices de competitividad vs Top 25% sector y región
+- 3 gráficos de barras comparativos: indicadores de innovación, índices estratégicos y 6 variables económicas de desempeño vs promedio del Top 25%
+- Tabla resumen ejecutivo: fortalezas de la empresa a la derecha, áreas de mejora prioritarias a la izquierda
 
 2. TU GRUPO ESTRATÉGICO:
-- Todas las empresas clasificadas en 5 niveles (quintiles): Rezagadas, En Desarrollo, Intermedias, Sólidas, Líderes
-- Se indica el grupo estratégico al que pertenece la empresa
-- Gráficos comparativos con el grupo inmediatamente superior
+Todas las empresas de la base de datos están clasificadas en 5 niveles (quintiles), del menos al más favorable:
+- Rezagadas → En Desarrollo → Intermedias → Sólidas → Líderes
+- Se muestra el grupo estratégico al que pertenece la empresa
+- Gráficos comparativos: posición de la empresa vs promedio del grupo inmediatamente superior
 - Ejemplo: si está en "Intermedias", se compara con "Sólidas"
-- Cuadro con acciones prioritarias para ascender al grupo superior
+- Cuadro con acciones prioritarias específicas para ascender al grupo superior
 
 3. MEJORES PRÁCTICAS:
-- Para cada indicador de innovación, compara con el Top 25% y la media global
-- Los subindicadores con mayor diferencial entre el Top y la media son las "prácticas diferenciales"
-- Identifica dónde se concentra la ventaja competitiva real
-- 2 gráficos visuales con subindicadores críticos donde más debe incidir la empresa
+- Para cada indicador de innovación, compara la empresa con el Top 25% y la media global
+- Los subindicadores con mayor diferencial entre el Top 25% y la media global son las "prácticas diferenciales" — donde se concentra la ventaja competitiva real
+- 2 gráficos visuales que identifican los subindicadores críticos en los que más debe incidir la empresa
+- Permite saber exactamente qué hacen diferente las empresas más innovadoras
 
 4. SIMULADOR + MAPA (totalmente interactivo):
-- El usuario puede variar valores de indicadores de innovación y variables económicas
-- Muestra cómo cambiaría la posición si los valores fueran distintos
-- Funciona como predictor de posicionamiento
-- Nube de puntos interactiva: muestra cómo variaría la posición dentro de los 5 grupos estratégicos
+- El usuario puede variar manualmente los valores de los indicadores de innovación y variables económicas
+- La plataforma muestra en tiempo real cómo cambiaría la posición de la empresa con esos nuevos valores
+- Funciona como predictor o simulador de posicionamiento futuro
+- Gráfico tipo nube: muestra cómo variaría la posición dentro de los 5 grupos estratégicos (de Rezagadas a Líderes)
+- Permite ver qué mejoras son necesarias para superar la media o alcanzar posiciones de privilegio
 
-LO QUE NO EXISTE: No se puede seleccionar un percentil concreto. No se puede identificar empresas individuales.""",
+LO QUE NO EXISTE EN ESTA SECCIÓN:
+- No se puede seleccionar un percentil concreto para compararse
+- No se puede identificar ni contactar con ninguna empresa individual del grupo""",
         'preguntas': [
             ("¿Qué son los 4 apartados?", "fq_ben_1"),
             ("¿Qué es el Grupo Estratégico?", "fq_ben_2"),

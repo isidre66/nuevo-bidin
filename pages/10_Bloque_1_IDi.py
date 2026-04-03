@@ -1,4 +1,5 @@
 import streamlit as st
+from asistentes import mostrar_melissa_cuestionario
 import json, os
 
 st.set_page_config(page_title="Bloque 1: I+D+i", layout="wide")
@@ -70,6 +71,7 @@ def aclaracion(key, texto):
         st.info(texto)
 
 # ── FORMULARIO ────────────────────────────────────────────────────────────────
+mostrar_melissa_cuestionario(bloque=1
 st.title("BLOQUE 1: ACTIVIDADES DE I+D+i")
 if resp_prev: st.success("✅ Tienes respuestas guardadas. Puedes modificarlas y volver a guardar.")
 elif st.session_state.get('b1_finalizado'): st.success("✅ Bloque completado. Puedes modificar y volver a guardar.")

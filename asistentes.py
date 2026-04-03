@@ -802,14 +802,16 @@ def mostrar_melissa_cuestionario(bloque=1):
 
     st.markdown(_banner_asistente(img_b64, "Melissa", "Su guía del cuestionario", "#065f46", ultimo_corto), unsafe_allow_html=True)
 
+    import time as _time
+    _ts = str(int(_time.time() * 1000))[-4:]
     col_expand, col_reset = st.columns([3,1])
     with col_expand:
         label = "▲ Ocultar" if st.session_state[key_exp] else "💬 Hablar con Melissa"
-        if st.button(label, key=f"melissa_cues_exp_{bloque}", use_container_width=True):
+        if st.button(label, key=f"mcues_exp_{bloque}_{_ts}", use_container_width=True):
             st.session_state[key_exp] = not st.session_state[key_exp]
             st.rerun()
     with col_reset:
-        if st.button("↺ Reiniciar", key=f"melissa_cues_reset_{bloque}", use_container_width=True):
+        if st.button("↺ Reiniciar", key=f"mcues_reset_{bloque}_{_ts}", use_container_width=True):
             st.session_state[key_msgs] = [{"role":"assistant","content":f"¡Hola de nuevo! ¿En qué puedo ayudarle con el Bloque {bloque}?"}]
             st.session_state[key_exp] = True
             st.rerun()

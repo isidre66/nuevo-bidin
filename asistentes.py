@@ -333,55 +333,54 @@ LO QUE NO EXISTE EN ESTA SECCIÓN:
         'contexto': """PÁGINA: Informe Global de Referencia
 
 VALOR Y DESCRIPCIÓN:
-El Informe Global es el informe más completo y transversal de la plataforma.
-Combina en un único documento ejecutivo la posición de la empresa en TODAS las dimensiones analizadas:
-los 6 índices competitivos, los 5 indicadores de innovación y las variables de desempeño económico.
-Es el informe definitivo para una visión 360° completa de la empresa.
+Esta amplia sección ofrece una visión completa y precisa del conjunto de más de 1.000 empresas de la base de datos ante la innovación y los índices estratégicos.
+Realiza correlaciones estadísticas rigurosas a partir de la totalidad de la base de datos para ofrecer un análisis profundo y fiable.
+Todo el contenido es descargable en formato HTML y PDF.
 
-ESTRUCTURA COMPLETA:
+ESTRUCTURA — 5 BLOQUES:
 
-1. CABECERA EJECUTIVA:
-- Score Estratégico Global (SSG) y Score de Innovación en un único panel
-- Perfil completo de la empresa con todos los datos de clasificación
-- Grupo de referencia y número de empresas comparadas
+1. BLOQUE 1 — PERFIL INNOVADOR POR VARIABLES DE CLASIFICACIÓN:
+Informa sobre qué tipo de empresas innovan más y mejor.
+Analiza cómo se relacionan las variables de perfil (sector, tamaño, nivel exportador, región, antigüedad) con los niveles de innovación.
+Utiliza el test estadístico de Kruskal-Wallis para identificar relaciones significativas al 95%.
+Permite visualizar al instante las diferencias en nivel de innovación por:
+- Macrosector (Industria, Tecnología Avanzada, Servicios)
+- Tamaño empresarial (Pequeña, Mediana, Grande)
+- Nivel exportador (4 niveles)
+- Antigüedad (3 tramos)
+- Región (16 comunidades autónomas)
 
-2. POSICIÓN COMPETITIVA GLOBAL:
-- Los 6 índices competitivos (ICE, ISF, IEO, IDC, IIE, IPT) con velocímetros
-- Score Estratégico Global (SSG) con percentil y nivel
-- Comparativa radar vs media del grupo seleccionado
+2. BLOQUE 2 — RELACIONES ESTADÍSTICAMENTE SIGNIFICATIVAS:
+Muestra las correlaciones de Spearman entre los 5 indicadores de innovación y las variables de desempeño económico para el conjunto total de la base.
+Identifica correlaciones positivas y negativas estadísticamente significativas al 95%.
+Revela las auténticas relaciones entre innovación y desempeño empresarial en el contexto español:
+- Qué indicadores de innovación contribuyen más al crecimiento en ventas
+- Cuáles influyen en el empleo, el ROA, la productividad
+- Cuáles son indiferentes o incluso negativos para ciertos indicadores económicos
 
-3. POSICIÓN EN INNOVACIÓN:
-- Los 5 indicadores de innovación con velocímetros
-- Índice Global de Innovación con percentil
-- Comparativa radar vs media del grupo
+3. BLOQUE 3 — EXPLORADOR INTERACTIVO DE RELACIONES:
+El usuario elige el indicador de innovación y la variable de desempeño económico que quiere analizar.
+Al instante aparece un gráfico de nube de puntos con la totalidad de las empresas de la base de datos posicionadas en esas dos variables.
+Los puntos se diferencian por color según los 5 grupos estratégicos: Líderes, Sólidas, Intermedias, En Desarrollo y Rezagadas.
 
-4. ANÁLISIS CRUZADO COMPETITIVIDAD-INNOVACIÓN:
-- Gráfico de dispersión que relaciona la posición competitiva con la innovadora
-- Identifica si la empresa es fuerte en ambas dimensiones, en una sola o en ninguna
-- Muestra el perfil estratégico resultante de la combinación de ambas posiciones
+4. BLOQUE 4 — GRUPOS ESTRATÉGICOS (quintiles):
+Cada grupo estratégico incluye el 20% de las empresas de la base de datos.
+Se especifican los valores que identifican a cada uno de los 5 grupos: Líderes, Sólidas, Intermedias, En Desarrollo y Rezagadas.
+Incluye:
+- Gráfico de radar con la posición promedio de los 5 grupos en los indicadores clave: Innovación, ROA, Crecimiento, Endeudamiento y Productividad
+- Gráfico de barras con los 3 macrosectores y el peso de cada grupo estratégico en cada uno
 
-5. VARIABLES ECONÓMICAS:
-- Las 6 variables económicas clave con percentiles en el grupo
-- Gráfico de barras comparativo con colores semáforo
-
-6. BOTÓN "GENERAR INFORME GLOBAL CON IA":
-- La IA genera un informe ejecutivo completo combinando todas las dimensiones
-- Incluye diagnóstico integrado, fortalezas y áreas de mejora transversales
-- Recomendaciones estratégicas que integran competitividad e innovación
-- Predicción del escenario futuro si se implementan las acciones recomendadas
-
-7. DESCARGA: Word editable, HTML y PDF del informe completo.
-
-FILTROS: El usuario elige siempre el perfil de comparación desde el panel lateral.
-Este informe es especialmente valioso para presentaciones ante consejos de administración,
-inversores o comités directivos, al ofrecer una visión completa e integrada de la empresa.""",
+5. BLOQUE 5 — HALLAZGOS Y CONCLUSIONES:
+Amplia batería de hallazgos principales en formato proactivo y propositivo.
+Diagnóstico y conclusiones sobre las relaciones entre innovación, perfil empresarial y variables de desempeño económico.
+No son hipótesis — son relaciones reales identificadas estadísticamente en más de 1.000 empresas españolas.""",
         'preguntas': [
-            ("¿Qué incluye este informe?", "fq_glob_1"),
-            ("¿Qué es el análisis cruzado?", "fq_glob_2"),
-            ("¿Cómo genero el informe IA?", "fq_glob_3"),
-            ("¿Para qué sirve el informe global?", "fq_glob_4"),
+            ("¿Qué muestra esta sección?", "fq_glob_1"),
+            ("¿Qué son los grupos estratégicos?", "fq_glob_2"),
+            ("¿Qué es el explorador interactivo?", "fq_glob_3"),
+            ("¿Qué revelan las correlaciones?", "fq_glob_4"),
             ("¿Cómo descargo el informe?", "fq_glob_5"),
-            ("¿Puedo hacer varios informes?", "fq_glob_6"),
+            ("¿Qué son los hallazgos?", "fq_glob_6"),
         ]
     },
 }
@@ -543,7 +542,7 @@ def mostrar_felix(pagina=""):
             'benchmarking': "Buenos días, soy Félix. Benchmarking es una de las secciones más potentes de la plataforma — encontrará su posición frente al Top 25% del sector y región, su grupo estratégico, las mejores prácticas diferenciales y un simulador interactivo de posicionamiento. ¿Por dónde desea empezar?",
             'analytics': "Buenos días, soy Félix. Analytics es la sección más profunda y flexible de la plataforma — le permite comparar su empresa con cualquier perfil usando más de 20 indicadores y subindicadores a su elección. ¿Le explico cómo sacarle el máximo partido?",
             'cuestionario': f"Buenos días, soy Félix. Está en el cuestionario de innovación, con 5 bloques: I+D+i, Gestión de Proyectos, Desarrollo de Productos, Estrategia de Innovación y Desempeño de Innovación. Lleva {completados} de 5 completados. ¿Le explico cómo responder?",
-            'informe_global': "Buenos días, soy Félix. El Informe Global es el más completo de la plataforma — combina en un único documento ejecutivo su posición en los 6 índices competitivos, los 5 indicadores de innovación y las variables económicas. Una visión 360° completa, ideal para presentaciones ante consejos de administración o inversores. ¿Le explico cómo sacarle el máximo partido?",
+            'informe_global': "Buenos días, soy Félix. El Informe Global de Referencia ofrece una visión completa y estadísticamente rigurosa de más de 1.000 empresas ante la innovación y el desempeño económico. Con 5 bloques de análisis — perfil innovador, correlaciones, explorador interactivo, grupos estratégicos y conclusiones — es la sección más analítica de la plataforma. ¿Le explico qué contiene cada bloque?",
         }
         msg = bienvenidas.get(pagina, "Buenos días, soy Félix, su consultor estratégico. Estoy aquí para ayudarle a sacar el máximo partido de esta plataforma. ¿En qué puedo ayudarle?")
         st.session_state[key_msgs] = [{"role":"assistant","content":msg}]

@@ -71,6 +71,15 @@ for k, v in perfil.items():
 
 # ── Cargar datos de empresa desde Supabase si no están en session_state ───────
 if not st.session_state.get('save_reg_user'):
+    # Control de acceso por roles
+rol = st.session_state.get('rol', 'colaborador')
+informes_activados = st.session_state.get('informes_activados', False)
+if rol == 'colaborador':
+    st.warning("⚠️ No tienes acceso a esta sección. Solo los usuarios con rol Manager o Admin pueden ver los índices.")
+    st.stop()
+if rol == 'manager' and not informes_activados:
+    st.info("🔒 Esta sección estará disponible cuando el administrador active los informes desde Mi Empresa.")
+    st.stop()
     try:
         from supabase import create_client
         _url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL",""))

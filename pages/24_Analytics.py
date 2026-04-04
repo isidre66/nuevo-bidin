@@ -624,44 +624,95 @@ st.caption("💡 Ajusta los filtros del panel izquierdo para compararte con dist
 st.divider()
 st.markdown('<div class="section-title">📥 Descargar Analytics</div>', unsafe_allow_html=True)
 
-def generar_html_analytics():
-    filas_ind = ""
-    for i in range(len(ind_sel)):
-        filas_ind += f"<tr><td>{ind_sel[i]}</td><td style='text-align:center'>{emp_vals[i]:.2f}</td><td style='text-align:center'>{grp_vals[i]:.2f}</td><td style='text-align:center'>{tot_vals[i]:.2f}</td><td style='text-align:center'>{pcts[i]}°</td></tr>"
-    filas_eco = ""
-    for i in range(len(eco_labels)):
-        filas_eco += f"<tr><td>{eco_labels[i]}</td><td style='text-align:center'>{eco_mi[i]:,.2f}</td><td style='text-align:center'>{eco_grp[i]:,.2f}</td><td style='text-align:center'>{eco_pcts[i]}°</td></tr>"
-    from datetime import date
+
     hoy = date.today().strftime("%d/%m/%Y")
     nom = st.session_state.get('save_sector_nombre','—')
     tam = st.session_state.get('save_tam_nombre','—')
     reg = st.session_state.get('save_reg_nombre','—')
+
+    filas_ind = ""
+    for i in range(len(ind_sel)):
+        color = '#10b981' if pcts[i]>=66 else '#f59e0b' if pcts[i]>=33 else '#ef4444'
+        dif = emp_vals[i] - grp_vals[i]
+        dif_txt = f"+{dif:.2f}" if dif>=0 else f"{dif:.2f}"
+        filas_ind += f"<tr><td>{ind_sel[i]}</td><td style='text-align:center;font-weight:700'>{emp_vals[i]:.2f}</td><td style='text-align:center'>{grp_vals[i]:.2f}</td><td style='text-align:center'>{tot_vals[i]:.2f}</td><td style='text-align:center;color:{'#10b981' if dif>=0 else '#ef4444'};font-weight:700'>{dif_txt}</td><td style='text-align:center;color:{color};font-weight:700'>{pcts[i]}°</td></tr>"
+
+    filas_eco = ""
+    for i in range(len(eco_labels)):
+        color = '#10b981' if eco_pcts[i]>=66 else '#f59e0b' if eco_pcts[i]>=33 else '#ef4444'
+        filas_eco += f"<tr><td>{eco_labels[i]}</td><td style='text-align:center;font-weight:700'>{eco_mi[i]:,.2f}</td><td style='text-align:center'>{eco_grp[i]:,.2f}</td><td style='text-align:center;color:{color};font-weight:700'>{eco_pcts[i]}°</td></tr>"
+
+    # Interpretación automática
+    fortalezas = [ind_sel[i] for i in range(len(ind_sel)) if pcts[i]>=66]
+    mejoras = [ind_sel[i] for i in range(len(ind_sel)) if pcts[i]<33]
+    media_pct = round(sum(pcts)/len(pcts)) if pcts else 0
+
+    fortalezas_txt = ", ".join(fortalezas) if fortalezas else "Ningún indicador en el tercio superior del grupo"
+    mejoras_txt = ", ".join(mejoras) if mejoras else "Todos los indicadores por encima del tercio inferior"
+
+    eco_fortalezas = [eco_labels[i] for i in range(len(eco_labels)) if eco_pcts[i]>=66]
+    eco_mejoras = [eco_labels[i] for i in range(len(eco_labels)) if eco_pcts[i]<33]
+
     return f"""<!DOCTYPE html><html><head><meta charset='utf-8'>
-<style>body{{font-family:Georgia,serif;max-width:900px;margin:50px auto;color:#1a1a1a;line-height:1.7;}}
-h1{{color:#0066ff;border-bottom:3px solid #0066ff;padding-bottom:8px;}}
-h2{{color:#0066ff;border-left:4px solid #0066ff;padding-left:10px;margin-top:28px;}}
-table{{border-collapse:collapse;width:100%;margin:16px 0;font-size:.9rem;}}
+<style>
+body{{font-family:Georgia,serif;max-width:920px;margin:50px auto;color:#1a1a1a;line-height:1.75;}}
+h1{{color:#0066ff;border-bottom:3px solid #0066ff;padding-bottom:10px;font-size:1.8rem;}}
+h2{{color:#0066ff;border-left:4px solid #0066ff;padding-left:12px;margin-top:32px;font-size:1.2rem;}}
+h3{{color:#334155;font-size:1rem;margin-top:20px;}}
+.perfil{{background:#f0f7ff;border-radius:8px;padding:14px 18px;margin:14px 0;font-size:.9rem;}}
+.resumen{{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px 20px;margin:14px 0;}}
+.fortaleza{{background:#f0fdf4;border-left:4px solid #10b981;border-radius:0 8px 8px 0;padding:12px 16px;margin:8px 0;}}
+.mejora{{background:#fef2f2;border-left:4px solid #ef4444;border-radius:0 8px 8px 0;padding:12px 16px;margin:8px 0;}}
+.neutro{{background:#fffbeb;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;padding:12px 16px;margin:8px 0;}}
+table{{border-collapse:collapse;width:100%;margin:14px 0;font-size:.88rem;}}
 th{{background:#0066ff;color:white;padding:10px;text-align:left;}}
 td{{padding:9px 11px;border-bottom:1px solid #e5e7eb;}}
-.nota{{border:1px dashed #9ca3af;border-radius:8px;padding:40px 16px;margin:16px 0;color:#9ca3af;font-style:italic;text-align:center;}}
+.nota{{border:1px dashed #9ca3af;border-radius:8px;padding:36px 16px;margin:20px 0;color:#9ca3af;font-style:italic;text-align:center;}}
 @media print{{body{{margin:20px;}}}}
 </style></head><body>
-<h1>Analytics Comparativo</h1>
-<p style='color:#6b7280;'>Empresa: {nom} · {tam} · {reg} · {hoy}</p>
-<p>Comparando con <strong>{n} empresas</strong> del grupo seleccionado.</p>
-<h2>Indicadores de Innovación</h2>
-<table><tr><th>Indicador</th><th>Mi Empresa</th><th>Media Grupo</th><th>Media Total</th><th>Percentil</th></tr>
-{filas_ind}</table>
-<h2>Desempeño Económico</h2>
-<table><tr><th>Variable</th><th>Mi Empresa</th><th>Media Grupo</th><th>Percentil</th></tr>
-{filas_eco}</table>
-<div class="nota">✏️ Espacio para anotaciones y comentarios del equipo directivo</div>
-<hr/><p style='color:#9ca3af;font-size:.78rem;text-align:center;'>Plataforma Etelvia · {hoy}</p>
+
+<h1>Analytics Comparativo — Informe de Posición</h1>
+<div class="perfil">
+<strong>Empresa:</strong> {nom} · {tam} · {reg}<br>
+<strong>Grupo de comparación:</strong> {n} empresas · <strong>Fecha:</strong> {hoy}
+</div>
+
+<h2>1. Resumen Ejecutivo</h2>
+<div class="resumen">
+<p>Su empresa se sitúa en el <strong>percentil {media_pct}° de media</strong> en los indicadores de innovación seleccionados dentro del grupo de comparación.</p>
+{'<div class="fortaleza"><strong>✅ Puntos fuertes (percentil ≥ 66°):</strong> ' + fortalezas_txt + '</div>' if fortalezas else ''}
+{'<div class="mejora"><strong>⚠️ Áreas de mejora prioritaria (percentil < 33°):</strong> ' + mejoras_txt + '</div>' if mejoras else ''}
+{'<div class="fortaleza"><strong>✅ Fortalezas económicas (percentil ≥ 66°):</strong> ' + ", ".join(eco_fortalezas) + '</div>' if eco_fortalezas else ''}
+{'<div class="mejora"><strong>⚠️ Variables económicas a reforzar (percentil < 33°):</strong> ' + ", ".join(eco_mejoras) + '</div>' if eco_mejoras else ''}
+</div>
+
+<h2>2. Indicadores de Innovación vs Grupo</h2>
+<p>Escala 0-5 · Percentil 50° = media del grupo · Percentil 100° = mejor posición posible</p>
+<table>
+<tr><th>Indicador</th><th>Mi Empresa</th><th>Media Grupo</th><th>Media Total</th><th>Diferencia</th><th>Percentil</th></tr>
+{filas_ind}
+</table>
+
+<h2>3. Desempeño Económico vs Grupo</h2>
+<table>
+<tr><th>Variable Económica</th><th>Mi Empresa</th><th>Media Grupo</th><th>Percentil</th></tr>
+{filas_eco}
+</table>
+<p style='font-size:.82rem;color:#64748b;'>Verde = tercio superior del grupo · Amarillo = tercio medio · Rojo = tercio inferior</p>
+
+<h2>4. Notas y conclusiones del equipo directivo</h2>
+<div class="nota">Espacio para anotaciones, reflexiones y próximos pasos del equipo directivo</div>
+<div style="margin-top:8px;">{'<br>'.join(['_'*80]*5)}</div>
+
+<hr style='margin-top:40px;'/>
+<p style='color:#9ca3af;font-size:.78rem;text-align:center;'>Plataforma Etelvia · Motor de Inteligencia Competitiva 360° · {hoy}</p>
 </body></html>"""
+
 
 def generar_word_analytics():
     try:
         from docx import Document
+        from docx.shared import Pt, RGBColor
         from docx.enum.text import WD_ALIGN_PARAGRAPH
         import io
         from datetime import date
@@ -669,20 +720,33 @@ def generar_word_analytics():
         nom = st.session_state.get('save_sector_nombre','—')
         tam = st.session_state.get('save_tam_nombre','—')
         reg = st.session_state.get('save_reg_nombre','—')
+
         doc = Document()
-        t = doc.add_heading('Analytics Comparativo', 0)
+        t = doc.add_heading('Analytics Comparativo — Informe de Posición', 0)
         t.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
         doc.add_paragraph(f"Empresa: {nom} · {tam} · {reg} · {hoy}")
-        doc.add_paragraph(f"Comparando con {n} empresas del grupo seleccionado.")
-        doc.add_heading('Indicadores de Innovación', level=1)
+        doc.add_paragraph(f"Grupo de comparación: {n} empresas seleccionadas")
+
+        # Resumen
+        doc.add_heading('1. Resumen Ejecutivo', level=1)
+        media_pct = round(sum(pcts)/len(pcts)) if pcts else 0
+        doc.add_paragraph(f"Percentil medio en indicadores de innovación: {media_pct}°")
+
+        fortalezas = [ind_sel[i] for i in range(len(ind_sel)) if pcts[i]>=66]
+        mejoras = [ind_sel[i] for i in range(len(ind_sel)) if pcts[i]<33]
+        if fortalezas:
+            doc.add_paragraph(f"✅ Puntos fuertes (percentil ≥ 66°): {', '.join(fortalezas)}")
+        if mejoras:
+            doc.add_paragraph(f"⚠️ Áreas de mejora prioritaria (percentil < 33°): {', '.join(mejoras)}")
+
+        # Tabla indicadores
+        doc.add_heading('2. Indicadores de Innovación vs Grupo', level=1)
         tabla = doc.add_table(rows=1, cols=5)
         tabla.style = 'Table Grid'
         hdr = tabla.rows[0].cells
-        hdr[0].text = 'Indicador'
-        hdr[1].text = 'Mi Empresa'
-        hdr[2].text = 'Media Grupo'
-        hdr[3].text = 'Media Total'
-        hdr[4].text = 'Percentil'
+        for j, h in enumerate(['Indicador','Mi Empresa','Media Grupo','Media Total','Percentil']):
+            hdr[j].text = h
         for i in range(len(ind_sel)):
             row = tabla.add_row().cells
             row[0].text = ind_sel[i]
@@ -690,23 +754,25 @@ def generar_word_analytics():
             row[2].text = f"{grp_vals[i]:.2f}"
             row[3].text = f"{tot_vals[i]:.2f}"
             row[4].text = f"{pcts[i]}°"
-        doc.add_heading('Desempeño Económico', level=1)
+
+        # Tabla económica
+        doc.add_heading('3. Desempeño Económico vs Grupo', level=1)
         tabla2 = doc.add_table(rows=1, cols=4)
         tabla2.style = 'Table Grid'
         hdr2 = tabla2.rows[0].cells
-        hdr2[0].text = 'Variable'
-        hdr2[1].text = 'Mi Empresa'
-        hdr2[2].text = 'Media Grupo'
-        hdr2[3].text = 'Percentil'
+        for j, h in enumerate(['Variable Económica','Mi Empresa','Media Grupo','Percentil']):
+            hdr2[j].text = h
         for i in range(len(eco_labels)):
             row = tabla2.add_row().cells
             row[0].text = eco_labels[i]
             row[1].text = f"{eco_mi[i]:,.2f}"
             row[2].text = f"{eco_grp[i]:,.2f}"
             row[3].text = f"{eco_pcts[i]}°"
-        doc.add_heading('Notas y comentarios', level=1)
-        for _ in range(6):
+
+        doc.add_heading('4. Notas y comentarios del equipo directivo', level=1)
+        for _ in range(8):
             doc.add_paragraph('_' * 80)
+
         buf = io.BytesIO()
         doc.save(buf)
         buf.seek(0)
@@ -714,8 +780,15 @@ def generar_word_analytics():
     except ImportError:
         return None
 
+
 st.divider()
-st.markdown('<div class="section-title" style="color:#00d4ff;background:linear-gradient(90deg,rgba(0,212,255,0.2),rgba(0,212,255,0));border-left:5px solid #00d4ff;">📥 Descargar Analytics</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📥 Descargar Analytics</div>', unsafe_allow_html=True)
+st.markdown("""<div style="background:#0d1b2a;border:1px solid #1e3a5f;border-radius:10px;
+    padding:12px 18px;margin-bottom:16px;font-size:.87rem;color:#94a3b8;">
+    📋 El informe incluye resumen ejecutivo, indicadores de innovación con percentiles,
+    desempeño económico comparativo y espacio para anotaciones del equipo directivo.
+</div>""", unsafe_allow_html=True)
+
 html_out = generar_html_analytics()
 word_out = generar_word_analytics()
 c1, c2, c3 = st.columns(3)

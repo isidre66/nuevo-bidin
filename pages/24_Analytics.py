@@ -625,31 +625,108 @@ st.divider()
 st.markdown('<div class="section-title">📥 Descargar Analytics</div>', unsafe_allow_html=True)
 
 def generar_html_analytics():
-    filas = ""
-    for i in range(min(len(ind_sel), len(emp_vals))):
-        filas += f"<tr><td>{ind_sel[i]}</td><td style='text-align:center'>{emp_vals[i]:.2f}</td><td style='text-align:center'>{grp_vals[i]:.2f}</td><td style='text-align:center'>{tot_vals[i]:.2f}</td><td style='text-align:center'>{pcts[i]}°</td></tr>"
+    filas_ind = ""
+    for i in range(len(ind_sel)):
+        filas_ind += f"<tr><td>{ind_sel[i]}</td><td style='text-align:center'>{emp_vals[i]:.2f}</td><td style='text-align:center'>{grp_vals[i]:.2f}</td><td style='text-align:center'>{tot_vals[i]:.2f}</td><td style='text-align:center'>{pcts[i]}°</td></tr>"
+    filas_eco = ""
+    for i in range(len(eco_labels)):
+        filas_eco += f"<tr><td>{eco_labels[i]}</td><td style='text-align:center'>{eco_mi[i]:,.2f}</td><td style='text-align:center'>{eco_grp[i]:,.2f}</td><td style='text-align:center'>{eco_pcts[i]}°</td></tr>"
     from datetime import date
     hoy = date.today().strftime("%d/%m/%Y")
+    nom = st.session_state.get('save_sector_nombre','—')
+    tam = st.session_state.get('save_tam_nombre','—')
+    reg = st.session_state.get('save_reg_nombre','—')
     return f"""<!DOCTYPE html><html><head><meta charset='utf-8'>
 <style>body{{font-family:Georgia,serif;max-width:900px;margin:50px auto;color:#1a1a1a;line-height:1.7;}}
 h1{{color:#0066ff;border-bottom:3px solid #0066ff;padding-bottom:8px;}}
+h2{{color:#0066ff;border-left:4px solid #0066ff;padding-left:10px;margin-top:28px;}}
 table{{border-collapse:collapse;width:100%;margin:16px 0;font-size:.9rem;}}
 th{{background:#0066ff;color:white;padding:10px;text-align:left;}}
 td{{padding:9px 11px;border-bottom:1px solid #e5e7eb;}}
+.nota{{border:1px dashed #9ca3af;border-radius:8px;padding:40px 16px;margin:16px 0;color:#9ca3af;font-style:italic;text-align:center;}}
+@media print{{body{{margin:20px;}}}}
 </style></head><body>
 <h1>Analytics Comparativo</h1>
-<p style='color:#6b7280;'>Empresa: {st.session_state.get('save_sector_nombre','—')} · {st.session_state.get('save_tam_nombre','—')} · {st.session_state.get('save_reg_nombre','—')} · {hoy}</p>
+<p style='color:#6b7280;'>Empresa: {nom} · {tam} · {reg} · {hoy}</p>
 <p>Comparando con <strong>{n} empresas</strong> del grupo seleccionado.</p>
-<h2>Posición en los Indicadores</h2>
+<h2>Indicadores de Innovación</h2>
 <table><tr><th>Indicador</th><th>Mi Empresa</th><th>Media Grupo</th><th>Media Total</th><th>Percentil</th></tr>
-{filas}</table>
+{filas_ind}</table>
+<h2>Desempeño Económico</h2>
+<table><tr><th>Variable</th><th>Mi Empresa</th><th>Media Grupo</th><th>Percentil</th></tr>
+{filas_eco}</table>
+<div class="nota">✏️ Espacio para anotaciones y comentarios del equipo directivo</div>
 <hr/><p style='color:#9ca3af;font-size:.78rem;text-align:center;'>Plataforma Etelvia · {hoy}</p>
 </body></html>"""
 
-c1, c2 = st.columns(2)
+def generar_word_analytics():
+    try:
+        from docx import Document
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        import io
+        from datetime import date
+        hoy = date.today().strftime("%d/%m/%Y")
+        nom = st.session_state.get('save_sector_nombre','—')
+        tam = st.session_state.get('save_tam_nombre','—')
+        reg = st.session_state.get('save_reg_nombre','—')
+        doc = Document()
+        t = doc.add_heading('Analytics Comparativo', 0)
+        t.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.add_paragraph(f"Empresa: {nom} · {tam} · {reg} · {hoy}")
+        doc.add_paragraph(f"Comparando con {n} empresas del grupo seleccionado.")
+        doc.add_heading('Indicadores de Innovación', level=1)
+        tabla = doc.add_table(rows=1, cols=5)
+        tabla.style = 'Table Grid'
+        hdr = tabla.rows[0].cells
+        hdr[0].text = 'Indicador'
+        hdr[1].text = 'Mi Empresa'
+        hdr[2].text = 'Media Grupo'
+        hdr[3].text = 'Media Total'
+        hdr[4].text = 'Percentil'
+        for i in range(len(ind_sel)):
+            row = tabla.add_row().cells
+            row[0].text = ind_sel[i]
+            row[1].text = f"{emp_vals[i]:.2f}"
+            row[2].text = f"{grp_vals[i]:.2f}"
+            row[3].text = f"{tot_vals[i]:.2f}"
+            row[4].text = f"{pcts[i]}°"
+        doc.add_heading('Desempeño Económico', level=1)
+        tabla2 = doc.add_table(rows=1, cols=4)
+        tabla2.style = 'Table Grid'
+        hdr2 = tabla2.rows[0].cells
+        hdr2[0].text = 'Variable'
+        hdr2[1].text = 'Mi Empresa'
+        hdr2[2].text = 'Media Grupo'
+        hdr2[3].text = 'Percentil'
+        for i in range(len(eco_labels)):
+            row = tabla2.add_row().cells
+            row[0].text = eco_labels[i]
+            row[1].text = f"{eco_mi[i]:,.2f}"
+            row[2].text = f"{eco_grp[i]:,.2f}"
+            row[3].text = f"{eco_pcts[i]}°"
+        doc.add_heading('Notas y comentarios', level=1)
+        for _ in range(6):
+            doc.add_paragraph('_' * 80)
+        buf = io.BytesIO()
+        doc.save(buf)
+        buf.seek(0)
+        return buf.getvalue()
+    except ImportError:
+        return None
+
+st.divider()
+st.markdown('<div class="section-title" style="color:#00d4ff;background:linear-gradient(90deg,rgba(0,212,255,0.2),rgba(0,212,255,0));border-left:5px solid #00d4ff;">📥 Descargar Analytics</div>', unsafe_allow_html=True)
+html_out = generar_html_analytics()
+word_out = generar_word_analytics()
+c1, c2, c3 = st.columns(3)
 with c1:
-    st.download_button("🌐 Descargar HTML", data=generar_html_analytics(),
-        file_name="analytics_comparativo.html",
-        mime="text/html", type="primary", use_container_width=True)
+    st.download_button("📄 Descargar Word (.docx)", data=word_out if word_out else b"",
+        file_name="analytics_comparativo.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        type="primary", use_container_width=True, disabled=word_out is None)
 with c2:
+    st.download_button("🌐 Descargar HTML", data=html_out,
+        file_name="analytics_comparativo.html",
+        mime="text/html", use_container_width=True)
+with c3:
     st.info("Para PDF: abre el HTML → **Ctrl+P** → **Guardar como PDF**")

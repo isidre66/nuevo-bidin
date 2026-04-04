@@ -98,20 +98,14 @@ LAYOUT_BASE = dict(
     margin=dict(t=40, b=20, l=10, r=10)
 )
 
-# ══════════════════════════════════════════════════════════════════════════
-# GRUPOS ESTRATÉGICOS — Score ponderado por percentiles
-# ══════════════════════════════════════════════════════════════════════════
 @st.cache_data
 def calcular_grupos(data):
     d = data.copy()
-    # Percentil de cada empresa en cada variable (0-100)
     d['pct_inn']  = d['MACRO_INNOVACION'].rank(pct=True) * 100
     d['pct_roa']  = d['ROA'].rank(pct=True) * 100
     d['pct_crec'] = d['Var_Ventas_5a'].rank(pct=True) * 100
     d['pct_prod'] = d['Prod_Venta_Emp'].rank(pct=True) * 100
-    d['pct_endeu']= (1 - d['Ratio_Endeudamiento'].rank(pct=True)) * 100  # invertido
-
-    # Score compuesto ponderado
+    d['pct_endeu']= (1 - d['Ratio_Endeudamiento'].rank(pct=True)) * 100
     d['GE_score'] = (
         d['pct_inn']   * 0.25 +
         d['pct_roa']   * 0.25 +
@@ -119,12 +113,8 @@ def calcular_grupos(data):
         d['pct_prod']  * 0.20 +
         d['pct_endeu'] * 0.10
     )
-    # Dividir en 5 grupos por quintiles (0=mejor, 4=peor)
     d['GE'] = pd.qcut(d['GE_score'], q=5, labels=[0,1,2,3,4]).astype(int)
-    # Invertir: 0 = score más alto = Líderes
     d['GE'] = 4 - d['GE']
-
-    # Perfil de cada grupo
     perfiles = {}
     for g in range(5):
         sub = d[d['GE']==g]
@@ -143,9 +133,6 @@ ge_vals, ge_scores, ge_perfiles = calcular_grupos(df)
 df['GE'] = ge_vals
 df['GE_score'] = ge_scores
 
-# ══════════════════════════════════════════════════════════════════════════
-# CORRELACIONES
-# ══════════════════════════════════════════════════════════════════════════
 @st.cache_data
 def calcular_corr(data):
     matriz, pvals = {}, {}
@@ -159,16 +146,17 @@ def calcular_corr(data):
 
 corr_matrix, pval_matrix = calcular_corr(df)
 
-# ══════════════════════════════════════════════════════════════════════════
-# CABECERA
-# ══════════════════════════════════════════════════════════════════════════
 n_tot    = len(df)
 inn_med  = round(df['MACRO_INNOVACION'].mean(), 2)
 roa_med  = round(df['ROA'].mean(), 1)
 crec_med = round(df['Var_Ventas_5a'].mean(), 1)
 prod_med = round(df['Prod_Venta_Emp'].mean(), 0)
 
+# ── Felix al principio ────────────────────────────────────────────────────
+mostrar_felix(pagina='informe_global')
 
+# ── Cabecera ──────────────────────────────────────────────────────────────
+st.markdown(f"""
 <div class="report-header">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
     <div>
@@ -186,7 +174,6 @@ prod_med = round(df['Prod_Venta_Emp'].mean(), 0)
 """, unsafe_allow_html=True)
 
 k1,k2,k3,k4,k5 = st.columns(5)
-mostrar_felix(pagina='informe_global')
 for col_st, label, val, fmt in [
     (k1,"Empresas analizadas", n_tot, "{:.0f}"),
     (k2,"Innovación media",    inn_med, "{:.2f} / 5"),
@@ -194,14 +181,13 @@ for col_st, label, val, fmt in [
     (k4,"Crec. Ventas 5a",    crec_med, "{:.1f}%"),
     (k5,"Productividad media", prod_med, "{:,.0f}€"),
 ]:
-
     col_st.markdown(f"""<div class="kpi-box">
         <div style="font-size:.65rem;color:#7c6fcd;letter-spacing:.5px;">{label}</div>
         <div style="font-family:Rajdhani,sans-serif;font-size:1.75rem;color:#a78bfa;font-weight:700;">{fmt.format(val)}</div>
     </div>""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════
-# BLOQUE 1 — INNOVACIÓN POR CLASIFICACIÓN
+# BLOQUE 1
 # ══════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">📊 Bloque 1 · Perfil Innovador por Variables de Clasificación</div>',
             unsafe_allow_html=True)
@@ -227,14 +213,12 @@ def barras_clas(col_var, diccionario, titulo):
           '* Diferencias significativas (p<0.05)'    if p<0.05  else \
           'Sin diferencias estadísticamente significativas'
     color_sig = '#10b981' if p<0.05 else '#94a3b8'
-
     nombres = [g['nombre'] for g in grupos_data]
     medias  = [g['media']  for g in grupos_data]
     ns      = [g['n']      for g in grupos_data]
     colores = ['#10b981' if m >= df['MACRO_INNOVACION'].mean()+0.1
                else '#f59e0b' if m >= df['MACRO_INNOVACION'].mean()-0.1
                else '#ef4444' for m in medias]
-
     fig = go.Figure(go.Bar(
         x=nombres, y=medias, marker_color=colores,
         text=[f"{m:.2f}<br>n={n}" for m,n in zip(medias,ns)],
@@ -296,7 +280,7 @@ with tab5:
     st.plotly_chart(fig_reg, use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════════════════
-# BLOQUE 2 — CORRELACIONES (solo panel de significativas)
+# BLOQUE 2
 # ══════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">🔗 Bloque 2 · Relaciones Estadísticamente Significativas</div>',
             unsafe_allow_html=True)
@@ -309,7 +293,6 @@ Una correlación positiva indica que a mayor innovación, mayor valor en esa var
 &nbsp;*** p&lt;0.001 &nbsp;·&nbsp; ** p&lt;0.01 &nbsp;·&nbsp; * p&lt;0.05
 </div>""", unsafe_allow_html=True)
 
-# Recopilar todas las relaciones significativas
 rels_sig = []
 for ind in INDS:
     for eco in ECON:
@@ -347,12 +330,11 @@ st.markdown("""<div class="insight-box-blue" style="margin-top:16px;">
 <strong style="color:#00d4ff;">Interpretación:</strong> Las correlaciones significativas son de magnitud moderada,
 lo que indica que la innovación es un factor que contribuye al desempeño pero no lo determina de forma exclusiva.
 El indicador de <strong>I+D+i</strong> muestra las relaciones más consistentes con variables de crecimiento
-y productividad. La mayor parte de los indicadores no tienen correlación significativa con el ROA a corto plazo,
-lo que es coherente con la naturaleza de la innovación como inversión de medio-largo plazo.
+y productividad.
 </div>""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════
-# BLOQUE 3 — SCATTER INTERACTIVO
+# BLOQUE 3
 # ══════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">📈 Bloque 3 · Explorador de Relaciones Innovación–Desempeño</div>',
             unsafe_allow_html=True)
@@ -397,19 +379,16 @@ fig_sc.update_layout(**LAYOUT_BASE, height=440,
 st.plotly_chart(fig_sc, use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════════════════
-# BLOQUE 4 — GRUPOS ESTRATÉGICOS
+# BLOQUE 4
 # ══════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">🎯 Bloque 4 · Grupos Estratégicos</div>', unsafe_allow_html=True)
 st.markdown("""<div class="insight-box">
 <strong style="color:#f59e0b;">Metodología:</strong> Cada empresa recibe un <strong>score compuesto (0-100)</strong>
 calculado a partir de su posición percentil en 5 variables: Innovación (25%), ROA (25%),
 Crecimiento de Ventas (20%), Productividad (20%) y Bajo Endeudamiento (10%).
-Las empresas se dividen en 5 grupos por quintiles. El Grupo 1 (Líderes) agrupa
-el 20% con mayor score y el Grupo 5 (Rezagadas) el 20% con menor score.
-Así cada grupo es internamente coherente — sin mezclar puntos fuertes con débiles.
+Las empresas se dividen en 5 grupos por quintiles.
 </div>""", unsafe_allow_html=True)
 
-# Tarjetas de grupos
 ge_cols = st.columns(5)
 for i in range(5):
     p = ge_perfiles[i]
@@ -431,10 +410,6 @@ for i in range(5):
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Radar comparativo
-st.markdown('<p style="color:#e2e8f0;font-weight:600;margin-bottom:4px;">Perfil radar comparativo de los 5 grupos (valores normalizados 0-100):</p>',
-            unsafe_allow_html=True)
-
 radar_cats = ['Innovación','ROA','Crecimiento','Productividad','Bajo Endeud.']
 fig_radar = go.Figure()
 for i in range(5):
@@ -451,10 +426,8 @@ for i in range(5):
     fig_radar.add_trace(go.Scatterpolar(
         r=vals_c, theta=cats_c, fill='toself', name=GE_LABELS[i],
         line=dict(color=GE_COLORS[i], width=2),
-        fillcolor=GE_COLORS[i].replace('#','rgba(') + ',0.10)' if False else GE_COLORS[i],
         opacity=0.75,
     ))
-# Fix fillcolor
 for i, trace in enumerate(fig_radar.data):
     rgb = {'#10b981':'16,185,129','#3b82f6':'59,130,246','#f59e0b':'245,158,11',
            '#f97316':'249,115,22','#ef4444':'239,68,68'}.get(GE_COLORS[i],'200,200,200')
@@ -473,9 +446,6 @@ fig_radar.update_layout(
 )
 st.plotly_chart(fig_radar, use_container_width=True)
 
-# Distribución por macrosector
-st.markdown('<p style="color:#e2e8f0;font-weight:600;margin-bottom:4px;">Distribución de grupos estratégicos por macrosector:</p>',
-            unsafe_allow_html=True)
 dist_data = []
 for mac_cod, mac_nom in MACROSECTORES.items():
     sub = df[df['Macrosector']==mac_cod]
@@ -501,7 +471,7 @@ fig_dist.update_layout(**LAYOUT_BASE, barmode='stack', height=360,
 st.plotly_chart(fig_dist, use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════════════════
-# BLOQUE 5 — CONCLUSIONES
+# BLOQUE 5
 # ══════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="section-title">📋 Bloque 5 · Hallazgos y Conclusiones</div>', unsafe_allow_html=True)
 
@@ -516,27 +486,16 @@ hallazgos = [
     ("#3b82f6","🏭","El macrosector es el principal determinante de la innovación",
      f"{mejor_mac} lidera la innovación con diferencias altamente significativas respecto a {peor_mac} "
      f"(Kruskal-Wallis p&lt;0.001). El tamaño y la antigüedad de la empresa no muestran asociación "
-     f"estadísticamente significativa con los niveles de innovación, lo que sugiere que la propensión "
-     f"a innovar es una característica estructural del sector más que del tamaño organizativo."),
+     f"estadísticamente significativa con los niveles de innovación."),
     ("#10b981","📊","La relación innovación–desempeño económico es real pero moderada",
-     f"Se identifican {n_sig} relaciones estadísticamente significativas (p&lt;0.05) entre los indicadores "
-     f"de innovación y las variables económicas. El indicador con mayor asociación consistente es "
-     f"<strong>{IND_NAMES[mejor_ind]}</strong>. La magnitud moderada de las correlaciones indica que "
-     f"la innovación es un factor que contribuye al desempeño pero no lo determina de forma exclusiva — "
-     f"otros factores como la gestión financiera, el posicionamiento de mercado y las condiciones "
-     f"sectoriales juegan un papel equivalente o superior."),
+     f"Se identifican {n_sig} relaciones estadísticamente significativas (p&lt;0.05). El indicador con "
+     f"mayor asociación consistente es <strong>{IND_NAMES[mejor_ind]}</strong>."),
     ("#f59e0b","🎯","Los Líderes Estratégicos presentan un perfil equilibrado en todos los ejes",
-     f"El grupo líder (n={lider['n']}) destaca simultáneamente en innovación ({lider['inn']:.2f}/5), "
-     f"rentabilidad (ROA {lider['roa']:.1f}%) y crecimiento ({lider['crec']:.1f}%), con una "
-     f"productividad de {lider['prod']:,.0f}€/empleado. Las Rezagadas (n={rezag['n']}) presentan "
-     f"valores inferiores a la media en los cinco ejes del score compuesto, con un índice innovador "
-     f"de {rezag['inn']:.2f}/5 y un crecimiento de ventas de {rezag['crec']:.1f}%."),
+     f"El grupo líder (n={lider['n']}) destaca en innovación ({lider['inn']:.2f}/5), "
+     f"rentabilidad (ROA {lider['roa']:.1f}%) y crecimiento ({lider['crec']:.1f}%)."),
     ("#7c3aed","💡","Implicación estratégica: la innovación es una condición necesaria, no suficiente",
-     "Los datos de la muestra indican que las empresas líderes en desempeño comparten un perfil innovador "
-     "sólido, pero la innovación por sí sola no garantiza resultados económicos superiores a corto plazo. "
      "Las empresas que combinan capacidades de I+D+i con estrategia de mercado orientada al crecimiento "
-     "y gestión financiera sólida son las que alcanzan posiciones de liderazgo sostenido. La inversión "
-     "en innovación debe entenderse como un activo estratégico de medio-largo plazo."),
+     "y gestión financiera sólida son las que alcanzan posiciones de liderazgo sostenido."),
 ]
 
 for color, icono, titulo, texto in hallazgos:
@@ -564,8 +523,7 @@ def generar_html():
     </tr>""" for i in range(5)])
     tabla_corr = "".join([
         f"<tr><td><strong>{IND_NAMES[ind]}</strong></td>" +
-        "".join([f"<td style='text-align:center;"
-                 f"background:{'rgba(16,185,129,.15)' if corr_matrix[ind][eco]>0.05 and pval_matrix[ind][eco]<0.05 else 'rgba(239,68,68,.15)' if corr_matrix[ind][eco]<-0.05 and pval_matrix[ind][eco]<0.05 else ''};'>"
+        "".join([f"<td style='text-align:center;'>"
                  f"{corr_matrix[ind][eco]:+.3f}{'***' if pval_matrix[ind][eco]<0.001 else '**' if pval_matrix[ind][eco]<0.01 else '*' if pval_matrix[ind][eco]<0.05 else ''}</td>"
                  for eco in ECON]) + "</tr>"
         for ind in INDS])
@@ -583,11 +541,9 @@ td{{padding:8px 10px;border-bottom:1px solid #e5e7eb;}}
 <h1>Informe Global de Referencia — Innovación y Desempeño</h1>
 <p style='color:#6b7280;'>{n_tot} empresas auditadas · {hoy}</p>
 <h2>1. Grupos Estratégicos</h2>
-<p>Score compuesto: Innovación (25%) + ROA (25%) + Crecimiento (20%) + Productividad (20%) + Bajo Endeudamiento (10%)</p>
 <table><tr><th>Grupo</th><th>N</th><th>Score</th><th>Innovación</th><th>ROA</th><th>Crec.Ventas</th><th>Productividad</th></tr>
 {tabla_ge}</table>
-<h2>2. Correlaciones Spearman Innovación–Desempeño</h2>
-<p>*** p&lt;0.001 · ** p&lt;0.01 · * p&lt;0.05</p>
+<h2>2. Correlaciones Spearman</h2>
 <table><tr><th>Indicador</th>{"".join(f"<th>{ECON_NAMES[e]}</th>" for e in ECON)}</tr>{tabla_corr}</table>
 <h2>3. Hallazgos y Conclusiones</h2>{hall_html}
 <hr/><p style='color:#9ca3af;font-size:.78rem;text-align:center;'>Plataforma de Diagnóstico Estratégico · {hoy}</p>

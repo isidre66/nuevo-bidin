@@ -329,6 +329,61 @@ LO QUE NO EXISTE EN ESTA SECCIÓN:
             ("¿Cómo asciendo de grupo?", "fq_ben_6"),
         ]
     },
+    'informe_global': {
+        'contexto': """PÁGINA: Informe Global de Referencia
+
+VALOR Y DESCRIPCIÓN:
+El Informe Global es el informe más completo y transversal de la plataforma.
+Combina en un único documento ejecutivo la posición de la empresa en TODAS las dimensiones analizadas:
+los 6 índices competitivos, los 5 indicadores de innovación y las variables de desempeño económico.
+Es el informe definitivo para una visión 360° completa de la empresa.
+
+ESTRUCTURA COMPLETA:
+
+1. CABECERA EJECUTIVA:
+- Score Estratégico Global (SSG) y Score de Innovación en un único panel
+- Perfil completo de la empresa con todos los datos de clasificación
+- Grupo de referencia y número de empresas comparadas
+
+2. POSICIÓN COMPETITIVA GLOBAL:
+- Los 6 índices competitivos (ICE, ISF, IEO, IDC, IIE, IPT) con velocímetros
+- Score Estratégico Global (SSG) con percentil y nivel
+- Comparativa radar vs media del grupo seleccionado
+
+3. POSICIÓN EN INNOVACIÓN:
+- Los 5 indicadores de innovación con velocímetros
+- Índice Global de Innovación con percentil
+- Comparativa radar vs media del grupo
+
+4. ANÁLISIS CRUZADO COMPETITIVIDAD-INNOVACIÓN:
+- Gráfico de dispersión que relaciona la posición competitiva con la innovadora
+- Identifica si la empresa es fuerte en ambas dimensiones, en una sola o en ninguna
+- Muestra el perfil estratégico resultante de la combinación de ambas posiciones
+
+5. VARIABLES ECONÓMICAS:
+- Las 6 variables económicas clave con percentiles en el grupo
+- Gráfico de barras comparativo con colores semáforo
+
+6. BOTÓN "GENERAR INFORME GLOBAL CON IA":
+- La IA genera un informe ejecutivo completo combinando todas las dimensiones
+- Incluye diagnóstico integrado, fortalezas y áreas de mejora transversales
+- Recomendaciones estratégicas que integran competitividad e innovación
+- Predicción del escenario futuro si se implementan las acciones recomendadas
+
+7. DESCARGA: Word editable, HTML y PDF del informe completo.
+
+FILTROS: El usuario elige siempre el perfil de comparación desde el panel lateral.
+Este informe es especialmente valioso para presentaciones ante consejos de administración,
+inversores o comités directivos, al ofrecer una visión completa e integrada de la empresa.""",
+        'preguntas': [
+            ("¿Qué incluye este informe?", "fq_glob_1"),
+            ("¿Qué es el análisis cruzado?", "fq_glob_2"),
+            ("¿Cómo genero el informe IA?", "fq_glob_3"),
+            ("¿Para qué sirve el informe global?", "fq_glob_4"),
+            ("¿Cómo descargo el informe?", "fq_glob_5"),
+            ("¿Puedo hacer varios informes?", "fq_glob_6"),
+        ]
+    },
 }
 
 FELIX_SYSTEM_BASE = """Eres Félix, consultor estratégico senior de la plataforma Etelvia — el primer y único motor de inteligencia competitiva 360 all in one.
@@ -488,6 +543,7 @@ def mostrar_felix(pagina=""):
             'benchmarking': "Buenos días, soy Félix. Benchmarking es una de las secciones más potentes de la plataforma — encontrará su posición frente al Top 25% del sector y región, su grupo estratégico, las mejores prácticas diferenciales y un simulador interactivo de posicionamiento. ¿Por dónde desea empezar?",
             'analytics': "Buenos días, soy Félix. Analytics es la sección más profunda y flexible de la plataforma — le permite comparar su empresa con cualquier perfil usando más de 20 indicadores y subindicadores a su elección. ¿Le explico cómo sacarle el máximo partido?",
             'cuestionario': f"Buenos días, soy Félix. Está en el cuestionario de innovación, con 5 bloques: I+D+i, Gestión de Proyectos, Desarrollo de Productos, Estrategia de Innovación y Desempeño de Innovación. Lleva {completados} de 5 completados. ¿Le explico cómo responder?",
+            'informe_global': "Buenos días, soy Félix. El Informe Global es el más completo de la plataforma — combina en un único documento ejecutivo su posición en los 6 índices competitivos, los 5 indicadores de innovación y las variables económicas. Una visión 360° completa, ideal para presentaciones ante consejos de administración o inversores. ¿Le explico cómo sacarle el máximo partido?",
         }
         msg = bienvenidas.get(pagina, "Buenos días, soy Félix, su consultor estratégico. Estoy aquí para ayudarle a sacar el máximo partido de esta plataforma. ¿En qué puedo ayudarle?")
         st.session_state[key_msgs] = [{"role":"assistant","content":msg}]

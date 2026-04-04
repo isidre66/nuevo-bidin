@@ -167,7 +167,8 @@ roa_med  = round(df['ROA'].mean(), 1)
 crec_med = round(df['Var_Ventas_5a'].mean(), 1)
 prod_med = round(df['Prod_Venta_Emp'].mean(), 0)
 
-st.markdown(f"""
+from asistentes import mostrar_felix
+mostrar_felix(pagina='informe_global')
 <div class="report-header">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
     <div>

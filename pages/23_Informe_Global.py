@@ -186,6 +186,7 @@ prod_med = round(df['Prod_Venta_Emp'].mean(), 0)
 """, unsafe_allow_html=True)
 
 k1,k2,k3,k4,k5 = st.columns(5)
+mostrar_felix(pagina='informe_global')
 for col_st, label, val, fmt in [
     (k1,"Empresas analizadas", n_tot, "{:.0f}"),
     (k2,"Innovación media",    inn_med, "{:.2f} / 5"),
@@ -193,7 +194,7 @@ for col_st, label, val, fmt in [
     (k4,"Crec. Ventas 5a",    crec_med, "{:.1f}%"),
     (k5,"Productividad media", prod_med, "{:,.0f}€"),
 ]:
-mostrar_felix(pagina='informe_global')
+
     col_st.markdown(f"""<div class="kpi-box">
         <div style="font-size:.65rem;color:#7c6fcd;letter-spacing:.5px;">{label}</div>
         <div style="font-family:Rajdhani,sans-serif;font-size:1.75rem;color:#a78bfa;font-weight:700;">{fmt.format(val)}</div>

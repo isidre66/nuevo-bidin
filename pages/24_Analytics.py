@@ -621,3 +621,35 @@ st_echarts(options=eco_pct_option, height="320px")
 
 st.divider()
 st.caption("💡 Ajusta los filtros del panel izquierdo para compararte con distintos grupos.")
+st.divider()
+st.markdown('<div class="section-title">📥 Descargar Analytics</div>', unsafe_allow_html=True)
+
+def generar_html_analytics():
+    filas = ""
+    for i in range(min(len(ind_sel), len(emp_vals))):
+        filas += f"<tr><td>{ind_sel[i]}</td><td style='text-align:center'>{emp_vals[i]:.2f}</td><td style='text-align:center'>{grp_vals[i]:.2f}</td><td style='text-align:center'>{tot_vals[i]:.2f}</td><td style='text-align:center'>{pcts[i]}°</td></tr>"
+    from datetime import date
+    hoy = date.today().strftime("%d/%m/%Y")
+    return f"""<!DOCTYPE html><html><head><meta charset='utf-8'>
+<style>body{{font-family:Georgia,serif;max-width:900px;margin:50px auto;color:#1a1a1a;line-height:1.7;}}
+h1{{color:#0066ff;border-bottom:3px solid #0066ff;padding-bottom:8px;}}
+table{{border-collapse:collapse;width:100%;margin:16px 0;font-size:.9rem;}}
+th{{background:#0066ff;color:white;padding:10px;text-align:left;}}
+td{{padding:9px 11px;border-bottom:1px solid #e5e7eb;}}
+</style></head><body>
+<h1>Analytics Comparativo</h1>
+<p style='color:#6b7280;'>Empresa: {st.session_state.get('save_sector_nombre','—')} · {st.session_state.get('save_tam_nombre','—')} · {st.session_state.get('save_reg_nombre','—')} · {hoy}</p>
+<p>Comparando con <strong>{n} empresas</strong> del grupo seleccionado.</p>
+<h2>Posición en los Indicadores</h2>
+<table><tr><th>Indicador</th><th>Mi Empresa</th><th>Media Grupo</th><th>Media Total</th><th>Percentil</th></tr>
+{filas}</table>
+<hr/><p style='color:#9ca3af;font-size:.78rem;text-align:center;'>Plataforma Etelvia · {hoy}</p>
+</body></html>"""
+
+c1, c2 = st.columns(2)
+with c1:
+    st.download_button("🌐 Descargar HTML", data=generar_html_analytics(),
+        file_name="analytics_comparativo.html",
+        mime="text/html", type="primary", use_container_width=True)
+with c2:
+    st.info("Para PDF: abre el HTML → **Ctrl+P** → **Guardar como PDF**")

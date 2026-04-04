@@ -168,7 +168,7 @@ roa_med  = round(df['ROA'].mean(), 1)
 crec_med = round(df['Var_Ventas_5a'].mean(), 1)
 prod_med = round(df['Prod_Venta_Emp'].mean(), 0)
 
-mostrar_felix(pagina='informe_global')
+
 <div class="report-header">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
     <div>
@@ -193,6 +193,7 @@ for col_st, label, val, fmt in [
     (k4,"Crec. Ventas 5a",    crec_med, "{:.1f}%"),
     (k5,"Productividad media", prod_med, "{:,.0f}€"),
 ]:
+mostrar_felix(pagina='informe_global')
     col_st.markdown(f"""<div class="kpi-box">
         <div style="font-size:.65rem;color:#7c6fcd;letter-spacing:.5px;">{label}</div>
         <div style="font-family:Rajdhani,sans-serif;font-size:1.75rem;color:#a78bfa;font-weight:700;">{fmt.format(val)}</div>

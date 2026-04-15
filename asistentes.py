@@ -1286,7 +1286,7 @@ Por donde quiere profundizar?"""
             st.rerun()
     with col_reset:
         if st.button("↺ Reiniciar", key=f"kevin_reset_{pagina}", use_container_width=True):
-            st.session_state[key_msgs] = [{"role":"assistant","content":"¡Buenos días de nuevo! ¿En qué puedo ayudarle?"}]
+            del st.session_state[key_msgs]
             st.session_state[key_exp] = True
             st.rerun()
 

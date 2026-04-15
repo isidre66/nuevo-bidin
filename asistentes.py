@@ -1026,3 +1026,254 @@ def mostrar_melissa_mi_empresa():
                 st.rerun()
 
     st.markdown("---")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# KEVIN — CONSULTOR ESTRATÉGICO SENIOR
+# ══════════════════════════════════════════════════════════════════════════
+
+def _construir_perfil_empresa():
+    """Construye un perfil completo de la empresa desde session_state."""
+    s = st.session_state
+    
+    sector     = s.get('save_sector_nombre', 'No especificado')
+    tam        = s.get('save_tam_nombre', 'No especificado')
+    region     = s.get('save_reg_nombre', 'No especificada')
+    export     = s.get('save_export_nombre', 'No especificado')
+    anti       = s.get('save_anti_nombre', 'No especificada')
+    ventas     = s.get('save_ventas', 0)
+    empleados  = s.get('save_empleados', 0)
+    roa        = s.get('save_roa', 0)
+    var_vtas   = s.get('save_var_vtas', 0)
+    var_empl   = s.get('save_var_empl', 0)
+    productiv  = s.get('save_productiv', 0)
+    coste_emp  = s.get('save_coste_emp', 0)
+    endeud     = s.get('save_endeud', 0)
+    
+    # Scores de innovación
+    b1 = round(s.get('score_b1', 0), 2)
+    b2 = round(s.get('score_b2', 0), 2)
+    b3 = round(s.get('score_b3', 0), 2)
+    b4 = round(s.get('score_b4', 0), 2)
+    b5 = round(s.get('score_b5', 0), 2)
+    bloques_completados = sum(1 for i in range(1,6) if s.get(f'score_b{i}',0) > 0)
+    macro_inn = round((b1+b2+b3+b4+b5)/max(bloques_completados,1), 2) if bloques_completados > 0 else 0
+    
+    # Índices competitivos
+    ice = round(s.get('ICE', 0), 1)
+    isf = round(s.get('ISF', 0), 1)
+    ieo = round(s.get('IEO', 0), 1)
+    idc = round(s.get('IDC', 0), 1)
+    iie = round(s.get('IIE', 0), 1)
+    ipt = round(s.get('IPT', 0), 1)
+    ssg = round(s.get('SSG', 0), 1)
+    
+    perfil = f"""
+PERFIL COMPLETO DE LA EMPRESA:
+
+CLASIFICACIÓN:
+- Sector: {sector}
+- Tamaño: {tam}
+- Región: {region}
+- Nivel exportador: {export}
+- Antigüedad: {anti}
+
+VARIABLES ECONÓMICAS:
+- Ventas: {ventas:,.0f} miles €
+- Empleados: {empleados}
+- ROA: {roa}%
+- Variación ventas 5 años: {var_vtas}%
+- Variación empleo 5 años: {var_empl}%
+- Productividad: {productiv:,.0f} €/empleado
+- Coste medio empleado: {coste_emp:,.0f} €
+- Ratio endeudamiento: {endeud}
+
+DIAGNÓSTICO DE INNOVACIÓN ({bloques_completados}/5 bloques completados):
+- Índice Global de Innovación: {macro_inn}/5
+- Bloque 1 · I+D+i: {b1}/5
+- Bloque 2 · Gestión de Proyectos: {b2}/5
+- Bloque 3 · Desarrollo de Productos: {b3}/5
+- Bloque 4 · Estrategia de Innovación: {b4}/5
+- Bloque 5 · Desempeño de Innovación: {b5}/5
+
+ÍNDICES COMPETITIVOS (0-100):
+- ICE · Competitividad Empresarial: {ice}
+- ISF · Solidez Financiera: {isf}
+- IEO · Eficiencia Operativa: {ieo}
+- IDC · Dinamismo y Crecimiento: {idc}
+- IIE · Intensidad Exportadora: {iie}
+- IPT · Productividad y Talento: {ipt}
+- SSG · Score Estratégico Global: {ssg}/100
+"""
+    return perfil
+
+
+KEVIN_SYSTEM_BASE = """Eres Kevin, consultor estratégico senior de la plataforma Etelvia.
+
+TRATO: Habla siempre de USTED. Nunca de tú.
+
+PERSONALIDAD Y ROL:
+Eres un consultor estratégico experimentado, directo y propositivo. No te limitas a informar — opinas, recomiendas y propones acciones concretas. Tienes criterio propio y no temes dar tu opinión cuando los datos lo justifican. Eres riguroso pero accesible, y siempre reconoces las limitaciones de tu análisis.
+
+CAPACIDADES:
+- Analizas la situación estratégica completa de la empresa a partir de sus datos reales
+- Identificas prioridades, riesgos y oportunidades de forma proactiva
+- Propones acciones concretas con argumentación basada en datos
+- Incorporas información adicional que el usuario te facilite (web, contexto, estrategia)
+- Conectas indicadores de distintas dimensiones para ofrecer una visión integrada
+
+LIMITACIONES QUE DEBES RECONOCER SIEMPRE:
+- Tus análisis se basan en los datos disponibles en la plataforma y la información que el usuario comparte
+- No conoces el contexto interno completo de la empresa
+- Tus recomendaciones son orientativas — el usuario conoce mejor que nadie su realidad
+- Cuando hagas suposiciones, indícalo claramente
+
+CONFIDENCIALIDAD — MENCIONAR PROACTIVAMENTE:
+Cuando el usuario comparta información adicional (web, documentos, datos), recuérdale que:
+- Esa información solo existe en esta conversación y desaparece al cerrarla
+- No se almacena ni se comparte con terceros
+- La API de Anthropic no utiliza estos datos para entrenar modelos
+
+INFORMACIÓN ADICIONAL:
+Si el usuario quiere compartir más contexto (web de la empresa, informes, estrategia, competidores), indícale que puede pegarlo directamente en el chat y lo incorporarás al análisis.
+
+CÓMO ESTRUCTURAR TUS RESPUESTAS:
+- Empieza siempre con una valoración directa de la situación
+- Señala 1-2 aspectos críticos que merecen atención inmediata
+- Propón acciones concretas cuando sea relevante
+- Máximo 5-6 frases por respuesta salvo que el usuario pida un análisis más extenso
+- Tono: directo, seguro, constructivo — como un consultor de confianza
+
+SOBRE LA PLATAFORMA:
+- Motor de inteligencia competitiva 360° all in one
+- Más de 1.000 empresas españolas de referencia
+- Diagnóstico de innovación, índices competitivos, benchmarking, plan de acción
+"""
+
+
+def mostrar_kevin(pagina='general'):
+    """Muestra a Kevin como consultor estratégico senior con acceso a todos los datos."""
+    key_msgs = f'kevin_msgs_{pagina}'
+    key_exp  = f'kevin_exp_{pagina}'
+    key_ctx  = f'kevin_contexto_{pagina}'
+
+    perfil = _construir_perfil_empresa()
+    bloques_completados = sum(1 for i in range(1,6) if st.session_state.get(f'score_b{i}',0) > 0)
+    ssg = round(st.session_state.get('SSG', 0), 1)
+    sector = st.session_state.get('save_sector_nombre', '')
+    tam = st.session_state.get('save_tam_nombre', '')
+
+    contexto_adicional = st.session_state.get(key_ctx, '')
+
+    kevin_system = KEVIN_SYSTEM_BASE + f"""
+
+{perfil}
+
+{"CONTEXTO ADICIONAL FACILITADO POR EL USUARIO:" + contexto_adicional if contexto_adicional else ""}
+"""
+
+    if key_msgs not in st.session_state:
+        if bloques_completados == 0:
+            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico en Etelvia. He revisado el perfil de su empresa — {sector}, {tam} — pero aún no dispongo de los resultados del cuestionario de innovación. Le recomiendo completarlo para poder ofrecerle un análisis estratégico completo. ¿Tiene alguna pregunta mientras tanto?"""
+        elif ssg > 0:
+            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico. He analizado los datos de su empresa — {sector}, {tam} — y tengo una visión bastante clara de su situación competitiva. Con un Score Estratégico Global de {ssg}/100 y {bloques_completados}/5 bloques de innovación completados, hay aspectos relevantes que comentar. ¿Por dónde quiere que empecemos — competitividad, innovación, o algún área concreta que le preocupe?"""
+        else:
+            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico. He revisado el perfil de su empresa — {sector}, {tam} — con {bloques_completados}/5 bloques del diagnóstico de innovación completados. Estoy listo para analizar su situación y darle mi opinión. ¿Qué aspecto estratégico quiere que abordemos primero?"""
+        
+        st.session_state[key_msgs] = [{"role":"assistant","content":msg_bienvenida}]
+
+    if key_exp not in st.session_state:
+        st.session_state[key_exp] = True
+
+    img_b64 = _imagen_base64('kevin.png')
+    ultimo = st.session_state[key_msgs][-1]['content']
+    ultimo_corto = ultimo[:130] + "..." if len(ultimo) > 130 else ultimo
+
+    # Banner Kevin - color diferenciado (dorado oscuro)
+    img_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:3px solid #fff;flex-shrink:0;">' if img_b64 else '<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#92400e,#b45309);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:20px;font-weight:800;color:#fbbf24;flex-shrink:0;">K</div>'
+    
+    st.markdown(f'''<div style="background:linear-gradient(135deg,#1c1008,#2d1a04);border:1px solid #92400e;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+        {img_tag}
+        <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;color:#fbbf24;font-size:.95rem;">Kevin <span style="font-weight:400;font-size:.78rem;color:rgba(251,191,36,0.7);">— Consultor Estratégico Senior</span></div>
+            <div style="color:rgba(255,255,255,0.85);font-size:.82rem;line-height:1.5;margin-top:3px;">{ultimo_corto}</div>
+        </div>
+    </div>''', unsafe_allow_html=True)
+
+    col_expand, col_reset = st.columns([3,1])
+    with col_expand:
+        label = "▲ Ocultar" if st.session_state[key_exp] else "💬 Consultar con Kevin"
+        if st.button(label, key=f"kevin_expand_{pagina}", use_container_width=True):
+            st.session_state[key_exp] = not st.session_state[key_exp]
+            st.rerun()
+    with col_reset:
+        if st.button("↺ Reiniciar", key=f"kevin_reset_{pagina}", use_container_width=True):
+            st.session_state[key_msgs] = [{"role":"assistant","content":"¡Buenos días de nuevo! ¿En qué puedo ayudarle?"}]
+            st.session_state[key_exp] = True
+            st.rerun()
+
+    if st.session_state[key_exp]:
+        for m in st.session_state[key_msgs][-8:]:
+            if m['role'] == 'assistant':
+                with st.chat_message("assistant"):
+                    st.write(m['content'])
+            else:
+                with st.chat_message("user"):
+                    st.write(m['content'])
+
+        # Preguntas frecuentes
+        st.markdown("**Consultas frecuentes:**")
+        c1, c2 = st.columns(2)
+        preguntas_kevin = [
+            ("¿Cuál es mi situación estratégica?", "kq1"),
+            ("¿Dónde debo actuar primero?", "kq2"),
+            ("¿Cuáles son mis principales riesgos?", "kq3"),
+            ("¿Cómo mejorar mi innovación?", "kq4"),
+            ("¿Qué oportunidades veo para mi empresa?", "kq5"),
+            ("Analiza mi posición financiera", "kq6"),
+        ]
+        for i, (texto, key) in enumerate(preguntas_kevin):
+            col = c1 if i % 2 == 0 else c2
+            with col:
+                if st.button(texto, key=key, use_container_width=True):
+                    st.session_state[key_msgs].append({"role":"user","content":texto})
+                    with st.spinner("Kevin está analizando..."):
+                        r = _llamar_ia(kevin_system, st.session_state[key_msgs], max_tokens=800)
+                    st.session_state[key_msgs].append({"role":"assistant","content":r})
+                    st.rerun()
+
+        # Contexto adicional
+        with st.expander("📎 Añadir contexto adicional (web, estrategia, documentos...)", expanded=False):
+            st.markdown("""<div style="background:rgba(146,64,14,.1);border:1px solid rgba(146,64,14,.3);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#fbbf24;margin-bottom:10px;">
+            🔒 <strong>Confidencialidad garantizada:</strong> La información que facilite solo existe en esta conversación y desaparece al cerrarla. No se almacena ni se comparte con terceros.
+            </div>""", unsafe_allow_html=True)
+            nuevo_ctx = st.text_area(
+                "Pegue aquí información adicional sobre su empresa (web, productos, estrategia, competidores...)",
+                value=contexto_adicional,
+                key=f"kevin_ctx_input_{pagina}",
+                height=120,
+                placeholder="Ejemplo: Somos una empresa familiar fundada en 1985, fabricamos componentes para automoción, nuestros principales competidores son X e Y, estamos valorando expandirnos a Portugal..."
+            )
+            if st.button("💾 Incorporar al análisis", key=f"kevin_ctx_save_{pagina}", use_container_width=True):
+                st.session_state[key_ctx] = nuevo_ctx
+                st.session_state[key_msgs].append({"role":"user","content":f"Te facilito información adicional sobre nuestra empresa: {nuevo_ctx}"})
+                with st.spinner("Kevin está procesando la información..."):
+                    r = _llamar_ia(kevin_system, st.session_state[key_msgs], max_tokens=800)
+                st.session_state[key_msgs].append({"role":"assistant","content":r})
+                st.rerun()
+
+        # Input libre
+        pregunta_libre = st.text_input(
+            "Haga su consulta a Kevin:",
+            key=f"kevin_input_{pagina}",
+            placeholder="¿Qué decisión estratégica debería priorizar en los próximos 6 meses?"
+        )
+        if st.button("Enviar", key=f"kevin_enviar_{pagina}"):
+            if pregunta_libre.strip():
+                st.session_state[key_msgs].append({"role":"user","content":pregunta_libre})
+                with st.spinner("Kevin está analizando..."):
+                    r = _llamar_ia(kevin_system, st.session_state[key_msgs], max_tokens=800)
+                st.session_state[key_msgs].append({"role":"assistant","content":r})
+                st.rerun()
+
+    st.markdown("---")

@@ -1255,7 +1255,8 @@ PRIORIDAD ESTRATEGICA
 Por donde quiere profundizar?"""
 
         else:
-            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico. He revisado el perfil de su empresa — **{sector}, {tam}, {reg}** — con {bloques_completados}/5 bloques del diagnóstico completados. Estoy listo para analizar su situación. ¿Qué aspecto estratégico quiere abordar primero?"""
+            reg = st.session_state.get('save_reg_nombre', '—')
+            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico. He revisado el perfil de su empresa — {sector}, {tam}, {reg} — con {bloques_completados}/5 bloques del diagnóstico completados. Estoy listo para analizar su situación. ¿Qué aspecto estratégico quiere abordar primero?"""
         
         st.session_state[key_msgs] = [{"role":"assistant","content":msg_bienvenida}]
 

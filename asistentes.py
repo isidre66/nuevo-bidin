@@ -1215,9 +1215,9 @@ Complete el cuestionario de innovación (15 minutos) para que pueda ofrecerle un
 
         elif ssg > 0:
             # Identificar fortalezas y debilidades
-            indices = {{'ICE':ice,'ISF':isf,'IEO':ieo,'IDC':idc,'IIE':iie,'IPT':ipt}}
-            nombres_ind = {{'ICE':'Competitividad','ISF':'Solidez Financiera','IEO':'Eficiencia Operativa','IDC':'Dinamismo','IIE':'Exportación','IPT':'Productividad'}}
-            inn_items = {{'I+D+i':b1,'Gestión Proyectos':b2,'Desarrollo Productos':b3,'Estrategia Innovación':b4,'Desempeño':b5}}
+            indices = {'ICE':ice,'ISF':isf,'IEO':ieo,'IDC':idc,'IIE':iie,'IPT':ipt}
+            nombres_ind = {'ICE':'Competitividad','ISF':'Solidez Financiera','IEO':'Eficiencia Operativa','IDC':'Dinamismo','IIE':'Exportación','IPT':'Productividad'}
+            inn_items = {'I+D+i':b1,'Gestión Proyectos':b2,'Desarrollo Productos':b3,'Estrategia Innovación':b4,'Desempeño':b5}
             
             mejor_idx = max(indices, key=indices.get)
             peor_idx = min(indices, key=indices.get)

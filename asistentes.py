@@ -1197,14 +1197,17 @@ def mostrar_kevin(pagina='general'):
         var_vtas = st.session_state.get('save_var_vtas',0)
 
         if bloques_completados == 0:
+            ventas_txt = f"{int(st.session_state.get('save_ventas',0)):,} miles EUR"
+            empleados_txt = str(st.session_state.get('save_empleados',0))
+            roa_nivel = 'por encima de la media' if roa > 8 else 'con margen de mejora' if roa > 3 else 'un area prioritaria de atencion'
             msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico.
 
-He accedido al perfil de su empresa — **{sector}, {tam}, {reg}** — pero el cuestionario de innovación aún no está completado, lo que limita mi análisis.
+He accedido al perfil de su empresa — {sector}, {tam}, {reg} — pero el cuestionario de innovación aún no está completado, lo que limita mi análisis.
 
-📊 **Lo que ya puedo valorar:**
-Con unas ventas de {st.session_state.get('save_ventas',0):,.0f} miles €, {st.session_state.get('save_empleados',0)} empleados y un ROA del {roa}%, {'su rentabilidad está por encima de la media del sector' if roa > 8 else 'su rentabilidad tiene margen de mejora' if roa > 3 else 'la rentabilidad es un área que requiere atención prioritaria'}.
+DIAGNOSTICO INICIAL:
+Con unas ventas de {ventas_txt}, {empleados_txt} empleados y un ROA del {roa}%, su rentabilidad está {roa_nivel}.
 
-⚡ **Mi recomendación inmediata:**
+RECOMENDACION INMEDIATA:
 Complete el cuestionario de innovación (15 minutos) para que pueda ofrecerle un diagnóstico estratégico completo. Sin esos datos, cualquier recomendación sobre competitividad e innovación sería incompleta.
 
 ¿Tiene alguna pregunta estratégica concreta mientras tanto?"""
@@ -1224,21 +1227,31 @@ Complete el cuestionario de innovación (15 minutos) para que pueda ofrecerle un
             nivel_ssg = 'sólida, en el tercio superior' if ssg>70 else 'intermedia, con margen de mejora significativo' if ssg>50 else 'débil, por debajo de la media competitiva'
             nivel_inn = 'avanzado' if macro>3.5 else 'medio' if macro>2.5 else 'insuficiente, por debajo de lo necesario para competir'
 
-            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico. He analizado en detalle los datos de su empresa. Aquí mi diagnóstico inicial:
+            roa_txt = f"ROA: {roa}% es un activo real." if roa>8 else ""
+            endeud_txt = f"El endeudamiento ({endeud}) es elevado y limita la capacidad de maniobra." if endeud>0.7 else ""
+            if macro<2.5:
+                prioridad_txt = "Reforzar la capacidad innovadora es urgente — un perfil por debajo de 2.5/5 en el contexto competitivo actual es un riesgo real."
+            elif ssg>60:
+                prioridad_txt = f"Consolidar las fortalezas competitivas mientras se cierra la brecha en {nombres_ind[peor_idx]}."
+            else:
+                prioridad_txt = f"Atacar simultaneamente la mejora en {nombres_ind[peor_idx]} y el fortalecimiento del perfil innovador."
+            mejor_inn_val = round(inn_items[mejor_inn], 2)
+            peor_inn_val = round(inn_items.get(peor_inn, 0), 2)
+            msg_bienvenida = f"""Buenos dias, soy Kevin, su consultor estrategico. He analizado en detalle los datos de su empresa. Aqui mi diagnostico inicial:
 
-📊 **Diagnóstico general — {sector}, {tam}**
-Su posición competitiva es **{nivel_ssg}** (SSG: {ssg}/100). En innovación, su perfil es **{nivel_inn}** ({macro}/5). Tiene {bloques_completados}/5 bloques del diagnóstico completados.
+DIAGNOSTICO GENERAL — {sector}, {tam}
+Su posicion competitiva es {nivel_ssg} (SSG: {ssg}/100). En innovacion, su perfil es {nivel_inn} ({macro}/5). Tiene {bloques_completados}/5 bloques del diagnostico completados.
 
-⚡ **Fortalezas detectadas**
-Su mejor índice competitivo es **{nombres_ind[mejor_idx]}** ({mejor_idx}: {indices[mejor_idx]}/100) y su indicador de innovación más sólido es **{mejor_inn}** ({inn_items[mejor_inn]:.2f}/5). {'La rentabilidad (ROA: ' + str(roa) + '%) es un activo real.' if roa>8 else ''}
+FORTALEZAS DETECTADAS
+Su mejor indice competitivo es {nombres_ind[mejor_idx]} ({mejor_idx}: {indices[mejor_idx]}/100) y su indicador de innovacion mas solido es {mejor_inn} ({mejor_inn_val}/5). {roa_txt}
 
-⚠️ **Áreas críticas**
-El índice más débil es **{nombres_ind[peor_idx]}** ({peor_idx}: {indices[peor_idx]}/100). En innovación, **{peor_inn}** ({inn_items.get(peor_inn,0):.2f}/5) requiere atención. {'El endeudamiento (' + str(endeud) + ') es elevado y limita la capacidad de maniobra.' if endeud>0.7 else ''}
+AREAS CRITICAS
+El indice mas debil es {nombres_ind[peor_idx]} ({peor_idx}: {indices[peor_idx]}/100). En innovacion, {peor_inn} ({peor_inn_val}/5) requiere atencion. {endeud_txt}
 
-🎯 **Mi prioridad estratégica para su empresa**
-{'Reforzar la capacidad innovadora es urgente — un perfil por debajo de 2.5/5 en el contexto competitivo actual es un riesgo real.' if macro<2.5 else 'Consolidar las fortalezas competitivas mientras se cierra la brecha en ' + nombres_ind[peor_idx] + '.' if ssg>60 else 'Atacar simultáneamente la mejora en ' + nombres_ind[peor_idx] + ' y el fortalecimiento del perfil innovador.'}
+PRIORIDAD ESTRATEGICA
+{prioridad_txt}
 
-¿Por dónde quiere profundizar?"""
+Por donde quiere profundizar?"""
 
         else:
             msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico. He revisado el perfil de su empresa — **{sector}, {tam}, {reg}** — con {bloques_completados}/5 bloques del diagnóstico completados. Estoy listo para analizar su situación. ¿Qué aspecto estratégico quiere abordar primero?"""

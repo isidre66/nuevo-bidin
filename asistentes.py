@@ -1197,6 +1197,7 @@ def mostrar_kevin(pagina='general'):
         var_vtas = st.session_state.get('save_var_vtas',0)
 
         if bloques_completados == 0:
+            reg = st.session_state.get('save_reg_nombre', '—')
             ventas_txt = f"{int(st.session_state.get('save_ventas',0)):,} miles EUR"
             empleados_txt = str(st.session_state.get('save_empleados',0))
             roa_nivel = 'por encima de la media' if roa > 8 else 'con margen de mejora' if roa > 3 else 'un area prioritaria de atencion'

@@ -1138,11 +1138,19 @@ INFORMACIÓN ADICIONAL:
 Si el usuario quiere compartir más contexto (web de la empresa, informes, estrategia, competidores), indícale que puede pegarlo directamente en el chat y lo incorporarás al análisis.
 
 CÓMO ESTRUCTURAR TUS RESPUESTAS:
-- Empieza siempre con una valoración directa de la situación
-- Señala 1-2 aspectos críticos que merecen atención inmediata
-- Propón acciones concretas cuando sea relevante
-- Máximo 5-6 frases por respuesta salvo que el usuario pida un análisis más extenso
-- Tono: directo, seguro, constructivo — como un consultor de confianza
+- Empieza siempre con una valoración directa y sin rodeos
+- Usa secciones claras con emojis como separadores visuales: 📊 Diagnóstico · ⚡ Prioridades · 🎯 Acciones · ⚠️ Alertas
+- Sé específico: menciona los índices, percentiles y valores reales de la empresa
+- Propón acciones concretas con argumentación basada en datos
+- Respuestas de 250-400 palabras salvo que el usuario pida algo más breve
+- Tono: directo, seguro, constructivo — como un consultor de confianza que no endulza la realidad
+
+CUANDO INTERPRETES LOS DATOS:
+- SSG > 70: posición competitiva sólida · SSG 50-70: posición media con margen · SSG < 50: posición débil, urgencia de mejora
+- Índice innovación > 3.5: perfil innovador avanzado · 2.5-3.5: perfil medio · < 2.5: innovación insuficiente
+- ROA > 8%: rentabilidad sólida · 3-8%: aceptable · < 3%: preocupante
+- Endeudamiento > 0.7: riesgo financiero alto · 0.4-0.7: moderado · < 0.4: sólido
+- Compara siempre los valores de la empresa con estas referencias para dar contexto real
 
 SOBRE LA PLATAFORMA:
 - Motor de inteligencia competitiva 360° all in one
@@ -1173,12 +1181,67 @@ def mostrar_kevin(pagina='general'):
 """
 
     if key_msgs not in st.session_state:
+        b1 = round(st.session_state.get('score_b1',0),2)
+        b2 = round(st.session_state.get('score_b2',0),2)
+        b3 = round(st.session_state.get('score_b3',0),2)
+        b4 = round(st.session_state.get('score_b4',0),2)
+        b5 = round(st.session_state.get('score_b5',0),2)
+        ice = round(st.session_state.get('ICE',0),1)
+        isf = round(st.session_state.get('ISF',0),1)
+        ieo = round(st.session_state.get('IEO',0),1)
+        idc = round(st.session_state.get('IDC',0),1)
+        iie = round(st.session_state.get('IIE',0),1)
+        ipt = round(st.session_state.get('IPT',0),1)
+        roa = st.session_state.get('save_roa',0)
+        endeud = st.session_state.get('save_endeud',0)
+        var_vtas = st.session_state.get('save_var_vtas',0)
+
         if bloques_completados == 0:
-            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico en Etelvia. He revisado el perfil de su empresa — {sector}, {tam} — pero aún no dispongo de los resultados del cuestionario de innovación. Le recomiendo completarlo para poder ofrecerle un análisis estratégico completo. ¿Tiene alguna pregunta mientras tanto?"""
+            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico.
+
+He accedido al perfil de su empresa — **{sector}, {tam}, {reg}** — pero el cuestionario de innovación aún no está completado, lo que limita mi análisis.
+
+📊 **Lo que ya puedo valorar:**
+Con unas ventas de {st.session_state.get('save_ventas',0):,.0f} miles €, {st.session_state.get('save_empleados',0)} empleados y un ROA del {roa}%, {'su rentabilidad está por encima de la media del sector' if roa > 8 else 'su rentabilidad tiene margen de mejora' if roa > 3 else 'la rentabilidad es un área que requiere atención prioritaria'}.
+
+⚡ **Mi recomendación inmediata:**
+Complete el cuestionario de innovación (15 minutos) para que pueda ofrecerle un diagnóstico estratégico completo. Sin esos datos, cualquier recomendación sobre competitividad e innovación sería incompleta.
+
+¿Tiene alguna pregunta estratégica concreta mientras tanto?"""
+
         elif ssg > 0:
-            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico. He analizado los datos de su empresa — {sector}, {tam} — y tengo una visión bastante clara de su situación competitiva. Con un Score Estratégico Global de {ssg}/100 y {bloques_completados}/5 bloques de innovación completados, hay aspectos relevantes que comentar. ¿Por dónde quiere que empecemos — competitividad, innovación, o algún área concreta que le preocupe?"""
+            # Identificar fortalezas y debilidades
+            indices = {{'ICE':ice,'ISF':isf,'IEO':ieo,'IDC':idc,'IIE':iie,'IPT':ipt}}
+            nombres_ind = {{'ICE':'Competitividad','ISF':'Solidez Financiera','IEO':'Eficiencia Operativa','IDC':'Dinamismo','IIE':'Exportación','IPT':'Productividad'}}
+            inn_items = {{'I+D+i':b1,'Gestión Proyectos':b2,'Desarrollo Productos':b3,'Estrategia Innovación':b4,'Desempeño':b5}}
+            
+            mejor_idx = max(indices, key=indices.get)
+            peor_idx = min(indices, key=indices.get)
+            mejor_inn = max(inn_items, key=inn_items.get)
+            peor_inn = min((k for k,v in inn_items.items() if v>0), key=lambda k: inn_items[k], default='—')
+            macro = round(sum(v for v in [b1,b2,b3,b4,b5] if v>0)/max(bloques_completados,1),2)
+
+            nivel_ssg = 'sólida, en el tercio superior' if ssg>70 else 'intermedia, con margen de mejora significativo' if ssg>50 else 'débil, por debajo de la media competitiva'
+            nivel_inn = 'avanzado' if macro>3.5 else 'medio' if macro>2.5 else 'insuficiente, por debajo de lo necesario para competir'
+
+            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico. He analizado en detalle los datos de su empresa. Aquí mi diagnóstico inicial:
+
+📊 **Diagnóstico general — {sector}, {tam}**
+Su posición competitiva es **{nivel_ssg}** (SSG: {ssg}/100). En innovación, su perfil es **{nivel_inn}** ({macro}/5). Tiene {bloques_completados}/5 bloques del diagnóstico completados.
+
+⚡ **Fortalezas detectadas**
+Su mejor índice competitivo es **{nombres_ind[mejor_idx]}** ({mejor_idx}: {indices[mejor_idx]}/100) y su indicador de innovación más sólido es **{mejor_inn}** ({inn_items[mejor_inn]:.2f}/5). {'La rentabilidad (ROA: ' + str(roa) + '%) es un activo real.' if roa>8 else ''}
+
+⚠️ **Áreas críticas**
+El índice más débil es **{nombres_ind[peor_idx]}** ({peor_idx}: {indices[peor_idx]}/100). En innovación, **{peor_inn}** ({inn_items.get(peor_inn,0):.2f}/5) requiere atención. {'El endeudamiento (' + str(endeud) + ') es elevado y limita la capacidad de maniobra.' if endeud>0.7 else ''}
+
+🎯 **Mi prioridad estratégica para su empresa**
+{'Reforzar la capacidad innovadora es urgente — un perfil por debajo de 2.5/5 en el contexto competitivo actual es un riesgo real.' if macro<2.5 else 'Consolidar las fortalezas competitivas mientras se cierra la brecha en ' + nombres_ind[peor_idx] + '.' if ssg>60 else 'Atacar simultáneamente la mejora en ' + nombres_ind[peor_idx] + ' y el fortalecimiento del perfil innovador.'}
+
+¿Por dónde quiere profundizar?"""
+
         else:
-            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico. He revisado el perfil de su empresa — {sector}, {tam} — con {bloques_completados}/5 bloques del diagnóstico de innovación completados. Estoy listo para analizar su situación y darle mi opinión. ¿Qué aspecto estratégico quiere que abordemos primero?"""
+            msg_bienvenida = f"""Buenos días, soy Kevin, su consultor estratégico. He revisado el perfil de su empresa — **{sector}, {tam}, {reg}** — con {bloques_completados}/5 bloques del diagnóstico completados. Estoy listo para analizar su situación. ¿Qué aspecto estratégico quiere abordar primero?"""
         
         st.session_state[key_msgs] = [{"role":"assistant","content":msg_bienvenida}]
 
@@ -1238,7 +1301,7 @@ def mostrar_kevin(pagina='general'):
                 if st.button(texto, key=key, use_container_width=True):
                     st.session_state[key_msgs].append({"role":"user","content":texto})
                     with st.spinner("Kevin está analizando..."):
-                        r = _llamar_ia(kevin_system, st.session_state[key_msgs], max_tokens=800)
+                        r = _llamar_ia(kevin_system, st.session_state[key_msgs], max_tokens=1000)
                     st.session_state[key_msgs].append({"role":"assistant","content":r})
                     st.rerun()
 
@@ -1258,7 +1321,7 @@ def mostrar_kevin(pagina='general'):
                 st.session_state[key_ctx] = nuevo_ctx
                 st.session_state[key_msgs].append({"role":"user","content":f"Te facilito información adicional sobre nuestra empresa: {nuevo_ctx}"})
                 with st.spinner("Kevin está procesando la información..."):
-                    r = _llamar_ia(kevin_system, st.session_state[key_msgs], max_tokens=800)
+                    r = _llamar_ia(kevin_system, st.session_state[key_msgs], max_tokens=1000)
                 st.session_state[key_msgs].append({"role":"assistant","content":r})
                 st.rerun()
 
@@ -1272,7 +1335,7 @@ def mostrar_kevin(pagina='general'):
             if pregunta_libre.strip():
                 st.session_state[key_msgs].append({"role":"user","content":pregunta_libre})
                 with st.spinner("Kevin está analizando..."):
-                    r = _llamar_ia(kevin_system, st.session_state[key_msgs], max_tokens=800)
+                    r = _llamar_ia(kevin_system, st.session_state[key_msgs], max_tokens=1000)
                 st.session_state[key_msgs].append({"role":"assistant","content":r})
                 st.rerun()
 

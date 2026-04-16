@@ -1,4 +1,6 @@
 import streamlit as st
+from control_acceso import verificar_acceso
+verificar_acceso('manager')
 from asistentes import mostrar_felix, aviso_promedios
 import pandas as pd
 import plotly.graph_objects as go

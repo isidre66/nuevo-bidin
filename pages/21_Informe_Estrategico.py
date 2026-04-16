@@ -1,4 +1,6 @@
 import streamlit as st
+from control_acceso import verificar_acceso
+verificar_acceso('manager')
 from asistentes import mostrar_felix
 import pandas as pd
 import plotly.graph_objects as go
@@ -97,27 +99,7 @@ if not st.session_state.get('save_reg_user'):
                 st.session_state.update({
                     'save_sector_nombre':_e.get('sector',''),'save_tam_nombre':_e.get('tamano',''),
                     'save_reg_nombre':_e.get('region',''),'save_export_nombre':_e.get('exportacion',''),
-                    'save_anti_nombre':_e.get('antiguedad',''),
-                    'save_ventas':float(_e.get('ventas') or 0),
-                    'save_empleados':int(_e.get('empleados') or 0),
-                    'save_roa':float(_e.get('roa') or 0),
-                    'save_var_vtas':float(_e.get('var_ventas') or 0),
-                    'save_var_empl':float(_e.get('var_empleados') or 0),
-                    'save_productiv':float(_e.get('productividad') or 0),
-                    'save_coste_emp':float(_e.get('coste_empleado') or 0),
-                    'save_endeud':float(_e.get('endeudamiento') or 0),
-                    'save_reg_user':{"Andalucia":1,"Aragon":2,"Asturias":3,"Baleares":4,"Canarias":5,
-                        "Cantabria":6,"Castilla la Mancha":7,"Castilla y León":8,"Cataluña":9,
-                        "Com Valenciana":10,"Extremadura":11,"Galicia":12,"Madrid":13,
-                        "Murcia":14,"Navarra":15,"Pais Vasco":16}.get(_e.get('region',''),0),
-                    'save_tam_user':{"Pequeña":1,"Mediana":2,"Grande":3}.get(_e.get('tamano',''),0),
-                    'save_sector_cod':_sc,'save_macro_cod':_MM.get(_sc,3),
-                    'save_export_cod':{"Menos 10 %":1,"10 - 30 %":2,"30 - 60 %":3,"> 60 %":4}.get(_e.get('exportacion',''),0),
-                    'save_anti_cod':{"Menos 10 años":1,"10-30 años":2,"> 30 años":3}.get(_e.get('antiguedad',''),0),
-                    'empresa_codigo': _ec,
-                })
-    except Exception: pass
-
+                    
 if not st.session_state.get('save_reg_user'):
     st.warning("⚠️ Primero completa tu perfil en **Mi Empresa → Datos de la empresa**.")
     st.stop()
@@ -145,7 +127,27 @@ if len(dff) < 10: dff = df[df['Macrosector']==mac_cod]
 if len(dff) < 10: dff = df.copy()
 n_ref = len(dff)
 
-mis = {
+mis = {'save_anti_nombre':_e.get('antiguedad',''),
+                    'save_ventas':float(_e.get('ventas') or 0),
+                    'save_empleados':int(_e.get('empleados') or 0),
+                    'save_roa':float(_e.get('roa') or 0),
+                    'save_var_vtas':float(_e.get('var_ventas') or 0),
+                    'save_var_empl':float(_e.get('var_empleados') or 0),
+                    'save_productiv':float(_e.get('productividad') or 0),
+                    'save_coste_emp':float(_e.get('coste_empleado') or 0),
+                    'save_endeud':float(_e.get('endeudamiento') or 0),
+                    'save_reg_user':{"Andalucia":1,"Aragon":2,"Asturias":3,"Baleares":4,"Canarias":5,
+                        "Cantabria":6,"Castilla la Mancha":7,"Castilla y León":8,"Cataluña":9,
+                        "Com Valenciana":10,"Extremadura":11,"Galicia":12,"Madrid":13,
+                        "Murcia":14,"Navarra":15,"Pais Vasco":16}.get(_e.get('region',''),0),
+                    'save_tam_user':{"Pequeña":1,"Mediana":2,"Grande":3}.get(_e.get('tamano',''),0),
+                    'save_sector_cod':_sc,'save_macro_cod':_MM.get(_sc,3),
+                    'save_export_cod':{"Menos 10 %":1,"10 - 30 %":2,"30 - 60 %":3,"> 60 %":4}.get(_e.get('exportacion',''),0),
+                    'save_anti_cod':{"Menos 10 años":1,"10-30 años":2,"> 30 años":3}.get(_e.get('antiguedad',''),0),
+                    'empresa_codigo': _ec,
+                })
+    except Exception: pass
+
     'Ventas':              st.session_state.get('save_ventas',0),
     'Empleados':           st.session_state.get('save_empleados',0),
     'ROA':                 st.session_state.get('save_roa',0),

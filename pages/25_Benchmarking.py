@@ -5,7 +5,50 @@ import numpy as np
 import plotly.graph_objects as go
 import json, os
 from datetime import date
+from supabase import create_client
 
+def _cargar_indices():
+    try:
+        url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL",""))
+        key = st.secrets.get("SUPABASE_KEY", os.environ.get("SUPABASE_KEY",""))
+        ec  = st.session_state.get('empresa_codigo','')
+        if not (url and key and ec):
+            return
+        sb = create_client(url, key)
+        emp = sb.table('empresas').select('*').eq('codigo', ec).execute().data or []
+        if emp:
+            e = emp[0]
+            ventas   = float(e.get('ventas') or 0)
+            empleados= int(e.get('empleados') or 1)
+            roa      = float(e.get('roa') or 0)
+            var_vtas = float(e.get('var_ventas') or 0)
+            var_empl = float(e.get('var_empleados') or 0)
+            productiv= ventas / max(empleados,1)
+            endeud   = float(e.get('endeudamiento') or 0)
+            exp_cod  = st.session_state.get('save_export_cod', 0)
+            ice = min(100,max(0,round(min(roa/20,1)*30+min(var_vtas/100,1)*25+min(productiv/500000,1)*25+(1-min(endeud,1))*20,1)))
+            isf = min(100,max(0,round((1-min(endeud,1))*50+min(roa/20,1)*50,1)))
+            ieo = min(100,max(0,round(min(productiv/500000,1)*60+(1-min(endeud,1))*40,1)))
+            idc = min(100,max(0,round(min(var_vtas/100,1)*60+min(var_empl/50,1)*40,1)))
+            iie = min(100,max(0,round(exp_cod/4*100,1)))
+            ipt = min(100,max(0,round(min(productiv/500000,1)*50+min(roa/20,1)*50,1)))
+            ssg = round(ice*0.25+isf*0.20+ieo*0.20+idc*0.15+iie*0.10+ipt*0.10,1)
+            st.session_state.update({'ICE':ice,'ISF':isf,'IEO':ieo,'IDC':idc,'IIE':iie,'IPT':ipt,'SSG':ssg})
+        resp = sb.table('respuestas').select('*').eq('empresa_codigo', ec).execute().data or []
+        if resp:
+            df_r = pd.DataFrame(resp)
+            for b in range(1,6):
+                cols = [c for c in df_r.columns if c.startswith(f'B{b}_')]
+                if cols:
+                    vals = df_r[cols].apply(pd.to_numeric, errors='coerce')
+                    score = float(vals.mean().mean())
+                    if score > 0:
+                        st.session_state[f'score_b{b}'] = round(score,2)
+    except Exception:
+        pass
+
+if not st.session_state.get('SSG'):
+    _cargar_indices()
 st.set_page_config(page_title="Benchmarking & Análisis", layout="wide")
 
 st.markdown("""

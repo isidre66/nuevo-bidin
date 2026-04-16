@@ -25,7 +25,8 @@ def cargar_api_key():
 ANTHROPIC_API_KEY = cargar_api_key()
 
 st.set_page_config(page_title="Informe Estratégico-Competitivo", layout="wide")
-
+from control_acceso import verificar_acceso
+verificar_acceso('manager')
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');

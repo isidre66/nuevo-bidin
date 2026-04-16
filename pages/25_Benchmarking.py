@@ -650,3 +650,156 @@ with tab4:
             <strong style="color:{cc2};">Tu cuadrante actual: {cn}</strong><br>
             <span style="color:#e2e8f0;">{cdesc}</span>
         </div>""",unsafe_allow_html=True)
+        # ── DESCARGAS ─────────────────────────────────────────────────────────────
+st.divider()
+st.markdown('<div class="section-title">📥 Descargar Informe de Benchmarking</div>', unsafe_allow_html=True)
+
+from datetime import date as _date
+import io as _io
+
+def generar_html_benchmarking():
+    hoy_dl = _date.today().strftime("%d/%m/%Y")
+    sector_dl = st.session_state.get('save_sector_nombre','—')
+    tam_dl    = st.session_state.get('save_tam_nombre','—')
+    reg_dl    = st.session_state.get('save_reg_nombre','—')
+    b1_dl = round(st.session_state.get('score_b1',0),2)
+    b2_dl = round(st.session_state.get('score_b2',0),2)
+    b3_dl = round(st.session_state.get('score_b3',0),2)
+    b4_dl = round(st.session_state.get('score_b4',0),2)
+    b5_dl = round(st.session_state.get('score_b5',0),2)
+    ssg_dl = round(st.session_state.get('SSG',0),1)
+    ice_dl = round(st.session_state.get('ICE',0),1)
+    isf_dl = round(st.session_state.get('ISF',0),1)
+    ieo_dl = round(st.session_state.get('IEO',0),1)
+    idc_dl = round(st.session_state.get('IDC',0),1)
+    iie_dl = round(st.session_state.get('IIE',0),1)
+    ipt_dl = round(st.session_state.get('IPT',0),1)
+
+    nivel = lambda v, thr1=70, thr2=40: 'Alto' if v > thr1 else ('Medio' if v > thr2 else 'Bajo')
+    nivel5 = lambda v: 'Alto' if v > 3.5 else ('Medio' if v > 2.5 else 'Bajo')
+    ssg_nivel = 'Posicion solida — tercio superior' if ssg_dl > 70 else ('Posicion intermedia — margen de mejora' if ssg_dl > 50 else 'Posicion debil — mejora urgente')
+    macro = round((b1_dl+b2_dl+b3_dl+b4_dl+b5_dl)/5, 2) if any([b1_dl,b2_dl,b3_dl,b4_dl,b5_dl]) else 0
+    if macro > 2.75 and ssg_dl > 50:
+        cuadrante = 'Lideres Estrategicos — Alta innovacion y alto desempeno.'
+    elif macro > 2.75:
+        cuadrante = 'Innovadores no Rentables — Alta innovacion, bajo desempeno economico.'
+    elif ssg_dl > 50:
+        cuadrante = 'Competitivos no Innovadores — Buen desempeno, baja innovacion.'
+    else:
+        cuadrante = 'Rezagados — Por debajo de la media en ambas dimensiones.'
+
+    css = "<style>body{font-family:Georgia,serif;max-width:920px;margin:50px auto;color:#1a1a1a;line-height:1.75;}h1{color:#1d4ed8;border-bottom:3px solid #1d4ed8;padding-bottom:10px;}h2{color:#1d4ed8;border-left:4px solid #1d4ed8;padding-left:12px;margin-top:28px;}.perfil{background:#f0f7ff;border-radius:8px;padding:14px 18px;margin:14px 0;font-size:.9rem;}table{border-collapse:collapse;width:100%;margin:14px 0;font-size:.9rem;}th{background:#1d4ed8;color:white;padding:10px;text-align:left;}td{padding:9px 11px;border-bottom:1px solid #e5e7eb;}.cuadrante{background:#eff6ff;border-left:4px solid #1d4ed8;padding:12px 16px;margin:8px 0;border-radius:0 8px 8px 0;}.nota{border:1px dashed #9ca3af;border-radius:8px;padding:36px 16px;margin:20px 0;color:#9ca3af;font-style:italic;text-align:center;}</style>"
+
+    indices_rows = ""
+    for nombre, val in [('SSG · Score Global', str(ssg_dl)+'/100'), ('ICE · Competitividad', str(ice_dl)+'/100'),
+        ('ISF · Solidez Financiera', str(isf_dl)+'/100'), ('IEO · Eficiencia Operativa', str(ieo_dl)+'/100'),
+        ('IDC · Dinamismo', str(idc_dl)+'/100'), ('IIE · Exportacion', str(iie_dl)+'/100'), ('IPT · Productividad', str(ipt_dl)+'/100')]:
+        n_val = float(val.split('/')[0])
+        indices_rows += "<tr><td>" + nombre + "</td><td><strong>" + val + "</strong></td><td>" + nivel(n_val) + "</td></tr>"
+
+    inn_rows = ""
+    for nombre, val in [('I+D+i', b1_dl), ('Gestion de Proyectos', b2_dl),
+        ('Desarrollo de Productos', b3_dl), ('Estrategia de Innovacion', b4_dl), ('Desempeno de Innovacion', b5_dl)]:
+        inn_rows += "<tr><td>" + nombre + "</td><td>" + str(val) + "/5</td><td>" + nivel5(val) + "</td></tr>"
+
+    html = "<!DOCTYPE html><html><head><meta charset='utf-8'>" + css + "</head><body>"
+    html += "<h1>Informe de Benchmarking Estrategico</h1>"
+    html += "<div class='perfil'><strong>Empresa:</strong> " + sector_dl + " · " + tam_dl + " · " + reg_dl + " · <strong>Fecha:</strong> " + hoy_dl + "</div>"
+    html += "<h2>1. Posicion Competitiva Global</h2>"
+    html += "<p>" + ssg_nivel + " (SSG: " + str(ssg_dl) + "/100)</p>"
+    html += "<table><tr><th>Indice</th><th>Valor</th><th>Nivel</th></tr>" + indices_rows + "</table>"
+    html += "<h2>2. Perfil de Innovacion</h2>"
+    html += "<table><tr><th>Indicador</th><th>Puntuacion</th><th>Nivel</th></tr>" + inn_rows + "</table>"
+    html += "<h2>3. Posicion Estrategica</h2>"
+    html += "<div class='cuadrante'><strong>Cuadrante:</strong> " + cuadrante + "</div>"
+    html += "<h2>4. Notas y conclusiones del equipo directivo</h2>"
+    html += "<div class='nota'>Espacio para anotaciones, reflexiones y proximos pasos</div>"
+    html += "<hr/><p style='color:#9ca3af;font-size:.78rem;text-align:center;'>Plataforma Etelvia · Motor de Inteligencia Competitiva 360 · " + hoy_dl + "</p>"
+    html += "</body></html>"
+    return html
+
+def generar_word_benchmarking():
+    try:
+        from docx import Document
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        hoy_dl = _date.today().strftime("%d/%m/%Y")
+        sector_dl = st.session_state.get('save_sector_nombre','—')
+        tam_dl    = st.session_state.get('save_tam_nombre','—')
+        reg_dl    = st.session_state.get('save_reg_nombre','—')
+        b1_dl = round(st.session_state.get('score_b1',0),2)
+        b2_dl = round(st.session_state.get('score_b2',0),2)
+        b3_dl = round(st.session_state.get('score_b3',0),2)
+        b4_dl = round(st.session_state.get('score_b4',0),2)
+        b5_dl = round(st.session_state.get('score_b5',0),2)
+        ssg_dl = round(st.session_state.get('SSG',0),1)
+        ice_dl = round(st.session_state.get('ICE',0),1)
+        isf_dl = round(st.session_state.get('ISF',0),1)
+        ieo_dl = round(st.session_state.get('IEO',0),1)
+        idc_dl = round(st.session_state.get('IDC',0),1)
+        iie_dl = round(st.session_state.get('IIE',0),1)
+        ipt_dl = round(st.session_state.get('IPT',0),1)
+        nivel = lambda v: 'Alto' if v > 70 else ('Medio' if v > 40 else 'Bajo')
+        nivel5 = lambda v: 'Alto' if v > 3.5 else ('Medio' if v > 2.5 else 'Bajo')
+
+        doc = Document()
+        t = doc.add_heading('Informe de Benchmarking Estrategico', 0)
+        t.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.add_paragraph("Empresa: " + sector_dl + " · " + tam_dl + " · " + reg_dl + " · " + hoy_dl)
+
+        doc.add_heading('1. Posicion Competitiva Global', level=1)
+        tabla = doc.add_table(rows=1, cols=3)
+        tabla.style = 'Table Grid'
+        hdr = tabla.rows[0].cells
+        hdr[0].text = 'Indice'; hdr[1].text = 'Valor'; hdr[2].text = 'Nivel'
+        for nombre, val in [('SSG · Score Global', ssg_dl), ('ICE · Competitividad', ice_dl),
+            ('ISF · Solidez Financiera', isf_dl), ('IEO · Eficiencia Operativa', ieo_dl),
+            ('IDC · Dinamismo', idc_dl), ('IIE · Exportacion', iie_dl), ('IPT · Productividad', ipt_dl)]:
+            row = tabla.add_row().cells
+            row[0].text = nombre
+            row[1].text = str(val) + '/100'
+            row[2].text = nivel(val)
+
+        doc.add_heading('2. Perfil de Innovacion', level=1)
+        tabla2 = doc.add_table(rows=1, cols=3)
+        tabla2.style = 'Table Grid'
+        hdr2 = tabla2.rows[0].cells
+        hdr2[0].text = 'Indicador'; hdr2[1].text = 'Puntuacion'; hdr2[2].text = 'Nivel'
+        for nombre, val in [('I+D+i', b1_dl), ('Gestion Proyectos', b2_dl),
+            ('Desarrollo Productos', b3_dl), ('Estrategia Innovacion', b4_dl), ('Desempeno', b5_dl)]:
+            row = tabla2.add_row().cells
+            row[0].text = nombre
+            row[1].text = str(val) + '/5'
+            row[2].text = nivel5(val)
+
+        doc.add_heading('3. Notas y comentarios', level=1)
+        for _ in range(8):
+            doc.add_paragraph('_' * 80)
+
+        buf = _io.BytesIO()
+        doc.save(buf)
+        buf.seek(0)
+        return buf.getvalue()
+    except ImportError:
+        return None
+
+html_bench = generar_html_benchmarking()
+word_bench = generar_word_benchmarking()
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.download_button(
+        "📄 Descargar Word (.docx)",
+        data=word_bench if word_bench else b"",
+        file_name="benchmarking_estrategico.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        type="primary", use_container_width=True,
+        disabled=word_bench is None)
+with col2:
+    st.download_button(
+        "🌐 Descargar HTML",
+        data=html_bench,
+        file_name="benchmarking_estrategico.html",
+        mime="text/html",
+        use_container_width=True)
+with col3:
+    st.info("Para PDF: abre el HTML → **Ctrl+P** → **Guardar como PDF**")

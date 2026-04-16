@@ -1,7 +1,4 @@
 import streamlit as st
-from control_acceso import verificar_acceso
-verificar_acceso('manager')
-from asistentes import mostrar_felix
 import pandas as pd
 import plotly.graph_objects as go
 import json, os, numpy as np, requests, unicodedata
@@ -25,6 +22,11 @@ def cargar_api_key():
 ANTHROPIC_API_KEY = cargar_api_key()
 
 st.set_page_config(page_title="Informe Estratégico-Competitivo", layout="wide")
+
+from control_acceso import verificar_acceso
+verificar_acceso('manager')
+
+from asistentes import mostrar_felix
 
 st.markdown("""
 <style>
@@ -99,7 +101,27 @@ if not st.session_state.get('save_reg_user'):
                 st.session_state.update({
                     'save_sector_nombre':_e.get('sector',''),'save_tam_nombre':_e.get('tamano',''),
                     'save_reg_nombre':_e.get('region',''),'save_export_nombre':_e.get('exportacion',''),
-                    
+                    'save_anti_nombre':_e.get('antiguedad',''),
+                    'save_ventas':float(_e.get('ventas') or 0),
+                    'save_empleados':int(_e.get('empleados') or 0),
+                    'save_roa':float(_e.get('roa') or 0),
+                    'save_var_vtas':float(_e.get('var_ventas') or 0),
+                    'save_var_empl':float(_e.get('var_empleados') or 0),
+                    'save_productiv':float(_e.get('productividad') or 0),
+                    'save_coste_emp':float(_e.get('coste_empleado') or 0),
+                    'save_endeud':float(_e.get('endeudamiento') or 0),
+                    'save_reg_user':{"Andalucia":1,"Aragon":2,"Asturias":3,"Baleares":4,"Canarias":5,
+                        "Cantabria":6,"Castilla la Mancha":7,"Castilla y León":8,"Cataluña":9,
+                        "Com Valenciana":10,"Extremadura":11,"Galicia":12,"Madrid":13,
+                        "Murcia":14,"Navarra":15,"Pais Vasco":16}.get(_e.get('region',''),0),
+                    'save_tam_user':{"Pequeña":1,"Mediana":2,"Grande":3}.get(_e.get('tamano',''),0),
+                    'save_sector_cod':_sc,'save_macro_cod':_MM.get(_sc,3),
+                    'save_export_cod':{"Menos 10 %":1,"10 - 30 %":2,"30 - 60 %":3,"> 60 %":4}.get(_e.get('exportacion',''),0),
+                    'save_anti_cod':{"Menos 10 años":1,"10-30 años":2,"> 30 años":3}.get(_e.get('antiguedad',''),0),
+                    'empresa_codigo': _ec,
+                })
+    except Exception: pass
+
 if not st.session_state.get('save_reg_user'):
     st.warning("⚠️ Primero completa tu perfil en **Mi Empresa → Datos de la empresa**.")
     st.stop()
@@ -127,27 +149,7 @@ if len(dff) < 10: dff = df[df['Macrosector']==mac_cod]
 if len(dff) < 10: dff = df.copy()
 n_ref = len(dff)
 
-mis = {'save_anti_nombre':_e.get('antiguedad',''),
-                    'save_ventas':float(_e.get('ventas') or 0),
-                    'save_empleados':int(_e.get('empleados') or 0),
-                    'save_roa':float(_e.get('roa') or 0),
-                    'save_var_vtas':float(_e.get('var_ventas') or 0),
-                    'save_var_empl':float(_e.get('var_empleados') or 0),
-                    'save_productiv':float(_e.get('productividad') or 0),
-                    'save_coste_emp':float(_e.get('coste_empleado') or 0),
-                    'save_endeud':float(_e.get('endeudamiento') or 0),
-                    'save_reg_user':{"Andalucia":1,"Aragon":2,"Asturias":3,"Baleares":4,"Canarias":5,
-                        "Cantabria":6,"Castilla la Mancha":7,"Castilla y León":8,"Cataluña":9,
-                        "Com Valenciana":10,"Extremadura":11,"Galicia":12,"Madrid":13,
-                        "Murcia":14,"Navarra":15,"Pais Vasco":16}.get(_e.get('region',''),0),
-                    'save_tam_user':{"Pequeña":1,"Mediana":2,"Grande":3}.get(_e.get('tamano',''),0),
-                    'save_sector_cod':_sc,'save_macro_cod':_MM.get(_sc,3),
-                    'save_export_cod':{"Menos 10 %":1,"10 - 30 %":2,"30 - 60 %":3,"> 60 %":4}.get(_e.get('exportacion',''),0),
-                    'save_anti_cod':{"Menos 10 años":1,"10-30 años":2,"> 30 años":3}.get(_e.get('antiguedad',''),0),
-                    'empresa_codigo': _ec,
-                })
-    except Exception: pass
-
+mis = {
     'Ventas':              st.session_state.get('save_ventas',0),
     'Empleados':           st.session_state.get('save_empleados',0),
     'ROA':                 st.session_state.get('save_roa',0),
@@ -219,27 +221,19 @@ VARIABLES ECONÓMICAS (empresa vs media grupo):
 - Crecimiento ventas 5a: {mis['Var_Ventas_5a']:.1f}% vs {grp['Var_Ventas_5a']:.1f}% (P{pcts_eco['Var_Ventas_5a']})
 - Crecimiento empleo 5a: {mis['Var_Emp_5a']:.1f}% vs {grp['Var_Emp_5a']:.1f}% (P{pcts_eco['Var_Emp_5a']})
 
-TONO Y ESTILO — OBLIGATORIO:
-- Escribe como un consultor estratégico senior (estilo McKinsey, BCG). Tono sobrio, preciso y constructivo.
-- PROHIBIDO: "alarmante", "catastrófico", "grave", "urgente", "preocupante", "peligroso", "severo", "excelente", "fantástico", "brillante", "impresionante".
-- USA EN SU LUGAR: "por debajo de la media del sector", "margen de mejora relevante", "área de desarrollo prioritario", "posición sólida", "ventaja competitiva sostenida", "brecha que merece atención", "oportunidad de mejora", "inferior/superior a la media del grupo".
-- Las debilidades se presentan como oportunidades de mejora, no como fracasos.
-
 ESTRUCTURA OBLIGATORIA — usa exactamente estos 4 títulos con ##:
 
 ## POSICION COMPETITIVA GLOBAL
-2 párrafos. Qué posición ocupa la empresa, qué perfil competitivo tiene. Menciona SSG y 2-3 índices clave con sus valores.
+2 párrafos. Qué posición ocupa la empresa, qué perfil competitivo tiene.
 
 ## ANALISIS POR DIMENSIONES
-3 párrafos: Párrafo 1 — Eficiencia y Competitividad (ICE+IEO). Párrafo 2 — Solidez Financiera (ISF). Párrafo 3 — Dinamismo y Apertura exterior (IDC+IIE).
+3 párrafos sobre eficiencia, solidez financiera y dinamismo.
 
 ## FORTALEZAS Y RIESGOS
-2 párrafos. Primer párrafo: máximo 3 fortalezas con datos. Segundo párrafo: máximo 3 áreas de mejora.
+2 párrafos. Máximo 3 fortalezas y 3 áreas de mejora.
 
 ## RECOMENDACIONES Y PREDICCION
-3 recomendaciones numeradas con horizonte temporal. Luego un párrafo de predicción si actúa vs si no actúa en 2-3 años.
-
-IMPORTANTE: Escribe los títulos SIN tildes tal como aparecen arriba."""
+3 recomendaciones numeradas y un párrafo de predicción."""
     try:
         resp = requests.post(
             "https://api.anthropic.com/v1/messages",
@@ -444,39 +438,30 @@ st.markdown('<div class="section-title">📥 Descargar Informe</div>', unsafe_al
 
 def generar_html():
     ia_html = ""
-    colores_sec = {'POSICION':'#0066cc','ANALISIS':'#0066cc','FORTALEZA':'#dc2626',
-                   'RIESGO':'#dc2626','RECOMENDACION':'#d97706','PREDICCION':'#7c3aed'}
     for tn, to, cuerpo in secciones:
-        color = '#0066cc'
-        for kw,c in colores_sec.items():
-            if kw in tn: color=c; break
-        ia_html += f"<h2 style='color:{color};border-left:4px solid {color};padding-left:10px;margin-top:28px;'>{to}</h2><p style='line-height:1.75;'>{cuerpo.replace(chr(10),'<br>')}</p>"
-    idx_tabla = "".join([f"<tr><td><strong>{cod}</strong></td><td>{desc}</td><td style='text-align:center;font-weight:700;color:{'green' if idx[cod]>=66 else 'orange' if idx[cod]>=33 else 'red'};'>{idx[cod]}/100</td></tr>"
+        ia_html += f"<h2 style='color:#0066cc;border-left:4px solid #0066cc;padding-left:10px;margin-top:28px;'>{to}</h2><p style='line-height:1.75;'>{cuerpo.replace(chr(10),'<br>')}</p>"
+    idx_tabla = "".join([f"<tr><td><strong>{cod}</strong></td><td>{desc}</td><td style='text-align:center;font-weight:700;'>{idx[cod]}/100</td></tr>"
         for cod,desc in [('SSG','Score Estratégico Global'),('ICE','Competitividad Empresarial'),
             ('ISF','Solidez Financiera'),('IEO','Eficiencia Operativa'),('IDC','Dinamismo y Crecimiento'),
             ('IIE','Intensidad Exportadora'),('IPT','Productividad y Talento')]])
-    ssg_color = 'green' if idx['SSG']>=66 else 'orange' if idx['SSG']>=33 else 'red'
     return f"""<!DOCTYPE html><html><head><meta charset='utf-8'>
 <style>body{{font-family:Georgia,serif;margin:50px auto;max-width:860px;color:#1a1a1a;line-height:1.75;}}
 h1{{color:#0066cc;border-bottom:3px solid #0066cc;padding-bottom:10px;font-size:1.8rem;}}
 .perfil{{background:#f0f7ff;border-radius:8px;padding:16px;margin:16px 0;font-size:.9rem;}}
-.ssg{{font-size:2.8rem;font-weight:700;color:{ssg_color};}}
 table{{border-collapse:collapse;width:100%;margin:16px 0;font-size:.9rem;}}
 th{{background:#0066cc;color:white;padding:10px;text-align:left;}}
 td{{padding:9px 11px;border-bottom:1px solid #e5e7eb;}}
-.notas{{border:1px dashed #9ca3af;border-radius:8px;padding:40px 16px;margin:16px 0;
-    color:#9ca3af;font-style:italic;font-size:.85rem;text-align:center;}}
+.notas{{border:1px dashed #9ca3af;border-radius:8px;padding:40px 16px;margin:16px 0;color:#9ca3af;font-style:italic;text-align:center;}}
 @media print{{body{{margin:20px;}}}}</style></head><body>
 <h1>Informe Estratégico · Diagnóstico Competitivo</h1>
 <div class="perfil"><strong>{nom_sector}</strong> | {nom_tam} | {nom_reg} | Exportación: {nom_export} | {nom_anti}<br>
 Referencia: <strong>{n_ref} empresas comparables</strong> | Fecha: {hoy}</div>
-<p>Score Estratégico Global (SSG): <span class="ssg">{idx['SSG']}</span> / 100 · {nivel(idx['SSG']).upper()}</p>
+<p>Score Estratégico Global (SSG): <strong>{idx['SSG']}</strong> / 100 · {nivel(idx['SSG']).upper()}</p>
 <h2 style='color:#0066cc;'>Índices Estratégicos</h2>
 <table><tr><th>Índice</th><th>Descripción</th><th>Valor (0-100)</th></tr>{idx_tabla}</table>
 {ia_html or '<p style="color:#6b7280;font-style:italic;">Genera el análisis IA antes de descargar.</p>'}
-<div class="notas">✏️ Espacio para tus anotaciones y comentarios del equipo directivo</div>
-<hr style='margin-top:40px;'/>
-<p style='color:#9ca3af;font-size:.78rem;text-align:center;'>Plataforma de Diagnóstico Estratégico Empresarial · {hoy}</p>
+<div class="notas">Espacio para anotaciones del equipo directivo</div>
+<hr/><p style='color:#9ca3af;font-size:.78rem;text-align:center;'>Plataforma Etelvia · {hoy}</p>
 </body></html>"""
 
 def generar_word():
@@ -487,15 +472,15 @@ def generar_word():
         doc = Document()
         t = doc.add_heading('Informe Estratégico · Diagnóstico Competitivo', 0)
         t.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        doc.add_paragraph(f"Empresa: {nom_sector} | {nom_tam} | {nom_reg} | Exportación: {nom_export} | {nom_anti}")
-        doc.add_paragraph(f"Referencia: {n_ref} empresas comparables | Fecha: {hoy}")
-        doc.add_paragraph(f"Score Estratégico Global (SSG): {idx['SSG']} / 100 — {nivel(idx['SSG']).upper()}")
+        doc.add_paragraph(f"Empresa: {nom_sector} | {nom_tam} | {nom_reg} | {nom_anti}")
+        doc.add_paragraph(f"Referencia: {n_ref} empresas | Fecha: {hoy}")
+        doc.add_paragraph(f"SSG: {idx['SSG']} / 100 — {nivel(idx['SSG']).upper()}")
         doc.add_heading('Índices Estratégicos', level=1)
         tabla = doc.add_table(rows=1, cols=3); tabla.style = 'Table Grid'
         hdr = tabla.rows[0].cells
         hdr[0].text='Índice'; hdr[1].text='Descripción'; hdr[2].text='Valor (0-100)'
-        for cod,desc in [('SSG','Score Estratégico Global'),('ICE','Competitividad Empresarial'),
-            ('ISF','Solidez Financiera'),('IEO','Eficiencia Operativa'),('IDC','Dinamismo y Crecimiento'),
+        for cod,desc in [('SSG','Score Estratégico Global'),('ICE','Competitividad'),
+            ('ISF','Solidez Financiera'),('IEO','Eficiencia Operativa'),('IDC','Dinamismo'),
             ('IIE','Intensidad Exportadora'),('IPT','Productividad y Talento')]:
             row=tabla.add_row().cells; row[0].text=cod; row[1].text=desc; row[2].text=f"{idx[cod]}/100"
         if secciones:
@@ -503,21 +488,13 @@ def generar_word():
                 doc.add_heading(to, level=1); doc.add_paragraph(cuerpo)
         else:
             doc.add_paragraph("Genera el análisis IA en la plataforma antes de descargar.")
-        doc.add_heading('Notas y comentarios del equipo directivo', level=1)
-        doc.add_paragraph("[ Escribe aquí tus conclusiones, observaciones y próximos pasos ]")
-        for _ in range(8):
-            p=doc.add_paragraph(); p.add_run('_'*80)
+        doc.add_heading('Notas del equipo directivo', level=1)
+        for _ in range(8): doc.add_paragraph('_'*80)
         buf=io.BytesIO(); doc.save(buf); buf.seek(0); return buf.getvalue()
     except ImportError: return None
 
 html_out = generar_html()
 word_out = generar_word()
-
-st.markdown("""<div style="background:#f0fdf4;border:1px solid #10b981;border-radius:10px;
-    padding:14px 18px;margin-bottom:16px;font-size:.87rem;color:#065f46;">
-    📋 <strong>El documento Word es completamente editable</strong> — puedes añadir texto, 
-    modificar el contenido e insertar el logo de tu empresa antes de enviarlo al equipo directivo.
-</div>""", unsafe_allow_html=True)
 
 c1,c2,c3 = st.columns(3)
 with c1:
@@ -530,4 +507,4 @@ with c2:
         file_name=f"informe_estrategico_{nom_sector[:15].replace(' ','_')}.html",
         mime="text/html", use_container_width=True)
 with c3:
-    st.info("Para PDF: abre el HTML en navegador → **Ctrl+P** → **Guardar como PDF**")
+    st.info("Para PDF: abre el HTML → **Ctrl+P** → **Guardar como PDF**")

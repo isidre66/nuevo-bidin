@@ -39,7 +39,7 @@ def _cargar_indices():
             df_r = pd.DataFrame(resp)
             df_r['valor'] = pd.to_numeric(df_r['valor'], errors='coerce')
             for b in range(1, 6):
-                sub = df_r[df_r['bloque'] == b]['valor'].dropna()
+                sub = df_r[df_r['bloque'].astype(str) == str(b)]['valor'].dropna()
                 if len(sub) > 0:
                     st.session_state[f'score_b{b}'] = round(float(sub.mean()), 2) 
                     vals = df_r[cols].apply(pd.to_numeric, errors='coerce')

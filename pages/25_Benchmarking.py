@@ -35,10 +35,13 @@ def _cargar_indices():
             ssg = round(ice*0.25+isf*0.20+ieo*0.20+idc*0.15+iie*0.10+ipt*0.10,1)
             st.session_state.update({'ICE':ice,'ISF':isf,'IEO':ieo,'IDC':idc,'IIE':iie,'IPT':ipt,'SSG':ssg})
         resp = sb.table('respuestas').select('*').eq('empresa_codigo', ec).execute().data or []
-        if resp:
+       if resp:
             df_r = pd.DataFrame(resp)
-            for b in range(1,6):
-                cols = [c for c in df_r.columns if c.startswith(f'B{b}_')]
+            df_r['valor'] = pd.to_numeric(df_r['valor'], errors='coerce')
+            for b in range(1, 6):
+                sub = df_r[df_r['bloque'] == b]['valor'].dropna()
+                if len(sub) > 0:
+                    st.session_state[f'score_b{b}'] = round(float(sub.mean()), 2)
                 if cols:
                     vals = df_r[cols].apply(pd.to_numeric, errors='coerce')
                     score = float(vals.mean().mean())
